@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import Razorpay from "razorpay";
 import { connectDB } from "@/lib/db";
 import Order from "@/models/Order";
-import { getRazorpayKeySecret } from "@/lib/razorpaySecret";
+import { getRazorpayKeyId, getRazorpayKeySecret } from "@/lib/razorpaySecret";
 
 export async function POST(req: Request) {
   try {
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Amount does not match order." }, { status: 400 });
     }
 
-    const keyId = process.env.RAZORPAY_KEY_ID?.trim();
+    const keyId = getRazorpayKeyId();
     const keySecret = getRazorpayKeySecret();
     if (!keyId || !keySecret) {
       return NextResponse.json(

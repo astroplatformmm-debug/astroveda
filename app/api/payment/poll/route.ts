@@ -3,11 +3,49 @@ import Razorpay from "razorpay";
 import { connectDB } from "@/lib/db";
 import Order from "@/models/Order";
 import Payment from "@/models/Payment";
-import { getRazorpayKeySecret } from "@/lib/razorpaySecret";
+import { getRazorpayKeyId, getRazorpayKeySecret } from "@/lib/razorpaySecret";
+
+type RzpPayment = {
+  id?: string;
+  status?: string;
+  captured?: boolean;
+  amount?: number;
+  created_at?: number;
+};
+
+function paymentScore(p: RzpPayment): number {
+  const st = String(p.status || "").toLowerCase();
+  if (p.captured === true || st === "captured") return 2;
+  if (st === "authorized") return 1;
+  return 0;
+}
+
+/** Pick the best successful payment; `expectedPaise <= 0` skips amount matching (fallback when Razorpay order is already `paid`). */
+function pickPayablePayment(items: RzpPayment[], expectedPaise: number): RzpPayment | undefined {
+  const candidates = items.filter((p) => {
+    if (!p?.id) return false;
+    const st = String(p.status || "").toLowerCase();
+    if (st === "failed" || st === "refunded") return false;
+    return paymentScore(p) > 0;
+  });
+
+  const matchAmount = (p: RzpPayment) =>
+    expectedPaise <= 0 || !Number.isFinite(expectedPaise) || Number(p.amount) === expectedPaise;
+
+  const filtered = candidates.filter(matchAmount);
+  const pool = filtered.length > 0 ? filtered : expectedPaise > 0 ? [] : candidates;
+
+  const ranked = [...pool].sort((a, b) => {
+    const d = paymentScore(b) - paymentScore(a);
+    if (d !== 0) return d;
+    return (b.created_at || 0) - (a.created_at || 0);
+  });
+  return ranked[0];
+}
 
 /**
  * Server-side reconciliation for UPI flows where Razorpay handler doesn't fire.
- * Checks Razorpay for payments on the stored razorpayOrderId and marks Order as paid when captured/authorized.
+ * Uses Razorpay order status + payments list (with count) to mark Order as paid.
  */
 export async function POST(req: Request) {
   try {
@@ -26,30 +64,59 @@ export async function POST(req: Request) {
       return NextResponse.json({ paid: false, orderId, status: order.status, reason: "missing_razorpay_order_id" });
     }
 
-    const keyId = process.env.RAZORPAY_KEY_ID?.trim();
+    const keyId = getRazorpayKeyId();
     const keySecret = getRazorpayKeySecret();
     if (!keyId || !keySecret) {
       return NextResponse.json({ error: "Payment gateway not configured" }, { status: 500 });
     }
 
     const razorpay = new Razorpay({ key_id: keyId, key_secret: keySecret });
+    const api = (razorpay as unknown as { api: { get: (p: { url: string; data?: Record<string, unknown> }) => Promise<unknown> } }).api;
 
-    // Fetch payments for this Razorpay order.
-    const paymentsResp = await razorpay.orders.fetchPayments(rpOrderId);
-    const items: any[] = Array.isArray((paymentsResp as any)?.items) ? (paymentsResp as any).items : [];
+    const rpOrder = (await razorpay.orders.fetch(rpOrderId)) as {
+      status?: string;
+      amount?: number;
+      amount_paid?: number;
+    };
 
-    // Prefer captured, else authorized.
-    const successful = items.find((p) => p?.status === "captured") || items.find((p) => p?.status === "authorized");
-    if (!successful) {
-      return NextResponse.json({ paid: false, orderId, razorpayOrderId: rpOrderId });
+    const paymentsResp = (await api.get({
+      url: `/orders/${rpOrderId}/payments`,
+      data: { count: 100 },
+    })) as { items?: RzpPayment[] };
+
+    const items: RzpPayment[] = Array.isArray(paymentsResp?.items) ? paymentsResp.items : [];
+    const expectedPaise = Math.round(Number(order.totalAmount) * 100);
+
+    let chosen = pickPayablePayment(items, Number.isFinite(expectedPaise) ? expectedPaise : 0);
+
+    const rpOrderStatus = typeof rpOrder?.status === "string" ? rpOrder.status : "";
+    if (!chosen && rpOrderStatus === "paid") {
+      chosen = pickPayablePayment(items, 0);
     }
 
-    const paymentId = String(successful.id || "").trim();
+    if (!chosen) {
+      return NextResponse.json({
+        paid: false,
+        orderId,
+        razorpayOrderId: rpOrderId,
+        razorpayOrderStatus: rpOrderStatus || undefined,
+        paymentCount: items.length,
+        paymentStatuses: items.map((p) => String(p.status || "")).filter(Boolean),
+      });
+    }
+
+    const paymentId = String(chosen.id || "").trim();
     if (!paymentId) {
-      return NextResponse.json({ paid: false, orderId, razorpayOrderId: rpOrderId, reason: "missing_payment_id" });
+      return NextResponse.json({
+        paid: false,
+        orderId,
+        razorpayOrderId: rpOrderId,
+        reason: "missing_payment_id",
+        razorpayOrderStatus: rpOrderStatus || undefined,
+        paymentCount: items.length,
+      });
     }
 
-    // Idempotency: if we already recorded this payment success, just ensure order is paid.
     const existing = await Payment.findOne({ orderId, razorpay_payment_id: paymentId, status: "success" });
 
     await Order.findByIdAndUpdate(orderId, {
@@ -77,4 +144,3 @@ export async function POST(req: Request) {
     );
   }
 }
-
