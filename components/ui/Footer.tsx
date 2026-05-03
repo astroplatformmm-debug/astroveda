@@ -49,6 +49,8 @@ export default function Footer() {
   return (
     <footer className="bg-white border-t border-[#E2E8F0] py-16 pb-24 md:pb-16 px-4 sm:px-6 lg:px-8 max-w-[100vw] overflow-x-hidden">
       <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 md:gap-8">
+
+        {/* Logo */}
         <div className="space-y-4">
           <Link href="/" className="inline-block">
             <img src="/logo.png" alt="Omkkaar Astroworld" className="h-16 w-auto object-contain" />
@@ -64,7 +66,6 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 bg-[#FFF7ED] text-[#F97316] rounded-full flex items-center justify-center hover:bg-[#F97316] hover:text-white transition-all duration-200"
-                aria-label={social.name}
               >
                 {social.icon}
               </a>
@@ -72,134 +73,62 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* Quick Links */}
         <div>
           <h4 className="text-[#0F172A] font-semibold mb-6 text-lg font-playfair">Quick Links</h4>
           <ul className="space-y-3 flex flex-col text-sm">
-            <Link href="/" className="text-[#64748B] hover:text-[#F97316] transition-colors w-fit">
-              Home
-            </Link>
-            <Link href="/shop" className="text-[#64748B] hover:text-[#F97316] transition-colors w-fit">
-              Shop
-            </Link>
-            <Link href="/checkout" className="text-[#64748B] hover:text-[#F97316] transition-colors w-fit">
-              Book Consultation
-            </Link>
-            <Link href="/about" className="text-[#64748B] hover:text-[#F97316] transition-colors w-fit">
-              About OMKKAAR
-            </Link>
+            <Link href="/">Home</Link>
+            <Link href="/shop">Shop</Link>
+            <Link href="/checkout">Book Consultation</Link>
+            <Link href="/about">About OMKKAAR</Link>
           </ul>
         </div>
 
+        {/* Contact */}
         <div>
           <h4 className="text-[#0F172A] font-semibold mb-6 text-lg font-playfair">Contact Us</h4>
-          <ul className="space-y-4 text-sm text-[#64748B] leading-relaxed">
-            <li>
-              <span className="font-semibold text-[#0F172A] block mb-1">Address</span>
-              22/FF, The Emperor Building, Above Cake Shop, Fatehgunj, Vadodara - 390002, Gujarat, India
-            </li>
-            <li>
-              <span className="font-semibold text-[#0F172A] block mb-1">Phone</span>
-              <a href="tel:+917069110573" className="hover:text-[#F97316] transition-colors">
-                +91 70691 10573
-              </a>
-            </li>
-            <li>
-              <span className="font-semibold text-[#0F172A] block mb-1">Email</span>
-              <a href="mailto:askme@omkkaar.com" className="hover:text-[#F97316] transition-colors break-all">
-                askme@omkkaar.com
-              </a>
-            </li>
+          <ul className="space-y-4 text-sm text-[#64748B]">
+            <li>Vadodara, Gujarat</li>
+            <li>+91 70691 10573</li>
+            <li>askme@omkkaar.com</li>
           </ul>
         </div>
+
+        {/* Legal + Map */}
         <div>
-  <h4 className="text-[#0F172A] font-semibold mb-6 text-lg font-playfair">
-    Legal
-  </h4>
+          <h4 className="text-[#0F172A] font-semibold mb-6 text-lg font-playfair">Legal</h4>
 
-  <ul className="space-y-3 flex flex-col text-sm">
-    <Link href="/privacy-policy" className="text-[#64748B] hover:text-[#F97316] transition-colors w-fit">
-      Privacy Policy
-    </Link>
-
-    <Link href="/refund-policy" className="text-[#64748B] hover:text-[#F97316] transition-colors w-fit">
-      Refund Policy
-    </Link>
-
-    <Link href="/shipping-policy" className="text-[#64748B] hover:text-[#F97316] transition-colors w-fit">
-      Shipping Policy
-    </Link>
-  </ul>
-          <div>
-  <h4 className="text-[#0F172A] font-semibold mb-6 text-lg font-playfair">
-    Legal
-  </h4>
-
-  <ul className="space-y-3 flex flex-col text-sm">
-    <li>
-      <Link href="/privacy-policy" className="text-[#64748B] hover:text-[#F97316]">
-        Privacy Policy
-      </Link>
-    </li>
-
-    <li>
-      <Link href="/refund-policy" className="text-[#64748B] hover:text-[#F97316]">
-        Refund Policy
-      </Link>
-    </li>
-
-    <li>
-      <Link href="/shipping-policy" className="text-[#64748B] hover:text-[#F97316]">
-        Shipping Policy
-      </Link>
-    </li>
-  </ul>
-
-  {/* Clickable Map */}
-  <div className="mt-8">
-    <h5 className="text-[#0F172A] font-semibold mb-3 text-sm">
-      Our Location
-    </h5>
-
-    <a
-      href="https://www.google.com/maps/place/Omkkaar,+ff+22,+Emperor+Building,+Fatehgunj,+Vadodara"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block"
-    >
-      <div className="w-full h-32 rounded-lg overflow-hidden border border-[#E2E8F0] shadow-sm hover:shadow-md transition-all">
-        
-        {/* Overlay to make whole thing clickable */}
-        <div className="absolute inset-0 z-10"></div>
-
-        <iframe
-          src="https://www.google.com/maps?q=Omkkaar+Astroworld+Vadodara&output=embed"
-          className="w-full h-full pointer-events-none"
-          loading="lazy"
-        ></iframe>
-      </div>
-    </a>
-  </div>
-</div>
-
-
-
-       
-            <Link href="/privacy-policy" className="text-[#64748B] hover:text-[#F97316] transition-colors w-fit">
-              Privacy Policy
-            </Link>
-            <Link href="/refund-policy" className="text-[#64748B] hover:text-[#F97316] transition-colors w-fit">
-              Refund Policy
-            </Link>
-            <Link href="/shipping-policy" className="text-[#64748B] hover:text-[#F97316] transition-colors w-fit">
-              Shipping Policy
-            </Link>
+          <ul className="space-y-3 flex flex-col text-sm">
+            <li><Link href="/privacy-policy">Privacy Policy</Link></li>
+            <li><Link href="/refund-policy">Refund Policy</Link></li>
+            <li><Link href="/shipping-policy">Shipping Policy</Link></li>
           </ul>
+
+          <div className="mt-8">
+            <h5 className="text-[#0F172A] font-semibold mb-3 text-sm">Our Location</h5>
+
+            <a
+              href="https://www.google.com/maps/place/Omkkaar,+ff+22,+Emperor+Building,+Fatehgunj,+Vadodara"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block"
+            >
+              <div className="relative w-full h-32 rounded-lg overflow-hidden border shadow-sm cursor-pointer">
+                <div className="absolute inset-0 z-10"></div>
+
+                <iframe
+                  src="https://www.google.com/maps?q=Omkkaar+Astroworld+Vadodara&output=embed"
+                  className="w-full h-full pointer-events-none"
+                ></iframe>
+              </div>
+            </a>
+          </div>
         </div>
+
       </div>
 
-
-      <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-[#E2E8F0] text-center text-sm text-[#64748B]">
-        <p>&copy; {new Date().getFullYear()} OMKKAAR ASTROWORLD. All rights reserved.</p>
+      <div className="text-center mt-10 text-sm text-gray-500">
+        © {new Date().getFullYear()} OMKKAAR ASTROWORLD
       </div>
     </footer>
   );
