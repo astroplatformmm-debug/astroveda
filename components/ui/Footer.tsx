@@ -129,8 +129,32 @@ export default function Footer() {
       Shipping Policy
     </Link>
   </ul>
+          <div>
+  <h4 className="text-[#0F172A] font-semibold mb-6 text-lg font-playfair">
+    Legal
+  </h4>
 
-  {/* Location Map */}
+  <ul className="space-y-3 flex flex-col text-sm">
+    <li>
+      <Link href="/privacy-policy" className="text-[#64748B] hover:text-[#F97316]">
+        Privacy Policy
+      </Link>
+    </li>
+
+    <li>
+      <Link href="/refund-policy" className="text-[#64748B] hover:text-[#F97316]">
+        Refund Policy
+      </Link>
+    </li>
+
+    <li>
+      <Link href="/shipping-policy" className="text-[#64748B] hover:text-[#F97316]">
+        Shipping Policy
+      </Link>
+    </li>
+  </ul>
+
+  {/* Clickable Map */}
   <div className="mt-8">
     <h5 className="text-[#0F172A] font-semibold mb-3 text-sm">
       Our Location
@@ -142,18 +166,22 @@ export default function Footer() {
       rel="noopener noreferrer"
       className="block"
     >
-      <div className="w-full h-32 rounded-lg overflow-hidden border border-[#E2E8F0] shadow-sm hover:shadow-md transition-all cursor-pointer">
+      <div className="w-full h-32 rounded-lg overflow-hidden border border-[#E2E8F0] shadow-sm hover:shadow-md transition-all">
+        
+        {/* Overlay to make whole thing clickable */}
+        <div className="absolute inset-0 z-10"></div>
+
         <iframe
           src="https://www.google.com/maps?q=Omkkaar+Astroworld+Vadodara&output=embed"
-          width="100%"
-          height="100%"
-          style={{ border: 0 }}
+          className="w-full h-full pointer-events-none"
           loading="lazy"
         ></iframe>
       </div>
     </a>
   </div>
 </div>
+
+
 
        
             <Link href="/privacy-policy" className="text-[#64748B] hover:text-[#F97316] transition-colors w-fit">
