@@ -271,7 +271,7 @@ export default function Home() {
     <div className="flex flex-col min-h-screen bg-[#FAF7F2]">
       
       {/* Hero Section */}
-      <section className="bg-[#FAF7F2] py-16 sm:py-20 md:py-32 px-4 sm:px-6 lg:px-8 border-b border-[#E2E8F0]">
+      <section className="bg-[#FAF7F2] min-h-screen flex items-center px-4 sm:px-6 lg:px-8 border-b border-[#E2E8F0]">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
           
           <div className="space-y-6 min-w-0">
