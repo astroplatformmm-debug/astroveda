@@ -20,15 +20,15 @@ export default function Navbar() {
 
   return (
     <>
-      <div className="bg-[#F97316] text-white text-center py-2 text-[11px] sm:text-sm font-medium px-3 sm:px-6 leading-snug break-words max-w-[100vw]">
+      <div className="bg-[#F97316] text-white text-center py-3 text-sm md:text-base font-medium px-3 sm:px-6 leading-snug break-words max-w-[100vw]">
         🔥 Limited Daily Consultations — 5 slots this week — Book soon!
       </div>
       <nav className="sticky top-0 z-40 bg-white border-b border-[#E2E8F0] shadow-sm relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
+          <div className="flex justify-between items-center h-24 md:h-28">
             
             {/* Logo */}
-            <Link href="/" className="flex items-center justify-center">
+            <Link href="/" className="h-12 sm:h-14">
               <img 
                 src="/logo.png" 
                 alt="OMKKAAR ASTROWORLD" 
