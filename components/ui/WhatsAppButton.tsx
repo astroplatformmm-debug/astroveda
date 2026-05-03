@@ -9,12 +9,16 @@ export default function FloatingSocials() {
 
       {/* WhatsApp */}
       <a
-        href="https://wa.me/917069110573"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="group bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg hover:shadow-green-500/40 transition-all duration-300 hover:scale-110"
+      href="https://wa.me/917069110573"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group bg-green-500 hover:bg-green-600 p-3 rounded-full shadow-lg hover:scale-110 transition-all duration-300"
       >
-        <FaWhatsapp className="w-5 h-5" />
+        <img
+          src="public/whatsapp-icon-3d-rendering_578229-154-Picsart-BackgroundRemover.png"
+          alt="WhatsApp"
+          className="w-5 h-5 object-contain"
+        />
       </a>
 
       {/* Instagram */}
