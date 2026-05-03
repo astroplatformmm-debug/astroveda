@@ -32,7 +32,7 @@ export default function Navbar() {
               <img 
                 src="/logo.png" 
                 alt="OMKKAAR ASTROWORLD" 
-                className="h-10 sm:h-12 w-auto object-contain"
+                className="h-12 sm:h-14 md:h-16 w-auto object-contain"
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';
                   e.currentTarget.nextElementSibling?.classList.remove('hidden');
@@ -72,8 +72,8 @@ export default function Navbar() {
                 </Link>
                 <Link
                   href="/services"
-                  className="shrink-0 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full bg-[#F97316] text-white text-xs sm:text-sm font-medium hover:bg-[#EA6C0A] transition-all duration-200 shadow-md hover:shadow-lg whitespace-nowrap text-center max-w-[11rem] sm:max-w-none leading-tight"
-                >
+                  className="shrink-0 px-5 sm:px-7 py-2.5 sm:py-3 rounded-full bg-[#F97316] text-white text-sm sm:text-base font-semibold hover:bg-[#EA6C0A] transition-all duration-200 shadow-md hover:shadow-lg whitespace-nowrap text-center"
+                 >
                   ✦ Get My Kundli
                 </Link>
               </div>
