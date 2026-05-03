@@ -127,6 +127,21 @@ export default function Footer() {
           </ul>
         </div>
       </div>
+      <div className="mt-6">
+  <h5 className="text-[#0F172A] font-semibold mb-3 text-sm">
+    Our Location
+  </h5>
+
+  <div className="w-full h-40 rounded-lg overflow-hidden border border-[#E2E8F0] shadow-sm">
+    <iframe
+      src="https://www.google.com/maps/dir//Omkkaar,+ff+22,+Emperor+Building,+opp.+apollo+pharmacy,+Jayesh+Colony,+Fatehgunj,+Vadodara,+Gujarat+390008/@26.848692,80.9425127,10z/data=!4m8!4m7!1m0!1m5!1m1!1s0x395fcfd4dbf7e4cb:0x223858921e0bbcd5!2m2!1d73.188879!2d22.3213049?entry=ttu&g_ep=EgoyMDI2MDQyOS4wIKXMDSoASAFQAw%3D%3D"
+      width="100%"
+      height="100%"
+      style={{ border: 0 }}
+      loading="lazy"
+    ></iframe>
+  </div>
+</div>
 
       <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-[#E2E8F0] text-center text-sm text-[#64748B]">
         <p>&copy; {new Date().getFullYear()} OMKKAAR ASTROWORLD. All rights reserved.</p>
