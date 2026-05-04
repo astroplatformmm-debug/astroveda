@@ -1,14 +1,24 @@
-import { Resend } from "resend";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+import nodemailer from "nodemailer";
 
 export async function POST(req: Request) {
   try {
     const { name, email, subject, message } = await req.json();
 
-    const data = await resend.emails.send({
-      from: "onboarding@resend.dev",
-      to: ["astroplatformmm@gmail.com"], // your email
+    if (!name || !email || !subject || !message) {
+      return Response.json({ error: "Missing fields" }, { status: 400 });
+    }
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const info = await transporter.sendMail({
+      from: `"Website Contact" <${process.env.EMAIL_USER}>`,
+      to: process.env.EMAIL_USER,
       subject: `New Contact: ${subject}`,
       html: `
         <h2>New Lead</h2>
@@ -19,9 +29,10 @@ export async function POST(req: Request) {
       `,
     });
 
+    console.log("Email sent info:", info);
     return Response.json({ success: true });
   } catch (error) {
-    console.error(error);
+    console.error("Email error:", error);
     return Response.json({ error: "Failed to send" }, { status: 500 });
   }
 }
