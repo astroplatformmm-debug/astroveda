@@ -17,7 +17,7 @@ export default function FloatingSocials() {
         href="https://wa.me/917069110573"
         target="_blank"
         rel="noopener noreferrer"
-        className="bg-black hover:bg-zinc-800 text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110"
+        className="bg-white text-black border border-gray-200 ..."
       >
         <FaWhatsapp className="w-5 h-5" />
       </a>
