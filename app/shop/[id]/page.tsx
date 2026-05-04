@@ -12,7 +12,7 @@ export default function GemstoneDetail() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [selectedOption, setSelectedOption] = useState("");
+  const [selectedOption, setSelectedOption] = useState<{ label: string; price: number } | null>(null);
 
   const extractErrorMessage = async (response: Response) => {
     try {
@@ -83,7 +83,8 @@ export default function GemstoneDetail() {
 
   const productId = gemstone._id || gemstone.id || "";
   const categoryLabel = gemstone.category || "gemstones";
-  const checkoutHref = `/checkout?productId=${productId}${selectedOption ? `&option=${encodeURIComponent(selectedOption)}` : ""}`;
+  const displayPrice = selectedOption ? selectedOption.price : gemstone.price;
+  const checkoutHref = `/checkout?productId=${productId}${selectedOption ? `&option=${encodeURIComponent(selectedOption.label)}&optionPrice=${selectedOption.price}` : ""}`;
 
   return (
     <div className="bg-[#FAF7F2] min-h-screen pb-20">
@@ -170,7 +171,7 @@ export default function GemstoneDetail() {
             </span>
 
             <h1 className="font-playfair text-3xl md:text-4xl font-bold text-[#0F172A] mt-3">{gemstone.title}</h1>
-            <p className="text-3xl font-bold text-[#F97316] mt-2">₹{gemstone.price}</p>
+            <p className="text-3xl font-bold text-[#F97316] mt-2">₹{displayPrice}</p>
 
             {gemstone.zodiac && <p className="text-sm text-[#64748B] mt-1">Zodiac: {gemstone.zodiac}</p>}
             {gemstone.certification && (
@@ -186,14 +187,17 @@ export default function GemstoneDetail() {
                 </label>
                 <select
                   id="product-option"
-                  value={selectedOption}
-                  onChange={(e) => setSelectedOption(e.target.value)}
+                  value={selectedOption ? selectedOption.label : ""}
+                  onChange={(e) => {
+                    const found = (gemstone.options || []).find((o) => o.label === e.target.value);
+                    setSelectedOption(found ?? null);
+                  }}
                   className="mt-1 w-full border border-[#E2E8F0] rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-[#F97316]"
                 >
                   <option value="">Choose an option</option>
-                  {gemstone.options.map((opt: string) => (
-                    <option key={opt} value={opt}>
-                      {opt}
+                  {gemstone.options!.map((opt) => (
+                    <option key={opt.label} value={opt.label}>
+                      {opt.label} — ₹{opt.price}
                     </option>
                   ))}
                 </select>
