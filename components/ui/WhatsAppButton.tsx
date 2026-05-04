@@ -14,13 +14,13 @@ export default function FloatingSocials() {
 
       {/* WhatsApp */}
       <a
-        href="https://wa.me/917069110573"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="bg-white text-black border border-gray-200 ..."
-      >
-        <FaWhatsapp className="w-5 h-5" />
-      </a>
+  href="https://wa.me/917069110573"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="flex items-center justify-center bg-green-500 hover:bg-green-600 text-white w-12 h-12 rounded-full shadow-lg transition-all duration-300 hover:scale-110"
+>
+  <FaWhatsapp className="w-6 h-6" />
+</a>
 
       {/* Instagram */}
       <a
