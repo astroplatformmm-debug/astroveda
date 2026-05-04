@@ -81,6 +81,7 @@ export default function Footer() {
             <Link href="/shop">Shop</Link>
             <Link href="/checkout">Book Consultation</Link>
             <Link href="/about">About OMKKAAR</Link>
+            <Link href="/contact">Contact Us</Link>
           </ul>
         </div>
 
@@ -88,7 +89,7 @@ export default function Footer() {
         <div>
           <h4 className="text-[#0F172A] font-semibold mb-6 text-lg font-playfair">Contact Us</h4>
           <ul className="space-y-4 text-sm text-[#64748B]">
-            <li>Shop no 22, 1st floor, Emperor Building, Above Cake Shop, Opp. Dena Bank ATM, Fatehgunj, Vadodara - 390002, Gujarat, India.</li>
+            <li>22/FF, The Emperor Building, Above Cake Shop, Fatehgunj, Vadodara - 390002, Gujarat, India.</li>
             <li>+91 70691 10573</li>
             <li>askme@omkkaar.com</li>
           </ul>
