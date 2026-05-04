@@ -107,7 +107,13 @@ export const POST = withAdminAuth(async (req) => {
     }
 
     const options = Array.isArray(body.options)
-      ? body.options.filter((x: unknown) => typeof x === "string").map((s: string) => s.trim()).filter(Boolean)
+      ? body.options.filter(
+          (x: unknown) =>
+            x !== null &&
+            typeof x === "object" &&
+            typeof (x as { label: unknown }).label === "string" &&
+            typeof (x as { price: unknown }).price === "number",
+        )
       : [];
 
     const product = await Product.create({
