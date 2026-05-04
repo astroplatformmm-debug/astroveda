@@ -21,6 +21,9 @@ function CheckoutContent() {
   const serviceId = searchParams.get("serviceId");
   const productId = searchParams.get("productId");
   const selectedProductOption = searchParams.get("option");
+  const selectedOptionPrice = searchParams.get("optionPrice")
+    ? Number(searchParams.get("optionPrice"))
+    : null;
 
   const [item, setItem] = useState<CheckoutItem | null>(null);
 
@@ -220,7 +223,9 @@ function CheckoutContent() {
       setCheckoutError("");
 
       try {
-        const totalAmount = Number(item.price);
+        const totalAmount = (selectedOptionPrice && selectedOptionPrice > 0)
+          ? selectedOptionPrice
+          : Number(item.price);
         const itemId = isProbablyObjectId(item._id) ? item._id : undefined;
         const displayTitle =
           productId && selectedProductOption?.trim()
@@ -497,7 +502,7 @@ function CheckoutContent() {
                   disabled={isSubmitting}
                   className="w-full flex items-center justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-lg text-lg font-bold text-white bg-[#F97316] hover:bg-[#EA6C0A] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F97316] transition-all disabled:opacity-70"
                 >
-                  {isSubmitting ? <Spinner /> : `Pay ₹${item.price}`}
+                  {isSubmitting ? <Spinner /> : `Pay ₹${selectedOptionPrice && selectedOptionPrice > 0 ? selectedOptionPrice : item.price}`}
                 </button>
               </div>
             </form>
@@ -516,7 +521,7 @@ function CheckoutContent() {
                 />
                 <div>
                   <h3 className="font-bold text-[#0F172A] line-clamp-2">{item.title}</h3>
-                  <p className="text-[#F97316] font-extrabold mt-1 text-lg">₹{item.price}</p>
+                  <p className="text-[#F97316] font-extrabold mt-1 text-lg">₹{selectedOptionPrice && selectedOptionPrice > 0 ? selectedOptionPrice : item.price}</p>
                   {'duration' in item && (
                     <span className="inline-block mt-1 bg-white px-2 py-0.5 border border-[#F97316]/30 rounded text-xs text-[#0F172A] font-medium shadow-sm">
                       {item.duration}
@@ -528,7 +533,7 @@ function CheckoutContent() {
               <div className="border-t border-[#F97316]/20 pt-4 space-y-3">
                 <div className="flex justify-between text-sm text-[#64748B] font-medium">
                   <span>Subtotal</span>
-                  <span>₹{item.price}</span>
+                  <span>₹{selectedOptionPrice && selectedOptionPrice > 0 ? selectedOptionPrice : item.price}</span>
                 </div>
                 <div className="flex justify-between text-sm text-[#64748B] font-medium">
                   <span>Taxes & Fees</span>
@@ -536,7 +541,7 @@ function CheckoutContent() {
                 </div>
                 <div className="flex justify-between text-xl font-extrabold text-[#0F172A] pt-3 border-t border-[#F97316]/20">
                   <span>Total</span>
-                  <span className="text-[#F97316]">₹{item.price}</span>
+                  <span className="text-[#F97316]">₹{selectedOptionPrice && selectedOptionPrice > 0 ? selectedOptionPrice : item.price}</span>
                 </div>
               </div>
             </div>
