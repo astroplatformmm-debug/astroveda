@@ -362,7 +362,7 @@ export default function Home() {
           <div className="relative w-full rounded-2xl overflow-hidden shadow-xl aspect-video bg-black">
             <iframe
               className="absolute top-0 left-0 w-full h-full"
-              src="https://www.youtube.com/embed/_oeOBCNKPyo"
+              src="src="https://www.youtube.com/embed/_oeOBCNKPyo""
               title="Omkkaar Astroworld — Expert Vedic Astrology"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
