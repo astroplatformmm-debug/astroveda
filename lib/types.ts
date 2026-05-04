@@ -18,7 +18,7 @@ export type Product = {
   price: number;
   image?: string;
   images?: string[];
-  options?: string[];
+  options?: { label: string; price: number }[];
   category?: string;
   zodiac?: string;
   certification?: string;
