@@ -8,7 +8,10 @@ const productSchema = new Schema(
     price: { type: Number, required: true },
     image: { type: String, required: true },
     images: { type: [String], default: [] },
-    options: { type: [String], default: [] },
+    options: {
+      type: [{ label: { type: String }, price: { type: Number } }],
+      default: [],
+    },
     zodiac: { type: String, default: "" },
     certification: { type: String, default: "" },
     category: {
