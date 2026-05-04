@@ -8,19 +8,15 @@ export default function FloatingSocials() {
     <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-50">
 
       {/* WhatsApp */}
-      <a
-      href="https://wa.me/917069110573"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group bg-green-500 hover:bg-green-600 p-3 rounded-full shadow-lg hover:scale-110 transition-all duration-300"
-      >
-        <img
-          src="/public/whatsapp-icon-3d-rendering_578229-154-Picsart-BackgroundRemover.png"
-          alt="WhatsApp"
-          className="w-5 h-5 object-contain"
-        />
-      </a>
-
+      {/* WhatsApp */}
+  <a
+  href="https://wa.me/917069110573"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="group bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg hover:scale-110 transition-all duration-300"
+>
+  <FaWhatsapp className="w-5 h-5" />
+</a>
       {/* Instagram */}
       <a
         href="https://www.instagram.com/omkkaar_astro/"
