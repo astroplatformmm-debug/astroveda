@@ -70,7 +70,11 @@ export default function ProductsManagement() {
       category: product.category || "gemstones",
     });
     setExtraImages([...(product.images || [])]);
-    setOptionsInput((product.options || []).join(", "));
+    setOptionsInput(
+      (product.options || [])
+        .map((o: { label: string; price: number }) => `${o.label}:${o.price}`)
+        .join(", ")
+    );
     setError(null);
     setSaveSuccess(false);
     setIsModalOpen(true);
@@ -200,7 +204,15 @@ export default function ProductsManagement() {
       const options = optionsInput
         .split(",")
         .map((s) => s.trim())
-        .filter(Boolean);
+        .filter(Boolean)
+        .map((s) => {
+          const colonIndex = s.lastIndexOf(":");
+          if (colonIndex === -1) return { label: s, price: 0 };
+          const label = s.slice(0, colonIndex).trim();
+          const price = Number(s.slice(colonIndex + 1).trim());
+          return { label, price: Number.isFinite(price) ? price : 0 };
+        })
+        .filter((o) => o.label.length > 0);
       const primaryImage = formData.image;
       const payload: Record<string, unknown> = {
         ...formData,
@@ -471,15 +483,15 @@ export default function ProductsManagement() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-bold text-[#0F172A] mb-1">Product Options (e.g. carat sizes)</label>
+            <label className="block text-sm font-bold text-[#0F172A] mb-1">Product Options with Prices</label>
             <input
               type="text"
-              placeholder="e.g. 5 carat, 7 carat, 10 carat"
+              placeholder="e.g. 5 carat:5000, 7 carat:7000, 10 carat:9500"
               value={optionsInput}
               onChange={(e) => setOptionsInput(e.target.value)}
               className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none"
             />
-            <p className="text-xs text-gray-400 mt-1">Separate options with commas</p>
+            <p className="text-xs text-gray-400 mt-1">Format: <strong>Label:Price</strong> — separate multiple options with commas. e.g. 5 carat:5000, 7 carat:7000</p>
           </div>
           <div className="pt-4 flex justify-end gap-3">
             {error && (
