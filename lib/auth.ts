@@ -22,8 +22,8 @@ export function verifyToken(token: string) {
   return jwt.verify(token, getJwtSecret()) as JwtPayload;
 }
 
-type RouteContext = {
-  params?: Promise<Record<string, string>>;
+export type RouteContext = {
+  params: Promise<Record<string, string>>;
 };
 
 type AdminHandler = (
@@ -33,7 +33,7 @@ type AdminHandler = (
 ) => Promise<Response>;
 
 export function withAdminAuth(handler: AdminHandler) {
-  return async (req: NextRequest, context: RouteContext = {}) => {
+  return async (req: NextRequest, context: RouteContext) => {
     try {
       const token = req.cookies.get("admin_token")?.value;
 
