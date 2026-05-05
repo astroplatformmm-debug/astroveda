@@ -13,7 +13,7 @@ export default function GemstoneCard({ product }: { product: ProductCardData }) 
   return (
     <div className="relative bg-white rounded-xl shadow-md overflow-hidden hover:scale-105 transition-all duration-200 border border-[#E2E8F0] flex flex-col h-full group">
       <Link
-        href={`/shop/${productId}`}
+        href={`/products/${productId}`}
         className="absolute inset-0 z-0 rounded-xl"
         aria-label={`View ${product.title}`}
       />
