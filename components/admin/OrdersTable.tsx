@@ -32,6 +32,7 @@ export default function OrdersTable({ orders, onStatusChange }: OrdersTableProps
             <th className="px-6 py-4 font-medium text-gray-600">Email</th>
             <th className="px-6 py-4 font-medium text-gray-600">Phone</th>
             <th className="px-6 py-4 font-medium text-gray-600">Item</th>
+            <th className="px-6 py-4 font-medium text-gray-600">Booking Slot</th>
             <th className="px-6 py-4 font-medium text-gray-600 text-right">Amount</th>
             <th className="px-6 py-4 font-medium text-gray-600 text-center">Status</th>
             <th className="px-6 py-4 font-medium text-gray-600">Date</th>
@@ -53,6 +54,17 @@ export default function OrdersTable({ orders, onStatusChange }: OrdersTableProps
                 <td className="px-6 py-4 text-gray-500">{order.userInfo?.phone}</td>
                 <td className="px-6 py-4 text-gray-600">
                   {order.items?.map((item) => item.title).filter(Boolean).join(", ") || "-"}
+                  <td className="px-6 py-4">
+  {(order as any).bookingSlot?.date && (order as any).bookingSlot?.time ? (
+    <div>
+      <p className="text-xs font-semibold text-[#7C3AED]">
+        {new Date((order as any).bookingSlot.date+"T00:00:00")
+          .toLocaleDateString("en-IN",{day:"numeric",month:"short"})}
+      </p>
+      <p className="text-xs font-bold text-[#D97706]">{(order as any).bookingSlot.time}</p>
+    </div>
+  ) : <span className="text-gray-400 text-xs">—</span>}
+</td>
                 </td>
                 <td className="px-6 py-4 font-medium text-gray-900 text-right">₹{order.totalAmount}</td>
                 <td className="px-6 py-4 text-center">
