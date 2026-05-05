@@ -5,13 +5,13 @@ import { withAdminAuth } from "@/lib/auth";
 import type { NextRequest } from "next/server";
 import { uploadImage } from "@/lib/cloudinary";
 
-type Context = { params?: Promise<Record<string, string>> };
+type Context = { params: Promise<Record<string, string>> };
 
 export const PUT = withAdminAuth(async (req: NextRequest, context: Context) => {
   try {
     await connectDB();
     const params = await context.params;
-    const id = params?.id;
+    const id = params.id;
     const body = await req.json();
 
     if (body.image && body.image.startsWith("data:image")) {
@@ -42,7 +42,7 @@ export const DELETE = withAdminAuth(async (_req: NextRequest, context: Context) 
   try {
     await connectDB();
     const params = await context.params;
-    const id = params?.id;
+    const id = params.id;
     
     const blog = await Blog.findByIdAndDelete(id);
     if (!blog) {
