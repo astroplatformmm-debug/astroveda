@@ -100,12 +100,7 @@ export default function BlogDetail() {
           {/* Content */}
           <div className="p-8 md:p-12">
             <div 
-              className="prose prose-lg max-w-none text-[#334155]
-                prose-headings:font-playfair prose-headings:text-[#0F172A] prose-headings:font-bold
-                prose-a:text-[#F97316] hover:prose-a:text-[#EA6C0A]
-                prose-strong:text-[#0F172A] prose-strong:font-bold
-                prose-blockquote:border-l-[#F97316] prose-blockquote:bg-[#FFF7ED] prose-blockquote:p-4 prose-blockquote:rounded-r-lg prose-blockquote:italic
-                prose-img:rounded-xl prose-img:shadow-sm"
+              className="max-w-none text-[#334155] text-base md:text-lg leading-relaxed [&_h1]:font-playfair [&_h1]:text-[#0F172A] [&_h1]:font-bold [&_h1]:text-3xl [&_h1]:mt-8 [&_h1]:mb-4 [&_h2]:font-playfair [&_h2]:text-[#0F172A] [&_h2]:font-bold [&_h2]:text-2xl [&_h2]:mt-8 [&_h2]:mb-4 [&_h3]:font-playfair [&_h3]:text-[#0F172A] [&_h3]:font-bold [&_h3]:text-xl [&_h3]:mt-6 [&_h3]:mb-3 [&_p]:mb-4 [&_p]:leading-relaxed [&_a]:text-[#F97316] [&_a:hover]:text-[#EA6C0A] [&_a]:underline [&_strong]:text-[#0F172A] [&_strong]:font-bold [&_em]:italic [&_blockquote]:border-l-4 [&_blockquote]:border-[#F97316] [&_blockquote]:bg-[#FFF7ED] [&_blockquote]:px-4 [&_blockquote]:py-3 [&_blockquote]:rounded-r-lg [&_blockquote]:italic [&_blockquote]:my-6 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-4 [&_li]:mb-1 [&_img]:rounded-xl [&_img]:shadow-sm [&_img]:max-w-full [&_img]:h-auto [&_img]:my-4 [&_hr]:border-[#E2E8F0] [&_hr]:my-8 [&_code]:bg-[#F1F5F9] [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm [&_pre]:bg-[#1E293B] [&_pre]:text-white [&_pre]:p-4 [&_pre]:rounded-xl [&_pre]:overflow-x-auto [&_pre]:my-4"
               dangerouslySetInnerHTML={{ __html: blog.content }}
             />
           </div>
