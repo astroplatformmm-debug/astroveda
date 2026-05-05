@@ -24,6 +24,8 @@ function CheckoutContent() {
   const selectedOptionPrice = searchParams.get("optionPrice")
     ? Number(searchParams.get("optionPrice"))
     : null;
+      const bookingDate = searchParams.get("date") ?? "";
+      const bookingTime = searchParams.get("time") ?? "";
 
   const [item, setItem] = useState<CheckoutItem | null>(null);
 
@@ -132,7 +134,7 @@ function CheckoutContent() {
     }
 
     if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
-      newErrors.email = "Please enter a valid emailaddress.";
+      newErrors.email = "Please enter a valid email address.";
       valid = false;
     }
 
@@ -256,6 +258,9 @@ function CheckoutContent() {
               state: formData.state,
               pincode: formData.pincode,
             },
+          bookingSlot: (serviceId && bookingDate && bookingTime)
+              ? { date: bookingDate, time: bookingTime }
+              : undefined,
           }),
         });
 
@@ -527,6 +532,17 @@ function CheckoutContent() {
                       {item.duration}
                     </span>
                   )}
+                  {serviceId && bookingDate && bookingTime && (
+  <div className="mt-3 bg-purple-50 border border-purple-200 rounded-xl px-4 py-3">
+    <p className="text-xs font-bold text-[#7C3AED] uppercase mb-1">Appointment</p>
+    <p className="text-sm font-semibold text-gray-900">
+      {new Date(bookingDate+"T00:00:00").toLocaleDateString("en-IN",
+        {weekday:"short",day:"numeric",month:"long",year:"numeric"})}
+    </p>
+    <p className="text-sm font-bold text-[#D97706]">{bookingTime}</p>
+  </div>
+)}
+
                 </div>
               </div>
 
