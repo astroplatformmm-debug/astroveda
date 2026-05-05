@@ -4,13 +4,13 @@ import { connectDB } from "@/lib/db";
 import Order from "@/models/Order";
 import { withAdminAuth } from "@/lib/auth";
 
-type Context = { params?: Promise<Record<string, string>> };
+type Context = { params: Promise<Record<string, string>> };
 
 export const PATCH = withAdminAuth(async (req: NextRequest, context: Context) => {
   try {
     await connectDB();
     const params = await context.params;
-    const id = params?.id;
+    const id = params.id;
 
     const { status } = (await req.json()) as { status?: string };
 
