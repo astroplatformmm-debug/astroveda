@@ -1,3 +1,12 @@
+export type TimeSlot = {
+  _id: string;
+  date: string;
+  time: string;
+  isBooked: boolean;
+  isEnabled: boolean;
+  bookedByOrderId?: string;
+};
+
 export type Service = {
   _id?: string;
   id?: string;
@@ -27,6 +36,10 @@ export type Product = {
 };
 
 export type OrderStatus = "pending" | "paid" | "completed" | "failed";
+export type BookingSlot = {
+  date: string;
+  time: string;
+};
 
 export type Order = {
   _id: string;
@@ -43,5 +56,6 @@ export type Order = {
   }>;
   totalAmount: number;
   status: OrderStatus;
+  bookingSlot?: BookingSlot;
   createdAt?: string;
 };
