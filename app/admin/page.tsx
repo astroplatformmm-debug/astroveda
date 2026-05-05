@@ -6,6 +6,55 @@ import OrdersTable from "@/components/admin/OrdersTable";
 import Spinner from "@/components/ui/Spinner";
 import type { Order } from "@/lib/types";
 
+function BookingsSummary() {
+  const [bookings, setBookings] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/orders", { credentials: "include" })
+      .then((r) => r.json())
+      .then((data) => {
+        const all: Order[] = Array.isArray(data) ? data : [];
+        const upcoming = all
+          .filter((o) => o.bookingSlot?.date && o.bookingSlot?.time && o.status !== "failed")
+          .sort((a, b) => (a.bookingSlot!.date > b.bookingSlot!.date ? 1 : -1))
+          .slice(0, 5);
+        setBookings(upcoming);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <div className="py-8 flex justify-center"><Spinner className="w-6 h-6 text-purple-600" /></div>;
+  if (bookings.length === 0) return <div className="px-6 py-8 text-gray-400 text-sm text-center">No upcoming bookings.</div>;
+
+  return (
+    <div className="divide-y divide-gray-50">
+      {bookings.map((b) => (
+        <div key={b._id} className="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+          <div>
+            <p className="font-semibold text-gray-900 text-sm">{b.userInfo.name}</p>
+            <p className="text-xs text-gray-400">{b.userInfo.phone}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-xs font-bold text-purple-700">
+              {new Date(b.bookingSlot!.date + "T00:00:00").toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}
+            </p>
+            <p className="text-xs text-amber-600 font-bold">{b.bookingSlot!.time}</p>
+          </div>
+          <div>
+            <span className={`px-2 py-1 rounded text-xs font-bold border ${
+              b.status === "paid" ? "bg-green-50 text-green-700 border-green-200" :
+              b.status === "pending" ? "bg-yellow-50 text-yellow-700 border-yellow-200" :
+              "bg-blue-50 text-blue-700 border-blue-200"
+            }`}>{b.status}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
     totalOrders: 0,
@@ -127,6 +176,17 @@ export default function AdminDashboard() {
             </svg>
           }
         />
+      </div>
+
+      {/* Bookings Summary */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center">
+          <h2 className="text-lg font-bold text-gray-900 font-playfair">📅 Upcoming Service Bookings</h2>
+          <a href="/admin/bookings" className="text-sm text-purple-600 hover:text-purple-800 font-semibold transition-colors">
+            Manage Slots →
+          </a>
+        </div>
+        <BookingsSummary />
       </div>
 
       {/* Recent Orders */}
