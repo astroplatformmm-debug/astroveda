@@ -147,6 +147,16 @@ export default function OrderDetailsPage() {
               <p className="text-[#64748B]">Date Placed</p>
               <p className="font-bold text-[#0F172A]">{new Date(order.createdAt).toLocaleString()}</p>
             </div>
+            {order.bookingSlot?.date && order.bookingSlot?.time && (
+  <div className="pt-2 border-t border-[#E2E8F0]">
+    <p className="text-[#64748B] mb-1">Appointment Slot</p>
+    <p className="font-semibold text-[#7C3AED]">
+      {new Date(order.bookingSlot.date+"T00:00:00").toLocaleDateString("en-IN",
+        {weekday:"long",day:"numeric",month:"long",year:"numeric"})}
+    </p>
+    <p className="font-bold text-[#D97706]">{order.bookingSlot.time}</p>
+  </div>
+)}
             <div className="pt-2 border-t border-[#E2E8F0]">
               <p className="text-[#64748B] mb-2">Items</p>
               <ul className="space-y-2">
