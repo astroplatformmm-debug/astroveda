@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import TimeSlot from "@/models/TimeSlot";
-import { withAdminAuth } from "@/lib/auth";
+import { withAdminAuth, RouteContext } from "@/lib/auth";
 import type { NextRequest } from "next/server";
-
-type RouteContext = { params: Promise<{ id: string }> };
 
 // PATCH /api/timeslots/[id]  → admin: toggle isEnabled
 export const PATCH = withAdminAuth(async (req: NextRequest, context: RouteContext) => {
