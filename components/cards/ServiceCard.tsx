@@ -27,7 +27,7 @@ export default function ServiceCard({ service }: { service: ServiceCardData }) {
         <div className="flex items-center justify-between mt-auto pt-4 border-t border-[#E2E8F0]">
           <span className="text-[#F97316] font-bold text-lg">₹{service.price}</span>
           <Link
-            href={`/checkout?serviceId=${serviceId}`}
+            href={`/book-slot?serviceId=${serviceId}&title=${encodeURIComponent(service.title)}&price=${service.price}`}
             className="px-4 py-2 bg-[#F97316] hover:bg-[#EA6C0A] text-white text-sm font-medium rounded-lg transition-colors shadow-sm hover:shadow"
           >
             Book Now
