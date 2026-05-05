@@ -77,11 +77,11 @@ export default function Footer() {
         <div>
           <h4 className="text-[#0F172A] font-semibold mb-6 text-lg font-playfair">Quick Links</h4>
           <ul className="space-y-3 flex flex-col text-sm">
-            <Link href="/">Home</Link>
-            <Link href="/shop">Shop</Link>
-            <Link href="/checkout">Book Consultation</Link>
-            <Link href="/about">About OMKKAAR</Link>
-            <Link href="/contact">Contact Us</Link>
+            <li><Link href="/" className="text-[#64748B] hover:text-[#F97316] transition-colors">Home</Link></li>
+            <li><Link href="/shop" className="text-[#64748B] hover:text-[#F97316] transition-colors">Shop</Link></li>
+            <li><Link href="/checkout" className="text-[#64748B] hover:text-[#F97316] transition-colors">Book Consultation</Link></li>
+            <li><Link href="/about" className="text-[#64748B] hover:text-[#F97316] transition-colors">About OMKKAAR</Link></li>
+            <li><Link href="/contact" className="text-[#64748B] hover:text-[#F97316] transition-colors">Contact Us</Link></li>
           </ul>
         </div>
 
