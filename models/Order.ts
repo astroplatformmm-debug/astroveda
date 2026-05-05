@@ -35,6 +35,10 @@ const OrderSchema = new mongoose.Schema({
     unique: true,
     sparse: true,
   },
+    bookingSlot: {
+    date: { type: String, default: null },
+    time: { type: String, default: null },
+  },
   createdAt: { type: Date, default: Date.now },
 });
 
