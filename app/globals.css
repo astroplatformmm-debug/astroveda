@@ -11,8 +11,12 @@
   --color-neutral-muted: #64748B;
   --color-neutral-bg: #FAF7F2;
 
-  --font-playfair: var(--font-playfair);
-  --font-inter: var(--font-inter);
+  /* In Tailwind v4, font-* utilities are generated from CSS variables on :root/html.
+     next/font injects --font-inter and --font-playfair on the <html> element.
+     Reference them here so Tailwind generates font-inter, font-playfair, font-sans utilities. */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-inter: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-playfair: var(--font-playfair), "Playfair Display", Georgia, serif;
 }
 
 html {
@@ -23,7 +27,7 @@ html {
 body {
   background-color: var(--color-neutral-bg);
   color: var(--color-neutral-text);
-  font-family: var(--font-inter), sans-serif;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   overflow-x: hidden;
   max-width: 100vw;
 }
