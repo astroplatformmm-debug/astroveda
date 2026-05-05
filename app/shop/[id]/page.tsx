@@ -111,16 +111,24 @@ export default function GemstoneDetail() {
                 <>
                   <button
                     type="button"
-                    onClick={() => setCurrentImageIndex((i) => (i === 0 ? allImages.length - 1 : i - 1))}
+                    onClick={() =>
+                      setCurrentImageIndex((i) => (i === 0 ? allImages.length - 1 : i - 1))
+                    }
                     className="absolute left-2 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-md text-[#0F172A] hover:text-[#F97316] transition-colors"
                     aria-label="Previous image"
-                  >←</button>
+                  >
+                    ←
+                  </button>
                   <button
                     type="button"
-                    onClick={() => setCurrentImageIndex((i) => (i === allImages.length - 1 ? 0 : i + 1))}
+                    onClick={() =>
+                      setCurrentImageIndex((i) => (i === allImages.length - 1 ? 0 : i + 1))
+                    }
                     className="absolute right-2 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-md text-[#0F172A] hover:text-[#F97316] transition-colors"
                     aria-label="Next image"
-                  >→</button>
+                  >
+                    →
+                  </button>
                 </>
               )}
             </div>
@@ -132,7 +140,9 @@ export default function GemstoneDetail() {
                       key={i}
                       type="button"
                       onClick={() => setCurrentImageIndex(i)}
-                      className={`h-2 rounded-full transition-all ${i === currentImageIndex ? "bg-[#F97316] w-4" : "bg-gray-300 w-2"}`}
+                      className={`h-2 rounded-full transition-all ${
+                        i === currentImageIndex ? "bg-[#F97316] w-4" : "bg-gray-300 w-2"
+                      }`}
                       aria-label={`Go to image ${i + 1}`}
                     />
                   ))}
@@ -143,7 +153,9 @@ export default function GemstoneDetail() {
                       key={src + i}
                       type="button"
                       onClick={() => setCurrentImageIndex(i)}
-                      className={`shrink-0 rounded-lg overflow-hidden border-2 transition-all ${i === currentImageIndex ? "border-[#F97316]" : "border-transparent"}`}
+                      className={`shrink-0 rounded-lg overflow-hidden border-2 transition-all ${
+                        i === currentImageIndex ? "border-[#F97316]" : "border-transparent"
+                      }`}
                     >
                       <img src={src} alt="" className="w-16 h-16 object-cover" />
                     </button>
@@ -199,7 +211,10 @@ export default function GemstoneDetail() {
               Buy Now
             </Link>
 
-            <Link href="/shop" className="block text-center mt-3 text-[#64748B] hover:text-[#F97316] text-sm">
+            <Link
+              href="/shop"
+              className="block text-center mt-3 text-[#64748B] hover:text-[#F97316] text-sm"
+            >
               ← Back to Shop
             </Link>
 
@@ -207,7 +222,12 @@ export default function GemstoneDetail() {
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-[#FFF7ED] flex items-center justify-center text-[#F97316]">
                   <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                    />
                   </svg>
                 </div>
                 <div>
