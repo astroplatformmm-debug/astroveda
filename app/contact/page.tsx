@@ -27,9 +27,15 @@ export default function ContactPage() {
 
     setStatus("sending");
 
-    // Simulate sending — replace with your actual API call
     try {
-      await new Promise((res) => setTimeout(res, 1500));
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      if (!res.ok) {
+        throw new Error("Server error");
+      }
       setStatus("success");
       setFormData({ name: "", email: "", subject: "", message: "" });
     } catch {
