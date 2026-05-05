@@ -3,7 +3,7 @@ import { connectDB } from "@/lib/db";
 import Order from "@/models/Order";
 import { withAdminAuth } from "@/lib/auth";
 
-export const GET = withAdminAuth(async () => {
+export const GET = withAdminAuth(async (_req, _context) => {
   try {
     await connectDB();
 
