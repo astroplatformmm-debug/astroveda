@@ -67,9 +67,20 @@ async function start() {
   await mongoose.disconnect();
 
   console.log("Starting Next.js development server...");
+  
+  // Set required env vars for the dev server if not already set
+  const devEnv = {
+    ...process.env,
+    MONGODB_URI: uri,
+    JWT_SECRET: process.env.JWT_SECRET || "dev-secret-change-in-production-" + Date.now(),
+    NEXT_PUBLIC_RAZORPAY_KEY_ID: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_placeholder",
+    RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID || "rzp_test_placeholder",
+    RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET || "placeholder",
+  };
+
   const nextDev = spawn("npm", ["run", "dev"], {
     stdio: "inherit",
-    env: { ...process.env, MONGODB_URI: uri }
+    env: devEnv,
   });
 
   nextDev.on("close", (code) => {
