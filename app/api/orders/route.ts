@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Order from "@/models/Order";
+import TimeSlot from "@/models/TimeSlot";
 import { withAdminAuth } from "@/lib/auth";
 import type { NextRequest } from "next/server";
 
@@ -9,7 +10,8 @@ export async function POST(req: Request) {
     await connectDB();
 
     const body = await req.json();
-    const { userInfo, items, totalAmount, address } = body;
+    const { userInfo, items, totalAmount, address, bookingSlot } = body;
+
 
     console.log("[POST /api/orders] received keys:", Object.keys(body || {}));
 
@@ -58,6 +60,21 @@ export async function POST(req: Request) {
 
     const receipt = `receipt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
+    // Validate & lock booking slot for service bookings
+    let slotDoc = null;
+    if (bookingSlot && bookingSlot.date && bookingSlot.time) {
+      slotDoc = await TimeSlot.findOne({ date: bookingSlot.date, time: bookingSlot.time });
+      if (!slotDoc) {
+        return NextResponse.json({ error: "Selected time slot no longer exists. Please pick another." }, { status: 400 });
+      }
+      if (slotDoc.isBooked) {
+        return NextResponse.json({ error: "This time slot is already booked. Please choose a different slot." }, { status: 409 });
+      }
+      if (!slotDoc.isEnabled) {
+        return NextResponse.json({ error: "This time slot has been disabled. Please choose a different slot." }, { status: 400 });
+      }
+    }
+
     const order = await Order.create({
       userInfo: {
         name: String(userInfo.name).trim(),
@@ -73,7 +90,16 @@ export async function POST(req: Request) {
       totalAmount: amt,
       receipt,
       status: "pending",
+      bookingSlot: bookingSlot?.date && bookingSlot?.time ? { date: bookingSlot.date, time: bookingSlot.time } : undefined,
     });
+
+    // Mark the slot as booked atomically
+    if (slotDoc) {
+      await TimeSlot.findByIdAndUpdate(slotDoc._id, {
+        isBooked: true,
+        bookedByOrderId: order._id,
+      });
+    }
 
     console.log("[POST /api/orders] created orderId:", String(order._id), "amount:", amt);
     return NextResponse.json({ orderId: order._id });
