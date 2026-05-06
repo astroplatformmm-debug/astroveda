@@ -7,18 +7,18 @@ import type { Product, Service } from "@/lib/types";
 
 const testimonials = [
   {
-    name: "Priya Sharma",
+    name: "Jaijeet Mohanty",
     rating: 5,
     review:
-      "Mukesh ji's guidance completely changed my perspective. His Kundli reading was incredibly accurate and the remedies he suggested worked wonders for my career.",
-    initial: "P",
+      "Thank you for the insight and clarity you bring through your work. Your ability to interpret the stars with such wisdom, compassion, and intuition is truly admirable. I appreciate the time, dedication, and positive energy you invest in every reading.Your guidance offers a sense of direction, comfort, and deeper understanding, and it genuinely makes a difference.", 
+    initial: "J",
   },
   {
-    name: "Rajesh Kumar",
+    name: "Pooja",
     rating: 5,
     review:
-      "Excellent consultation! The gemstone recommendation was spot on. I can feel the positive energy. Highly recommend Omkkaar Astroworld.",
-    initial: "R",
+      "Recently I visited Guruji for an astrology consultation, and I am truly grateful for the experience. The depth, clarity, and wisdom in his guidance felt less like a service and more like learning from a true teacher. His remedies have brought real, positive change in my life, and the way he explains everything with patience and understanding makes you feel more like a disciple than a client. Thank you, Guruji, for your knowledge and support.",
+    initial: "P",
   },
   {
     name: "Sunita Verma",
