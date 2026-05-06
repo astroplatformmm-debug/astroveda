@@ -168,7 +168,7 @@ export default function AboutPage() {
                 { icon: "⭐", num: "25+", label: "Years of Experience" },
                 { icon: "👥", num: "50K+", label: "Happy Clients" },
                 { icon: "🌍", num: "20+", label: "Countries Served" },
-                { icon: "🏆", num: "100+", label: "Awards & Honors" },
+                { icon: "🏆", num: "35+", label: "Awards & Honors" },
               ].map((stat) => (
                 <div
                   key={stat.label}
