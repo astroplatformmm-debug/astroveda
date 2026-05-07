@@ -10,52 +10,103 @@ export type TimeSlot = {
 export type Service = {
   _id?: string;
   id?: string;
+
   title: string;
   description: string;
+
   price: number;
+
   duration?: string;
   image?: string;
+
   isActive?: boolean;
+
   createdAt?: string;
+};
+
+export type ProductOption = {
+  label: string;
+  price: number;
+};
+
+export type RingMaterial = {
+  label: string;
+  extraPrice: number;
 };
 
 export type Product = {
   _id?: string;
   id?: string;
+
   title: string;
   description: string;
+
   price: number;
+
   image?: string;
   images?: string[];
-  options?: { label: string; price: number }[];
+
+  options?: ProductOption[];
+
+  // ✅ Ring Material Support
+  ringMaterialEnabled?: boolean;
+  ringMaterials?: RingMaterial[];
+
   category?: string;
+
   zodiac?: string;
   certification?: string;
+
   isActive?: boolean;
+
   createdAt?: string;
 };
 
-export type OrderStatus = "pending" | "paid" | "completed" | "failed";
+export type OrderStatus =
+  | "pending"
+  | "paid"
+  | "completed"
+  | "failed";
+
 export type BookingSlot = {
   date: string;
   time: string;
 };
 
+export type OrderItem = {
+  itemId?: string;
+
+  itemType: "service" | "product";
+
+  title?: string;
+
+  price?: number;
+
+  // ✅ Ring Material Order Support
+  ringMaterial?: string | null;
+  ringMaterialExtraPrice?: number;
+
+  // ✅ Product Option Support
+  selectedOption?: string | null;
+  selectedOptionPrice?: number;
+};
+
 export type Order = {
   _id: string;
+
   userInfo: {
     name: string;
     email: string;
     phone: string;
   };
-  items: Array<{
-    itemId?: string;
-    itemType: "service" | "product";
-    title?: string;
-    price?: number;
-  }>;
+
+  items: OrderItem[];
+
   totalAmount: number;
+
   status: OrderStatus;
+
   bookingSlot?: BookingSlot;
+
   createdAt?: string;
 };
