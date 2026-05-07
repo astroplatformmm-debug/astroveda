@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { gemstones } from "@/lib/mockData";
 import type { Product, Service } from "@/lib/types";
+import TestimonialsSection from "@/components/reviews/TestimonialsSection";
 
 const testimonials = [
   {
@@ -404,30 +405,35 @@ export default function Home() {
       </section>
 
       {/* Stats + Testimonials */}
-      <section className="bg-[#F8FAFC] py-16 sm:py-20 px-4 sm:px-6 lg:px-8 border-b border-[#E2E8F0]">
-        <div className="max-w-7xl mx-auto min-w-0">
-          <div className="text-center mb-16">
-            <h2 className="font-playfair text-2xl sm:text-3xl lg:text-4xl font-bold text-[#0F172A] px-2">Trusted by 5,000+ Clients Worldwide</h2>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-6 sm:gap-6 mb-20 text-center">
-            {[
-              { num: "5,000+", label: "HAPPY CLIENTS" },
-              { num: "25+", label: "Years EXPERIENCE" },
-              { num: "4.9/5", label: "STAR RATING" },
-              { num: "24-Hour", label: "DELIVERY" },
-            ].map((stat, i) => (
-              <div key={i} className="flex flex-col items-center">
-                <span className="text-[#F97316] text-3xl mb-2">✦</span>
-                <span className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] mb-1">{stat.num}</span>
-                <span className="text-xs text-[#64748B] font-bold tracking-wider">{stat.label}</span>
-              </div>
-            ))}
-          </div>
+      {/* Stats + Testimonials */}
+<section className="bg-[#F8FAFC] py-16 sm:py-20 px-4 sm:px6 lg:px-8 border-b border-[#E2E8F0]">
+  <div className="max-w-7xl mx-auto min-w-0">
+    <div className="text-center mb-16">
+      <h2 className="font-playfair text-2xl sm:text-3xl lg:text-4xl font-bold text-[#0F172A] px-2">
+        Trusted by 5,000+ Clients Worldwide
+      </h2>
+    </div>
 
-          <TestimonialsCarousel />
+    {/* Stats grid stays as-is */}
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-6 sm:gap-6 mb-20 text-center">
+      {[
+        { num: "5,000+", label: "HAPPY CLIENTS" },
+        { num: "25+", label: "Years EXPERIENCE" },
+        { num: "4.9/5", label: "STAR RATING" },
+        { num: "24-Hour", label: "DELIVERY" },
+      ].map((stat, i) => (
+        <div key={i} className="flex flex-col items-center">
+          <span className="text-[#F97316] text-3xl mb-2">✦</span>
+          <span className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] mb-1">{stat.num}</span>
+          <span className="text-xs text-[#64748B] font-bold tracking-wider">{stat.label}</span>
         </div>
-      </section>
+      ))}
+    </div>
+  </div>
+</section>
+
+{/* Testimonials + Review Form */}
+<TestimonialsSection />
 
       {/* Pricing Section */}
       <section className="bg-white py-16 sm:py-24 px-4 sm:px-6 lg:px-8 border-b border-[#E2E8F0]">
