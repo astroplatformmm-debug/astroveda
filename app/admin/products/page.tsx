@@ -39,6 +39,10 @@ export default function ProductsManagement() {
   });
   const [extraImages, setExtraImages] = useState<string[]>([]);
   const [optionsInput, setOptionsInput] = useState("");
+  const [ringMaterialEnabled, setRingMaterialEnabled] = useState(false);
+  const [ringMaterials, setRingMaterials] = useState<{ label: string; extraPrice: number }[]>([]);
+  const [newRingLabel, setNewRingLabel] = useState("");
+  const [newRingPrice, setNewRingPrice] = useState<number>(0);
 
   const openAddModal = () => {
     setEditingId(null);
@@ -53,6 +57,10 @@ export default function ProductsManagement() {
     });
     setExtraImages([]);
     setOptionsInput("");
+    setRingMaterialEnabled(false);
+    setRingMaterials([]);
+    setNewRingLabel("");
+    setNewRingPrice(0);
     setError(null);
     setSaveSuccess(false);
     setIsModalOpen(true);
@@ -75,6 +83,15 @@ export default function ProductsManagement() {
         .map((o: { label: string; price: number }) => `${o.label}:${o.price}`)
         .join(", ")
     );
+    setRingMaterialEnabled(product.ringMaterialEnabled ?? false);
+    setRingMaterials(
+      (product.ringMaterials || []).map((m: { label: string; extraPrice: number }) => ({
+        label: m.label,
+        extraPrice: m.extraPrice,
+      }))
+    );
+    setNewRingLabel("");
+    setNewRingPrice(0);
     setError(null);
     setSaveSuccess(false);
     setIsModalOpen(true);
@@ -219,6 +236,8 @@ export default function ProductsManagement() {
         category: typeof formData.category === "string" ? formData.category.toLowerCase().trim() : "gemstones",
         images: extraImages.slice(0, 4),
         options,
+        ringMaterialEnabled,
+        ringMaterials,
       };
       if (
         typeof primaryImage === "string" &&
@@ -265,6 +284,10 @@ export default function ProductsManagement() {
         });
         setExtraImages([]);
         setOptionsInput("");
+        setRingMaterialEnabled(false);
+        setRingMaterials([]);
+        setNewRingLabel("");
+        setNewRingPrice(0);
         setIsModalOpen(false);
         setSaving(false);
       }, 1000);
@@ -493,7 +516,104 @@ export default function ProductsManagement() {
             />
             <p className="text-xs text-gray-400 mt-1">Format: <strong>Label:Price</strong> — separate multiple options with commas. e.g. 5 carat:5000, 7 carat:7000</p>
           </div>
-          <div className="pt-4 flex justify-end gap-3">
+
+          {/* ── Ring Material Section ────────────────────────────────────── */}
+          <div className="border border-[#E2E8F0] rounded-xl p-4 bg-[#FAFAFA]">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h3 className="text-sm font-bold text-[#0F172A]">Ring Material Options</h3>
+                <p className="text-xs text-[#64748B] mt-0.5">Allow customers to choose a ring setting with an added price</p>
+              </div>
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <span className="text-xs font-semibold text-[#64748B]">Enable</span>
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    className="sr-only"
+                    checked={ringMaterialEnabled}
+                    onChange={(e) => setRingMaterialEnabled(e.target.checked)}
+                  />
+                  <div
+                    className={`w-10 h-5 rounded-full transition-colors ${ringMaterialEnabled ? "bg-[#F97316]" : "bg-gray-300"}`}
+                  />
+                  <div
+                    className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${ringMaterialEnabled ? "translate-x-5" : "translate-x-0"}`}
+                  />
+                </div>
+              </label>
+            </div>
+
+            {ringMaterialEnabled && (
+              <div className="space-y-3">
+                {/* Existing ring materials list */}
+                {ringMaterials.length > 0 && (
+                  <div className="space-y-1.5">
+                    {ringMaterials.map((mat, idx) => (
+                      <div key={idx} className="flex items-center justify-between bg-white border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm">
+                        <span className="font-medium text-[#0F172A]">{mat.label}</span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-[#F97316] font-bold">
+                            {mat.extraPrice > 0 ? `+₹${mat.extraPrice.toLocaleString("en-IN")}` : "No extra charge"}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setRingMaterials((prev) => prev.filter((_, i) => i !== idx))}
+                            className="text-red-400 hover:text-red-600 font-bold text-xs transition-colors"
+                            aria-label="Remove ring material"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Add new ring material row */}
+                <div className="flex gap-2 items-end">
+                  <div className="flex-1">
+                    <label className="block text-xs font-semibold text-[#64748B] mb-1">Material Name</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Only Gemstone, Silver Ring, Gold Ring"
+                      value={newRingLabel}
+                      onChange={(e) => setNewRingLabel(e.target.value)}
+                      className="w-full px-2.5 py-1.5 text-sm border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none"
+                    />
+                  </div>
+                  <div className="w-32 shrink-0">
+                    <label className="block text-xs font-semibold text-[#64748B] mb-1">Extra Price (₹)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      placeholder="0"
+                      value={newRingPrice}
+                      onChange={(e) => setNewRingPrice(Number(e.target.value))}
+                      className="w-full px-2.5 py-1.5 text-sm border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const label = newRingLabel.trim();
+                      if (!label) return;
+                      if (ringMaterials.some((m) => m.label.toLowerCase() === label.toLowerCase())) return;
+                      setRingMaterials((prev) => [...prev, { label, extraPrice: newRingPrice || 0 }]);
+                      setNewRingLabel("");
+                      setNewRingPrice(0);
+                    }}
+                    className="shrink-0 px-3 py-1.5 bg-[#F97316] hover:bg-[#EA6C0A] text-white text-sm font-bold rounded-lg transition-colors disabled:opacity-50"
+                    disabled={!newRingLabel.trim()}
+                  >
+                    + Add
+                  </button>
+                </div>
+                <p className="text-xs text-gray-400">
+                  Set extra price to <strong>0</strong> for "Only Gemstone" (no ring charge).
+                </p>
+              </div>
+            )}
+          </div>
             {error && (
               <div className="flex-1 bg-red-50 border border-red-200 text-red-600 px-4 py-2 rounded-lg text-sm mr-auto">
                 {error}
