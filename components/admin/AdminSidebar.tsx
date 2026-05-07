@@ -9,6 +9,7 @@ type AdminSidebarProps = { onNavigate?: () => void };
 export default function AdminSidebar({ onNavigate }: AdminSidebarProps) {
   const pathname = usePathname();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [pendingReviews, setPendingReviews] = useState(0);
 
   useEffect(() => {
     const fetchUnread = async () => {
@@ -20,33 +21,55 @@ export default function AdminSidebar({ onNavigate }: AdminSidebarProps) {
         }
       } catch { /* ignore */ }
     };
+
+    const fetchPendingReviews = async () => {
+      try {
+        const res = await fetch("/api/admin/reviews?status=pending", { credentials: "include" });
+        if (res.ok) {
+          const data = await res.json();
+          setPendingReviews(Array.isArray(data) ? data.length : 0);
+        }
+      } catch { /* ignore */ }
+    };
+
     fetchUnread();
-    const interval = setInterval(fetchUnread, 60000); // refresh every minute
+    fetchPendingReviews();
+    const interval = setInterval(() => {
+      fetchUnread();
+      fetchPendingReviews();
+    }, 60000);
     return () => clearInterval(interval);
   }, []);
 
   const links = [
     { href: "/admin", label: "Dashboard", exact: true, icon: (
       <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
-    ) },
+    ), badge: 0 },
     { href: "/admin/orders", label: "Orders", exact: false, icon: (
       <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
-    ) },
+    ), badge: 0 },
     { href: "/admin/bookings", label: "Bookings", exact: false, icon: (
       <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-    ) },
+    ), badge: 0 },
     { href: "/admin/services", label: "Services", exact: false, icon: (
       <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
-    ) },
+    ), badge: 0 },
     { href: "/admin/products", label: "Products", exact: false, icon: (
       <span className="text-xl leading-none w-5 h-5 flex items-center justify-center flex-shrink-0">🛍️</span>
-    ) },
+    ), badge: 0 },
     { href: "/admin/blogs", label: "Blogs", exact: false, icon: (
       <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /></svg>
-    ) },
+    ), badge: 0 },
+    // ── NEW: Reviews ──────────────────────────────────────────────────────────
+    { href: "/admin/reviews", label: "Reviews", exact: false, icon: (
+      <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+      </svg>
+    ), badge: pendingReviews },
+    // ─────────────────────────────────────────────────────────────────────────
     { href: "/admin/contacts", label: "Messages", exact: false, icon: (
       <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-    ) },
+    ), badge: unreadCount },
   ];
 
   return (
@@ -84,9 +107,9 @@ export default function AdminSidebar({ onNavigate }: AdminSidebarProps) {
               <span className="font-medium ml-3 hidden md:block flex-1">
                 {link.label}
               </span>
-              {link.href === "/admin/contacts" && unreadCount > 0 && (
+              {link.badge > 0 && (
                 <span className="ml-auto hidden md:flex items-center justify-center bg-[#F97316] text-white text-xs font-bold rounded-full w-5 h-5 flex-shrink-0">
-                  {unreadCount > 9 ? "9+" : unreadCount}
+                  {link.badge > 9 ? "9+" : link.badge}
                 </span>
               )}
               
