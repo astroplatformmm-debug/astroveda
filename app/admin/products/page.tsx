@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import Modal from "@/components/ui/Modal";
 import Spinner from "@/components/ui/Spinner";
 import type { Product } from "@/lib/types";
-
 const CATEGORY_LABELS: Record<string, string> = {
   healing: "Healing Crystals",
   gemstones: "Gemstones",
@@ -15,23 +14,18 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 function categoryLabel(cat?: string) {
   const key = (cat || "gemstones").toLowerCase();
-  return CATEGORY_LABELS[key]
-    ? `${cat || "gemstones"} · ${CATEGORY_LABELS[key]}`
-    : cat || "—";
+  return CATEGORY_LABELS[key] ? `${cat || "gemstones"} · ${CATEGORY_LABELS[key]}` : cat || "—";
 }
 
 export default function ProductsManagement() {
   const router = useRouter();
-
   const [productsList, setProductsList] = useState<Product[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-
   const [error, setError] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -43,22 +37,15 @@ export default function ProductsManagement() {
     certification: "",
     category: "gemstones",
   });
-
   const [extraImages, setExtraImages] = useState<string[]>([]);
   const [optionsInput, setOptionsInput] = useState("");
-
   const [ringMaterialEnabled, setRingMaterialEnabled] = useState(false);
-
-  const [ringMaterials, setRingMaterials] = useState<
-    { label: string; extraPrice: number }[]
-  >([]);
-
+  const [ringMaterials, setRingMaterials] = useState<{ label: string; extraPrice: number }[]>([]);
   const [newRingLabel, setNewRingLabel] = useState("");
   const [newRingPrice, setNewRingPrice] = useState<number>(0);
 
   const openAddModal = () => {
     setEditingId(null);
-
     setFormData({
       title: "",
       description: "",
@@ -68,25 +55,19 @@ export default function ProductsManagement() {
       certification: "",
       category: "gemstones",
     });
-
     setExtraImages([]);
     setOptionsInput("");
-
     setRingMaterialEnabled(false);
     setRingMaterials([]);
-
     setNewRingLabel("");
     setNewRingPrice(0);
-
     setError(null);
     setSaveSuccess(false);
-
     setIsModalOpen(true);
   };
 
   const openEditModal = (product: Product) => {
-    setEditingId(String(product._id || product.id || ""));
-
+    setEditingId(product._id || product.id || null);
     setFormData({
       title: product.title,
       description: product.description,
@@ -96,35 +77,23 @@ export default function ProductsManagement() {
       certification: product.certification || "",
       category: product.category || "gemstones",
     });
-
     setExtraImages([...(product.images || [])]);
-
     setOptionsInput(
       (product.options || [])
-        .map(
-          (o: { label: string; price: number }) =>
-            `${o.label}:${o.price}`
-        )
+        .map((o: { label: string; price: number }) => `${o.label}:${o.price}`)
         .join(", ")
     );
-
     setRingMaterialEnabled(product.ringMaterialEnabled ?? false);
-
     setRingMaterials(
-      (product.ringMaterials || []).map(
-        (m: { label: string; extraPrice: number }) => ({
-          label: m.label,
-          extraPrice: m.extraPrice,
-        })
-      )
+      (product.ringMaterials || []).map((m: { label: string; extraPrice: number }) => ({
+        label: m.label,
+        extraPrice: m.extraPrice,
+      }))
     );
-
     setNewRingLabel("");
     setNewRingPrice(0);
-
     setError(null);
     setSaveSuccess(false);
-
     setIsModalOpen(true);
   };
 
@@ -139,8 +108,7 @@ export default function ProductsManagement() {
 
   const getBase64SizeBytes = (value: string) => {
     const base64Body = value.split(",")[1] || "";
-    const padding = base64Body.match(/=*$/)?.[0].length ?? 0;
-
+    const padding = (base64Body.match(/=*$/)?.[0].length ?? 0);
     return Math.floor((base64Body.length * 3) / 4) - padding;
   };
 
@@ -151,20 +119,14 @@ export default function ProductsManagement() {
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch("/api/products", {
-        credentials: "include",
-      });
-
+      const res = await fetch("/api/products", { credentials: "include" });
       if (!res.ok) {
         if (res.status === 401) {
           throw new Error("Session expired. Please log in again.");
         }
-
         throw new Error(await extractErrorMessage(res));
       }
-
       const data = (await res.json()) as Product[];
-
       setProductsList(data);
       setLoadError(null);
     } catch (err: unknown) {
@@ -182,77 +144,51 @@ export default function ProductsManagement() {
   const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this product?")) {
       setLoading(true);
-
       try {
-        const res = await fetch(`/api/products/${id}`, {
-          method: "DELETE",
-          credentials: "include",
-        });
-
+        const res = await fetch(`/api/products/${id}`, { method: "DELETE", credentials: "include" });
         if (!res.ok) {
           if (res.status === 401) {
             throw new Error("Session expired. Please log in again.");
           }
-
           throw new Error(await extractErrorMessage(res));
         }
-
         setLoadError(null);
-
         await fetchProducts();
       } catch (err: unknown) {
         console.error("Delete failed:", err);
-
         setLoadError(getErrorMessage(err));
         setLoading(false);
       }
     }
   };
 
-  const handleImageChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-
     if (file) {
       if (file.size > 1024 * 1024) {
         setError("Image too large. Please upload an image under 1MB.");
         return;
       }
-
       setError(null);
-
       const reader = new FileReader();
-
       reader.onloadend = () => {
-        setFormData({
-          ...formData,
-          image: reader.result as string,
-        });
+        setFormData({ ...formData, image: reader.result as string });
       };
-
       reader.readAsDataURL(file);
     }
-
     e.target.value = "";
   };
 
-  const handleMultipleImageUpload = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleMultipleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-
     const maxExtra = 4;
     const slots = maxExtra - extraImages.length;
-
     if (slots <= 0) {
       setError("You can upload up to 4 additional images.");
       e.target.value = "";
       return;
     }
-
     const toProcess = files.slice(0, slots);
-
     setError(null);
 
     toProcess.forEach((file) => {
@@ -260,20 +196,15 @@ export default function ProductsManagement() {
         setError("Each additional image must be under 1MB.");
         return;
       }
-
       const reader = new FileReader();
-
       reader.onloadend = () => {
         setExtraImages((prev) => {
           if (prev.length >= maxExtra) return prev;
-
           return [...prev, reader.result as string];
         });
       };
-
       reader.readAsDataURL(file);
     });
-
     e.target.value = "";
   };
 
@@ -283,7 +214,6 @@ export default function ProductsManagement() {
 
   const handleSubmit = async () => {
     setSaving(true);
-
     setError(null);
     setSaveSuccess(false);
 
@@ -294,99 +224,54 @@ export default function ProductsManagement() {
         .filter(Boolean)
         .map((s) => {
           const colonIndex = s.lastIndexOf(":");
-
-          if (colonIndex === -1) {
-            return { label: s, price: 0 };
-          }
-
+          if (colonIndex === -1) return { label: s, price: 0 };
           const label = s.slice(0, colonIndex).trim();
-
-          const price = Number(
-            s.slice(colonIndex + 1).trim()
-          );
-
-          return {
-            label,
-            price: Number.isFinite(price) ? price : 0,
-          };
+          const price = Number(s.slice(colonIndex + 1).trim());
+          return { label, price: Number.isFinite(price) ? price : 0 };
         })
         .filter((o) => o.label.length > 0);
-
       const primaryImage = formData.image;
-
       const payload: Record<string, unknown> = {
         ...formData,
-        category:
-          typeof formData.category === "string"
-            ? formData.category.toLowerCase().trim()
-            : "gemstones",
-
+        category: typeof formData.category === "string" ? formData.category.toLowerCase().trim() : "gemstones",
         images: extraImages.slice(0, 4),
-
         options,
-
         ringMaterialEnabled,
         ringMaterials,
       };
-
       if (
         typeof primaryImage === "string" &&
         primaryImage.startsWith("data:image") &&
         getBase64SizeBytes(primaryImage) > 1024 * 1024
       ) {
-        throw new Error(
-          "Image too large. Please upload an image under 1MB."
-        );
+        throw new Error("Image too large. Please upload an image under 1MB.");
       }
-
       for (const img of extraImages) {
-        if (
-          img.startsWith("data:image") &&
-          getBase64SizeBytes(img) > 1024 * 1024
-        ) {
-          throw new Error(
-            "An additional image is too large. Each must be under 1MB."
-          );
+        if (img.startsWith("data:image") && getBase64SizeBytes(img) > 1024 * 1024) {
+          throw new Error("An additional image is too large. Each must be under 1MB.");
         }
       }
-
       const requestPayload =
-        editingId &&
-        typeof primaryImage === "string" &&
-        primaryImage &&
-        !primaryImage.startsWith("data:image")
+        editingId && typeof primaryImage === "string" && primaryImage && !primaryImage.startsWith("data:image")
           ? (({ image: _image, ...rest }) => rest)(payload)
           : payload;
 
-      const res = await fetch(
-        editingId
-          ? `/api/products/${editingId}`
-          : "/api/products",
-        {
-          method: editingId ? "PUT" : "POST",
-
-          headers: {
-            "Content-Type": "application/json",
-          },
-
-          credentials: "include",
-
-          body: JSON.stringify(requestPayload),
-        }
-      );
+      const res = await fetch(editingId ? `/api/products/${editingId}` : "/api/products", {
+        method: editingId ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(requestPayload),
+      });
 
       if (!res.ok) {
         if (res.status === 401) {
           throw new Error("Session expired. Please log in again.");
         }
-
         throw new Error(await extractErrorMessage(res));
       }
 
       setSaveSuccess(true);
-
       await fetchProducts();
-
       setTimeout(() => {
         setFormData({
           title: "",
@@ -397,40 +282,113 @@ export default function ProductsManagement() {
           certification: "",
           category: "gemstones",
         });
-
         setExtraImages([]);
         setOptionsInput("");
-
         setRingMaterialEnabled(false);
         setRingMaterials([]);
-
         setNewRingLabel("");
         setNewRingPrice(0);
-
         setIsModalOpen(false);
-
         setSaving(false);
       }, 1000);
     } catch (err: unknown) {
       console.error("Save failed:", err);
-
       const message = getErrorMessage(err);
-
       setError(message);
-
       if (message === "Session expired. Please log in again.") {
         setTimeout(() => router.push("/admin/login"), 600);
       }
-
       setSaving(false);
     }
   };
 
   return (
     <div className="space-y-6">
-      {/* Your entire existing UI remains SAME */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold font-playfair text-[#0F172A]">Products Management</h1>
+          <p className="text-[#64748B] text-sm mt-1">Manage all shop products, categories, and inventory.</p>
+        </div>
+        <button
+          onClick={openAddModal}
+          className="px-4 py-2.5 bg-[#F97316] hover:bg-[#EA6C0A] text-white text-sm font-bold rounded-lg transition-colors shadow-sm flex items-center"
+        >
+          <svg className="w-5 h-5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          Add New Product
+        </button>
+      </div>
 
-      {/* KEEP ALL YOUR TABLE + PRODUCT UI EXACTLY SAME */}
+      <div className="bg-white rounded-xl shadow-sm border border-[#E2E8F0] overflow-hidden">
+        {loading ? (
+          <div className="py-10 flex justify-center">
+            <Spinner className="w-8 h-8 text-[#F97316]" />
+          </div>
+        ) : (
+          <div className="overflow-x-auto w-full">
+            <table className="w-full text-left text-sm whitespace-nowrap">
+              <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0]">
+                <tr>
+                  <th className="px-6 py-4 font-bold text-[#64748B]">Product</th>
+                  <th className="px-6 py-4 font-bold text-[#64748B]">Category</th>
+                  <th className="px-6 py-4 font-bold text-[#64748B]">Zodiac</th>
+                  <th className="px-6 py-4 font-bold text-[#64748B]">Certification</th>
+                  <th className="px-6 py-4 font-bold text-[#64748B]">Price</th>
+                  <th className="px-6 py-4 font-bold text-[#64748B] text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#E2E8F0]">
+                {productsList.length > 0 ? (
+                  productsList.map((product) => (
+                    <tr key={product._id || product.id} className="hover:bg-[#F8FAFC]">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center">
+                          <img
+                            src={product.image || "https://picsum.photos/seed/placeholder/100/100"}
+                            alt=""
+                            className="w-10 h-10 rounded-md object-cover mr-3 border border-[#E2E8F0]"
+                          />
+                          <div className="font-bold text-[#0F172A] truncate max-w-[200px]">{product.title}</div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-[#64748B] font-mono text-xs">{categoryLabel(product.category)}</td>
+                      <td className="px-6 py-4 text-[#64748B]">{product.zodiac || "-"}</td>
+                      <td className="px-6 py-4 text-[#64748B] truncate max-w-[150px]">{product.certification || "-"}</td>
+                      <td className="px-6 py-4 font-bold text-[#F97316]">₹{product.price}</td>
+                      <td className="px-6 py-4 text-right">
+                        <button
+                          onClick={() => openEditModal(product)}
+                          className="text-blue-600 hover:text-blue-800 font-bold mr-4"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(product._id || product.id || "")}
+                          className="text-red-500 hover:text-red-700 font-bold"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-10 text-center text-[#64748B] font-medium">
+                      No products found. Add one to get started.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+        {loadError && (
+          <div className="mx-6 my-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm mb-4">
+            {loadError}
+          </div>
+        )}
+      </div>
 
       <Modal
         isOpen={isModalOpen}
@@ -438,37 +396,244 @@ export default function ProductsManagement() {
         title={editingId ? "Edit Product" : "Add New Product"}
       >
         <div className="space-y-4">
-          {/* KEEP ALL YOUR EXISTING FIELDS SAME */}
-
-          {/* ERROR */}
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-2 rounded-lg text-sm">
-              {error}
-            </div>
+          {saveSuccess && (
+            <p className="text-green-600 text-sm font-bold bg-green-50 p-3 rounded-lg border border-green-200">
+              Saved successfully!
+            </p>
           )}
+          <div>
+            <label className="block text-sm font-bold text-[#0F172A] mb-1">Title</label>
+            <input
+              type="text"
+              required
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-[#0F172A] mb-1">Category</label>
+            <select
+              name="category"
+              value={formData.category}
+              onChange={(e) => setFormData({ ...formData, category: e.target.value.toLowerCase().trim() })}
+              className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none bg-white"
+            >
+              <option value="gemstones">Gemstones</option>
+              <option value="healing">Healing Crystals</option>
+              <option value="rudraksha">Rudraksha</option>
+              <option value="pooja">Pooja Items</option>
+            </select>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-bold text-[#0F172A] mb-1">Zodiac Alignment (Optional)</label>
+              <input
+                type="text"
+                placeholder="e.g. Leo, Virgo"
+                value={formData.zodiac}
+                onChange={(e) => setFormData({ ...formData, zodiac: e.target.value })}
+                className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-[#0F172A] mb-1">Price (₹)</label>
+              <input
+                type="number"
+                required
+                min="0"
+                value={formData.price}
+                onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
+                className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-[#0F172A] mb-1">Certification Details (Optional)</label>
+            <input
+              type="text"
+              placeholder="e.g. IGI Certified"
+              value={formData.certification}
+              onChange={(e) => setFormData({ ...formData, certification: e.target.value })}
+              className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-[#0F172A] mb-1">Description</label>
+            <textarea
+              required
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none min-h-[80px]"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-[#0F172A] mb-1">Upload Image (primary)</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg outline-none text-sm bg-gray-50"
+            />
+            {formData.image && formData.image.startsWith("http") && (
+              <p className="text-xs text-green-600 mt-1">Current image preserved. Upload a new one to replace.</p>
+            )}
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-[#0F172A] mb-1">Additional Images (up to 4)</label>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleMultipleImageUpload}
+              disabled={extraImages.length >= 4}
+              className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg outline-none text-sm bg-gray-50 disabled:opacity-50"
+            />
+            <div className="flex gap-2 flex-wrap mt-2">
+              {extraImages.map((src, i) => (
+                <div key={i} className="relative group">
+                  <img src={src} alt="" className="w-20 h-20 object-cover rounded-lg border border-[#E2E8F0]" />
+                  <button
+                    type="button"
+                    onClick={() => removeExtraImage(i)}
+                    className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 text-white text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity"
+                    aria-label="Remove image"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-[#0F172A] mb-1">Product Options with Prices</label>
+            <input
+              type="text"
+              placeholder="e.g. 5 carat:5000, 7 carat:7000, 10 carat:9500"
+              value={optionsInput}
+              onChange={(e) => setOptionsInput(e.target.value)}
+              className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none"
+            />
+            <p className="text-xs text-gray-400 mt-1">Format: <strong>Label:Price</strong> — separate multiple options with commas. e.g. 5 carat:5000, 7 carat:7000</p>
+          </div>
 
-          {/* ACTION BUTTONS */}
-          <div className="flex items-center justify-end gap-3 pt-2">
+          {/* ── Ring Material Section ────────────────────────────────────── */}
+          <div className="border border-[#E2E8F0] rounded-xl p-4 bg-[#FAFAFA]">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h3 className="text-sm font-bold text-[#0F172A]">Ring Material Options</h3>
+                <p className="text-xs text-[#64748B] mt-0.5">Allow customers to choose a ring setting with an added price</p>
+              </div>
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <span className="text-xs font-semibold text-[#64748B]">Enable</span>
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    className="sr-only"
+                    checked={ringMaterialEnabled}
+                    onChange={(e) => setRingMaterialEnabled(e.target.checked)}
+                  />
+                  <div
+                    className={`w-10 h-5 rounded-full transition-colors ${ringMaterialEnabled ? "bg-[#F97316]" : "bg-gray-300"}`}
+                  />
+                  <div
+                    className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${ringMaterialEnabled ? "translate-x-5" : "translate-x-0"}`}
+                  />
+                </div>
+              </label>
+            </div>
+
+            {ringMaterialEnabled && (
+              <div className="space-y-3">
+                {/* Existing ring materials list */}
+                {ringMaterials.length > 0 && (
+                  <div className="space-y-1.5">
+                    {ringMaterials.map((mat, idx) => (
+                      <div key={idx} className="flex items-center justify-between bg-white border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm">
+                        <span className="font-medium text-[#0F172A]">{mat.label}</span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-[#F97316] font-bold">
+                            {mat.extraPrice > 0 ? `+₹${mat.extraPrice.toLocaleString("en-IN")}` : "No extra charge"}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setRingMaterials((prev) => prev.filter((_, i) => i !== idx))}
+                            className="text-red-400 hover:text-red-600 font-bold text-xs transition-colors"
+                            aria-label="Remove ring material"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Add new ring material row */}
+                <div className="flex gap-2 items-end">
+                  <div className="flex-1">
+                    <label className="block text-xs font-semibold text-[#64748B] mb-1">Material Name</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Only Gemstone, Silver Ring, Gold Ring"
+                      value={newRingLabel}
+                      onChange={(e) => setNewRingLabel(e.target.value)}
+                      className="w-full px-2.5 py-1.5 text-sm border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none"
+                    />
+                  </div>
+                  <div className="w-32 shrink-0">
+                    <label className="block text-xs font-semibold text-[#64748B] mb-1">Extra Price (₹)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      placeholder="0"
+                      value={newRingPrice}
+                      onChange={(e) => setNewRingPrice(Number(e.target.value))}
+                      className="w-full px-2.5 py-1.5 text-sm border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const label = newRingLabel.trim();
+                      if (!label) return;
+                      if (ringMaterials.some((m) => m.label.toLowerCase() === label.toLowerCase())) return;
+                      setRingMaterials((prev) => [...prev, { label, extraPrice: newRingPrice || 0 }]);
+                      setNewRingLabel("");
+                      setNewRingPrice(0);
+                    }}
+                    className="shrink-0 px-3 py-1.5 bg-[#F97316] hover:bg-[#EA6C0A] text-white text-sm font-bold rounded-lg transition-colors disabled:opacity-50"
+                    disabled={!newRingLabel.trim()}
+                  >
+                    + Add
+                  </button>
+                </div>
+                <p className="text-xs text-gray-400">
+                  Set extra price to <strong>0</strong> for "Only Gemstone" (no ring charge).
+                </p>
+              </div>
+            )}
+          </div>
+            {error && (
+              <div className="flex-1 bg-red-50 border border-red-200 text-red-600 px-4 py-2 rounded-lg text-sm mr-auto">
+                {error}
+              </div>
+            )}
             <button
               type="button"
-              onClick={() => !saving && setIsModalOpen(false)}
+              onClick={() => setIsModalOpen(false)}
               disabled={saving}
               className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-[#0F172A] rounded-lg font-bold transition-colors disabled:opacity-50"
             >
               Cancel
             </button>
-
             <button
               type="button"
               onClick={handleSubmit}
               disabled={saving}
               className="px-4 py-2 bg-[#F97316] hover:bg-[#EA6C0A] text-white rounded-lg font-bold transition-colors disabled:opacity-50 min-w-[120px] flex justify-center"
             >
-              {saving ? (
-                <Spinner className="w-5 h-5 text-white" />
-              ) : (
-                "Save Changes"
-              )}
+              {saving ? <Spinner className="w-5 h-5 text-white" /> : "Save Changes"}
             </button>
           </div>
         </div>
