@@ -24,6 +24,10 @@ function CheckoutContent() {
   const selectedOptionPrice = searchParams.get("optionPrice")
     ? Number(searchParams.get("optionPrice"))
     : null;
+  const selectedRingMaterial = searchParams.get("ringMaterial");
+  const ringMaterialExtraPrice = searchParams.get("ringMaterialExtraPrice")
+    ? Number(searchParams.get("ringMaterialExtraPrice"))
+    : 0;
       const bookingDate = searchParams.get("date") ?? "";
       const bookingTime = searchParams.get("time") ?? "";
 
@@ -225,9 +229,10 @@ function CheckoutContent() {
       setCheckoutError("");
 
       try {
-        const totalAmount = (selectedOptionPrice && selectedOptionPrice > 0)
+        const baseAmount = (selectedOptionPrice && selectedOptionPrice > 0)
           ? selectedOptionPrice
           : Number(item.price);
+        const totalAmount = baseAmount + (ringMaterialExtraPrice || 0);
         const itemId = isProbablyObjectId(item._id) ? item._id : undefined;
         const displayTitle =
           productId && selectedProductOption?.trim()
@@ -239,6 +244,11 @@ function CheckoutContent() {
             itemType: serviceId ? "service" : "product",
             title: displayTitle,
             price: totalAmount,
+            ...(selectedRingMaterial ? {
+              ringMaterial: selectedRingMaterial,
+              ringMaterialExtraPrice: ringMaterialExtraPrice,
+            } : {}),
+            ...(selectedProductOption ? { selectedOption: selectedProductOption, selectedOptionPrice: selectedOptionPrice ?? undefined } : {}),
           },
         ];
 
@@ -507,7 +517,7 @@ function CheckoutContent() {
                   disabled={isSubmitting}
                   className="w-full flex items-center justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-lg text-lg font-bold text-white bg-[#F97316] hover:bg-[#EA6C0A] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F97316] transition-all disabled:opacity-70"
                 >
-                  {isSubmitting ? <Spinner /> : `Pay ₹${selectedOptionPrice && selectedOptionPrice > 0 ? selectedOptionPrice : item.price}`}
+                  {isSubmitting ? <Spinner /> : `Pay ₹${(selectedOptionPrice && selectedOptionPrice > 0 ? selectedOptionPrice : Number(item.price)) + (ringMaterialExtraPrice || 0)}`}
                 </button>
               </div>
             </form>
@@ -526,7 +536,13 @@ function CheckoutContent() {
                 />
                 <div>
                   <h3 className="font-bold text-[#0F172A] line-clamp-2">{item.title}</h3>
-                  <p className="text-[#F97316] font-extrabold mt-1 text-lg">₹{selectedOptionPrice && selectedOptionPrice > 0 ? selectedOptionPrice : item.price}</p>
+                  {selectedProductOption && (
+                    <p className="text-xs text-[#64748B] mt-0.5">Option: {selectedProductOption}</p>
+                  )}
+                  {selectedRingMaterial && (
+                    <p className="text-xs text-[#64748B]">Ring: {selectedRingMaterial}</p>
+                  )}
+                  <p className="text-[#F97316] font-extrabold mt-1 text-lg">₹{(selectedOptionPrice && selectedOptionPrice > 0 ? selectedOptionPrice : Number(item.price)) + (ringMaterialExtraPrice || 0)}</p>
                   {'duration' in item && (
                     <span className="inline-block mt-1 bg-white px-2 py-0.5 border border-[#F97316]/30 rounded text-xs text-[#0F172A] font-medium shadow-sm">
                       {item.duration}
@@ -546,20 +562,26 @@ function CheckoutContent() {
                 </div>
               </div>
 
-              <div className="border-t border-[#F97316]/20 pt-4 space-y-3">
-                <div className="flex justify-between text-sm text-[#64748B] font-medium">
-                  <span>Subtotal</span>
-                  <span>₹{selectedOptionPrice && selectedOptionPrice > 0 ? selectedOptionPrice : item.price}</span>
+                <div className="border-t border-[#F97316]/20 pt-4 space-y-3">
+                  <div className="flex justify-between text-sm text-[#64748B] font-medium">
+                    <span>Subtotal</span>
+                    <span>₹{selectedOptionPrice && selectedOptionPrice > 0 ? selectedOptionPrice : item.price}</span>
+                  </div>
+                  {ringMaterialExtraPrice > 0 && (
+                    <div className="flex justify-between text-sm text-[#64748B] font-medium">
+                      <span>Ring Setting ({selectedRingMaterial})</span>
+                      <span>+₹{ringMaterialExtraPrice}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-sm text-[#64748B] font-medium">
+                    <span>Taxes & Fees</span>
+                    <span>₹0</span>
+                  </div>
+                  <div className="flex justify-between text-xl font-extrabold text-[#0F172A] pt-3 border-t border-[#F97316]/20">
+                    <span>Total</span>
+                    <span className="text-[#F97316]">₹{(selectedOptionPrice && selectedOptionPrice > 0 ? selectedOptionPrice : Number(item.price)) + (ringMaterialExtraPrice || 0)}</span>
+                  </div>
                 </div>
-                <div className="flex justify-between text-sm text-[#64748B] font-medium">
-                  <span>Taxes & Fees</span>
-                  <span>₹0</span>
-                </div>
-                <div className="flex justify-between text-xl font-extrabold text-[#0F172A] pt-3 border-t border-[#F97316]/20">
-                  <span>Total</span>
-                  <span className="text-[#F97316]">₹{selectedOptionPrice && selectedOptionPrice > 0 ? selectedOptionPrice : item.price}</span>
-                </div>
-              </div>
             </div>
           </div>
         </div>
