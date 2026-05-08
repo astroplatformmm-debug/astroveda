@@ -21,6 +21,11 @@ const productSchema = new Schema(
       trim: true,
       default: "gemstones",
     },
+    ringMaterialEnabled: { type: Boolean, default: false },
+    ringMaterials: {
+      type: [{ label: { type: String }, extraPrice: { type: Number, default: 0 } }],
+      default: [],
+    },
     isActive: { type: Boolean, default: true },
   },
   {
