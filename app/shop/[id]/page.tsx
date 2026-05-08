@@ -13,6 +13,7 @@ export default function GemstoneDetail() {
   const [notFound, setNotFound] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<{ label: string; price: number } | null>(null);
+  const [selectedRingMaterial, setSelectedRingMaterial] = useState<{ label: string; extraPrice: number } | null>(null);
 
   const extractErrorMessage = async (response: Response) => {
     try {
@@ -83,8 +84,10 @@ export default function GemstoneDetail() {
 
   const productId = gemstone._id || gemstone.id || "";
   const categoryLabel = gemstone.category || "gemstones";
-  const displayPrice = selectedOption ? selectedOption.price : gemstone.price;
-  const checkoutHref = `/checkout?productId=${productId}${selectedOption ? `&option=${encodeURIComponent(selectedOption.label)}&optionPrice=${selectedOption.price}` : ""}`;
+  const basePrice = selectedOption ? selectedOption.price : gemstone.price;
+  const ringMaterialExtra = selectedRingMaterial ? selectedRingMaterial.extraPrice : 0;
+  const displayPrice = basePrice + ringMaterialExtra;
+  const checkoutHref = `/checkout?productId=${productId}${selectedOption ? `&option=${encodeURIComponent(selectedOption.label)}&optionPrice=${selectedOption.price}` : ""}${selectedRingMaterial ? `&ringMaterial=${encodeURIComponent(selectedRingMaterial.label)}&ringMaterialExtraPrice=${selectedRingMaterial.extraPrice}` : ""}`;
 
   return (
     <div className="bg-[#FAF7F2] min-h-screen pb-20">
@@ -201,6 +204,35 @@ export default function GemstoneDetail() {
                     </option>
                   ))}
                 </select>
+              </div>
+            )}
+
+            {gemstone.ringMaterialEnabled && gemstone.ringMaterials && gemstone.ringMaterials.length > 0 && (
+              <div className="mt-4">
+                <label htmlFor="ring-material" className="text-sm font-medium text-[#0F172A]">
+                  Ring Setting:
+                </label>
+                <select
+                  id="ring-material"
+                  value={selectedRingMaterial ? selectedRingMaterial.label : ""}
+                  onChange={(e) => {
+                    const found = (gemstone.ringMaterials || []).find((m) => m.label === e.target.value);
+                    setSelectedRingMaterial(found ?? null);
+                  }}
+                  className="mt-1 w-full border border-[#E2E8F0] rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-[#F97316]"
+                >
+                  <option value="">No ring setting</option>
+                  {gemstone.ringMaterials.map((mat) => (
+                    <option key={mat.label} value={mat.label}>
+                      {mat.label} {mat.extraPrice > 0 ? `(+₹${mat.extraPrice})` : "(included)"}
+                    </option>
+                  ))}
+                </select>
+                {selectedRingMaterial && selectedRingMaterial.extraPrice > 0 && (
+                  <p className="mt-1 text-xs text-[#64748B]">
+                    Ring setting adds ₹{selectedRingMaterial.extraPrice} to the price
+                  </p>
+                )}
               </div>
             )}
 
