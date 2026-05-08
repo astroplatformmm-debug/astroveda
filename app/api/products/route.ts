@@ -20,7 +20,6 @@ export async function GET(req: NextRequest) {
       console.log("[GET /api/products] CATEGORY (raw):", category);
     }
 
-    // Match active or missing isActive (legacy docs); exclude explicit false.
     const query: Record<string, unknown> = { isActive: { $ne: false } };
     const slug = parseShopCategoryFilter(category);
 
@@ -83,7 +82,7 @@ export const POST = withAdminAuth(async (req) => {
       try {
         imageUrl = await uploadImage(imageUrl, "astroveda/products");
       } catch (err: unknown) {
-        return NextResponse.json({ error: 'Image upload failed: ' + (err instanceof Error ? err.message : 'Unknown error') }, { status: 500 });
+        return NextResponse.json({ error: "Image upload failed: " + (err instanceof Error ? err.message : "Unknown error") }, { status: 500 });
       }
     }
 
@@ -128,6 +127,8 @@ export const POST = withAdminAuth(async (req) => {
       category: normalizeProductCategory(
         typeof body.category === "string" ? body.category.toLowerCase().trim() : body.category,
       ),
+      ringMaterialEnabled: body.ringMaterialEnabled ?? false,
+      ringMaterials: Array.isArray(body.ringMaterials) ? body.ringMaterials : [],
     });
 
     return NextResponse.json(product, { status: 201 });
