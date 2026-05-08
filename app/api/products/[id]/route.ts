@@ -92,6 +92,13 @@ export const PUT = withAdminAuth(async (req, context) => {
         : [];
     }
 
+    if (body.ringMaterialEnabled !== undefined) {
+      updateData.ringMaterialEnabled = Boolean(body.ringMaterialEnabled);
+    }
+    if (body.ringMaterials !== undefined) {
+      updateData.ringMaterials = Array.isArray(body.ringMaterials) ? body.ringMaterials : [];
+    }
+
     const product = await Product.findByIdAndUpdate(
       id,
       updateData,
