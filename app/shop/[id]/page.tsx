@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { useCart } from "@/context/CartContext";
 import Spinner from "@/components/ui/Spinner";
 import type { Product } from "@/lib/types";
 import { useParams } from "next/navigation";
+import { useCart } from "@/context/CartContext";
 
 export default function GemstoneDetail() {
   const params = useParams<{ id: string }>();
@@ -15,6 +15,8 @@ export default function GemstoneDetail() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<{ label: string; price: number } | null>(null);
   const [selectedRingMaterial, setSelectedRingMaterial] = useState<{ label: string; extraPrice: number } | null>(null);
+  const [added, setAdded] = useState(false);
+  const { addToCart } = useCart();
 
   const extractErrorMessage = async (response: Response) => {
     try {
@@ -90,6 +92,17 @@ export default function GemstoneDetail() {
   const displayPrice = basePrice + ringMaterialExtra;
   const checkoutHref = `/checkout?productId=${productId}${selectedOption ? `&option=${encodeURIComponent(selectedOption.label)}&optionPrice=${selectedOption.price}` : ""}${selectedRingMaterial ? `&ringMaterial=${encodeURIComponent(selectedRingMaterial.label)}&ringMaterialExtraPrice=${selectedRingMaterial.extraPrice}` : ""}`;
 
+  const handleAddToCart = () => {
+    addToCart({
+      id: productId,
+      title: gemstone.title,
+      price: displayPrice,
+      image: gemstone.image || "",
+    });
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1500);
+  };
+
   return (
     <div className="bg-[#FAF7F2] min-h-screen pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 min-w-0">
@@ -104,6 +117,7 @@ export default function GemstoneDetail() {
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-start">
+          {/* Image Gallery */}
           <div className="relative">
             <div className="relative rounded-2xl overflow-hidden bg-gray-100 shadow-xl border border-[#E2E8F0]">
               <img
@@ -169,6 +183,7 @@ export default function GemstoneDetail() {
             )}
           </div>
 
+          {/* Product Info */}
           <div>
             <span className="inline-block bg-[#FFF7ED] text-[#F97316] text-xs px-3 py-1 rounded-full capitalize">
               {categoryLabel}
@@ -237,12 +252,27 @@ export default function GemstoneDetail() {
               </div>
             )}
 
-            <Link
-              href={checkoutHref}
-              className="block mt-6 w-full bg-[#F97316] text-white py-4 rounded-xl font-semibold text-lg hover:bg-[#EA6C0A] transition-all duration-200 text-center"
-            >
-              Buy Now
-            </Link>
+            {/* Buttons */}
+            <div className="mt-6 flex flex-col gap-3">
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                className={`w-full py-4 rounded-xl font-semibold text-lg transition-all duration-200 border-2 ${
+                  added
+                    ? "bg-green-500 border-green-500 text-white"
+                    : "bg-white border-[#F97316] text-[#F97316] hover:bg-[#FFF7ED]"
+                }`}
+              >
+                {added ? "✓ Added to Cart!" : "🛒 Add to Cart"}
+              </button>
+
+              <Link
+                href={checkoutHref}
+                className="block w-full bg-[#F97316] text-white py-4 rounded-xl font-semibold text-lg hover:bg-[#EA6C0A] transition-all duration-200 text-center"
+              >
+                Buy Now →
+              </Link>
+            </div>
 
             <Link
               href="/shop"
@@ -251,6 +281,7 @@ export default function GemstoneDetail() {
               ← Back to Shop
             </Link>
 
+            {/* Trust Badges */}
             <div className="mt-12 pt-8 border-t border-[#E2E8F0] grid grid-cols-2 gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-[#FFF7ED] flex items-center justify-center text-[#F97316]">
