@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { useCart } from "@/context/CartContext";
 import Spinner from "@/components/ui/Spinner";
 import type { Product } from "@/lib/types";
 import { useParams } from "next/navigation";
