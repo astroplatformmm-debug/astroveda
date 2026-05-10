@@ -12,6 +12,12 @@ export default function GemstoneCard({ product }: { product: ProductCardData }) 
   const [added, setAdded] = useState(false);
   const productId = product._id || product.id || "";
 
+  const mrp = product.mrp ?? null;
+  const discountPct =
+    mrp && mrp > product.price
+      ? Math.round(((mrp - product.price) / mrp) * 100)
+      : null;
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -35,9 +41,18 @@ export default function GemstoneCard({ product }: { product: ProductCardData }) 
               {product.zodiac}
             </span>
           )}
-          <span className="absolute top-3 right-3 bg-red-500/90 text-white text-xs font-bold px-3 py-1 rounded-full z-20 shadow-sm animate-pulse">
-            Limited Stock
-          </span>
+
+          {/* Show real discount % if MRP set, otherwise "Limited Stock" */}
+          {discountPct !== null ? (
+            <span className="absolute top-3 right-3 bg-red-600 text-white text-xs font-extrabold px-3 py-1 rounded-full z-20 shadow-sm">
+              {discountPct}% OFF
+            </span>
+          ) : (
+            <span className="absolute top-3 right-3 bg-red-500/90 text-white text-xs font-bold px-3 py-1 rounded-full z-20 shadow-sm animate-pulse">
+              Limited Stock
+            </span>
+          )}
+
           <img
             src={product.image || "https://picsum.photos/seed/default/600/400"}
             alt={product.title}
@@ -48,7 +63,12 @@ export default function GemstoneCard({ product }: { product: ProductCardData }) 
         <div className="p-5 flex flex-col flex-grow">
           <div className="flex justify-between items-start gap-4 mb-3">
             <h3 className="font-playfair text-lg font-bold text-[#0F172A] leading-tight">{product.title}</h3>
-            <span className="text-[#F97316] font-bold text-lg whitespace-nowrap">₹{product.price}</span>
+            <div className="flex flex-col items-end whitespace-nowrap">
+              <span className="text-[#F97316] font-bold text-lg">₹{product.price.toLocaleString("en-IN")}</span>
+              {mrp && mrp > product.price && (
+                <span className="text-xs text-[#94A3B8] line-through">₹{mrp.toLocaleString("en-IN")}</span>
+              )}
+            </div>
           </div>
 
           <ul className="text-sm text-[#64748B] mb-5 flex-grow space-y-1">
