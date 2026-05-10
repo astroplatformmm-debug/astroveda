@@ -98,6 +98,7 @@ export const PUT = withAdminAuth(async (req, context) => {
     if (body.ringMaterials !== undefined) {
       updateData.ringMaterials = Array.isArray(body.ringMaterials) ? body.ringMaterials : [];
     }
+    updateData.mrp = typeof body.mrp === "number" && body.mrp > 0 ? body.mrp : null;
 
     const product = await Product.findByIdAndUpdate(
       id,
