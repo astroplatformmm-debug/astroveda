@@ -146,6 +146,9 @@ function ShopContent() {
   const [selectedBenefits, setSelectedBenefits] = useState<string[]>([]);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
+  // ── NEW: search state ──────────────────────────────────────────────────────
+  const [searchQuery, setSearchQuery] = useState("");
+
   const searchParams = useSearchParams();
   const router = useRouter();
   const rawCategory = searchParams.get("category");
@@ -186,8 +189,18 @@ function ShopContent() {
     count: cat.value === "all" ? products.length : products.filter((p) => p.category === cat.value).length,
   }));
 
+  // ── NEW: search + filter + sort pipeline ───────────────────────────────────
   const displayed = [...products]
     .filter((p) => p.price <= maxPrice)
+    .filter((p) => {
+      if (!searchQuery.trim()) return true;
+      const q = searchQuery.toLowerCase().trim();
+      return (
+        p.title.toLowerCase().includes(q) ||
+        (p.description || "").toLowerCase().includes(q) ||
+        (p.category || "").toLowerCase().includes(q)
+      );
+    })
     .sort((a, b) => {
       if (sort === "price_asc") return a.price - b.price;
       if (sort === "price_desc") return b.price - a.price;
@@ -269,6 +282,33 @@ function ShopContent() {
         <p className="text-[#64748B] text-sm max-w-lg mx-auto">
           Energised products crafted to bring positivity, protection and prosperity in your life.
         </p>
+
+        {/* ── NEW: Search bar ───────────────────────────────────────────────── */}
+        <div className="mt-6 max-w-md mx-auto relative">
+          <div className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none">
+            <svg className="w-4 h-4 text-[#94A3B8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            placeholder="Search products…"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-[#E2E8F0] bg-[#FAF7F2] text-sm text-[#1A0A00] placeholder-[#94A3B8] focus:outline-none focus:border-[#F97316] focus:ring-1 focus:ring-[#F97316] transition"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute inset-y-0 right-3 flex items-center text-[#94A3B8] hover:text-[#F97316] transition-colors"
+              aria-label="Clear search"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Category icon strip */}
@@ -326,6 +366,9 @@ function ShopContent() {
             <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
               <p className="text-sm text-[#64748B]">
                 Showing <span className="font-bold text-[#1A0A00]">{displayed.length}</span> results
+                {searchQuery && (
+                  <span className="ml-1 text-[#F97316]">for &ldquo;{searchQuery}&rdquo;</span>
+                )}
               </p>
               <div className="flex items-center gap-2">
                 <button
@@ -353,8 +396,13 @@ function ShopContent() {
               <div className="text-center py-20 bg-white rounded-2xl border border-[#F0EBE3]">
                 <p className="text-4xl mb-3">🔍</p>
                 <p className="font-bold text-[#1A0A00] text-lg">No products found</p>
-                <p className="text-[#64748B] text-sm mt-1">Try adjusting your filters</p>
-                <button onClick={() => { router.push("/shop"); setMaxPrice(50000); }} className="mt-4 px-6 py-2 bg-[#F97316] text-white rounded-full text-sm font-bold hover:bg-[#EA6C0A] transition-colors">
+                <p className="text-[#64748B] text-sm mt-1">
+                  {searchQuery ? `No results for "${searchQuery}"` : "Try adjusting your filters"}
+                </p>
+                <button
+                  onClick={() => { router.push("/shop"); setMaxPrice(50000); setSearchQuery(""); }}
+                  className="mt-4 px-6 py-2 bg-[#F97316] text-white rounded-full text-sm font-bold hover:bg-[#EA6C0A] transition-colors"
+                >
                   View All
                 </button>
               </div>
