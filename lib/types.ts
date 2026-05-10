@@ -56,6 +56,7 @@ export type Product = {
 
   zodiac?: string;
   certification?: string;
+  mrp?: number; 
 
   isActive?: boolean;
 
