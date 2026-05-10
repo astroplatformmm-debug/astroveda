@@ -6,7 +6,6 @@ const productSchema = new Schema(
     title: { type: String, required: true },
     description: { type: String, required: true },
     price: { type: Number, required: true },
-    mrp: { type: Number, default: null },
     image: { type: String, required: true },
     images: { type: [String], default: [] },
     options: {
@@ -25,6 +24,10 @@ const productSchema = new Schema(
     ringMaterialEnabled: { type: Boolean, default: false },
     ringMaterials: {
       type: [{ label: { type: String }, extraPrice: { type: Number, default: 0 } }],
+      default: [],
+    },
+    benefits: {
+      type: [{ label: { type: String }, desc: { type: String } }],
       default: [],
     },
     isActive: { type: Boolean, default: true },
