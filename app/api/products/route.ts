@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
       console.log("[GET /api/products] MONGO_QUERY:", JSON.stringify(query));
     }
 
-    const products = await Product.find(query).sort({ createdAt: -1 }).lean();
+    const products = await Product.find(query).sort({ rank: -1, createdAt: -1 }).lean();
 
     if (verbose) {
       console.log("[GET /api/products] RESULT COUNT:", products.length);
@@ -137,6 +137,7 @@ export const POST = withAdminAuth(async (req) => {
               typeof (x as { label: unknown }).label === "string",
           )
         : [],
+      rank: Number.isFinite(Number(body.rank)) ? Number(body.rank) : 0,
     });
 
     return NextResponse.json(product, { status: 201 });
