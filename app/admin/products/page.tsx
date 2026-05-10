@@ -32,7 +32,6 @@ export default function ProductsManagement() {
     title: "",
     description: "",
     price: 0,
-    mrp: 0,
     image: "",
     zodiac: "",
     certification: "",
@@ -44,6 +43,9 @@ export default function ProductsManagement() {
   const [ringMaterials, setRingMaterials] = useState<{ label: string; extraPrice: number }[]>([]);
   const [newRingLabel, setNewRingLabel] = useState("");
   const [newRingPrice, setNewRingPrice] = useState<number>(0);
+  const [benefits, setBenefits] = useState<{ label: string; desc: string }[]>([]);
+  const [newBenefitLabel, setNewBenefitLabel] = useState("");
+  const [newBenefitDesc, setNewBenefitDesc] = useState("");
 
   const openAddModal = () => {
     setEditingId(null);
@@ -51,7 +53,6 @@ export default function ProductsManagement() {
       title: "",
       description: "",
       price: 0,
-      mrp: 0,
       image: "",
       zodiac: "",
       certification: "",
@@ -63,6 +64,9 @@ export default function ProductsManagement() {
     setRingMaterials([]);
     setNewRingLabel("");
     setNewRingPrice(0);
+    setBenefits([]);
+    setNewBenefitLabel("");
+    setNewBenefitDesc("");
     setError(null);
     setSaveSuccess(false);
     setIsModalOpen(true);
@@ -74,7 +78,6 @@ export default function ProductsManagement() {
       title: product.title,
       description: product.description,
       price: product.price,
-      mrp: product.mrp ?? 0,
       image: product.image || "",
       zodiac: product.zodiac || "",
       certification: product.certification || "",
@@ -95,6 +98,9 @@ export default function ProductsManagement() {
     );
     setNewRingLabel("");
     setNewRingPrice(0);
+    setBenefits((product.benefits || []).map((b: { label: string; desc: string }) => ({ label: b.label, desc: b.desc })));
+    setNewBenefitLabel("");
+    setNewBenefitDesc("");
     setError(null);
     setSaveSuccess(false);
     setIsModalOpen(true);
@@ -236,12 +242,12 @@ export default function ProductsManagement() {
       const primaryImage = formData.image;
       const payload: Record<string, unknown> = {
         ...formData,
-        mrp: formData.mrp && formData.mrp > 0 ? formData.mrp : null,
         category: typeof formData.category === "string" ? formData.category.toLowerCase().trim() : "gemstones",
         images: extraImages.slice(0, 4),
         options,
         ringMaterialEnabled,
         ringMaterials,
+        benefits,
       };
       if (
         typeof primaryImage === "string" &&
@@ -281,7 +287,6 @@ export default function ProductsManagement() {
           title: "",
           description: "",
           price: 0,
-          mrp: 0,
           image: "",
           zodiac: "",
           certification: "",
@@ -293,6 +298,9 @@ export default function ProductsManagement() {
         setRingMaterials([]);
         setNewRingLabel("");
         setNewRingPrice(0);
+        setBenefits([]);
+        setNewBenefitLabel("");
+        setNewBenefitDesc("");
         setIsModalOpen(false);
         setSaving(false);
       }, 1000);
@@ -432,9 +440,17 @@ export default function ProductsManagement() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-bold text-[#0F172A] mb-1">
-                Sale Price (₹) <span className="text-[#F97316]">*</span>
-              </label>
+              <label className="block text-sm font-bold text-[#0F172A] mb-1">Zodiac Alignment (Optional)</label>
+              <input
+                type="text"
+                placeholder="e.g. Leo, Virgo"
+                value={formData.zodiac}
+                onChange={(e) => setFormData({ ...formData, zodiac: e.target.value })}
+                className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-[#0F172A] mb-1">Price (₹)</label>
               <input
                 type="number"
                 required
@@ -444,38 +460,6 @@ export default function ProductsManagement() {
                 className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none"
               />
             </div>
-            <div>
-              <label className="block text-sm font-bold text-[#0F172A] mb-1">
-                MRP / Original Price (₹)
-                <span className="text-[#94A3B8] font-normal ml-1">(optional)</span>
-              </label>
-              <input
-                type="number"
-                min="0"
-                placeholder="e.g. 1599"
-                value={formData.mrp || ""}
-                onChange={(e) => setFormData({ ...formData, mrp: Number(e.target.value) })}
-                className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none"
-              />
-              {formData.mrp > 0 && formData.price > 0 && formData.mrp > formData.price && (
-                <p className="text-xs text-green-600 font-semibold mt-1">
-                  ✓ {Math.round(((formData.mrp - formData.price) / formData.mrp) * 100)}% OFF will show on product page
-                </p>
-              )}
-              {formData.mrp > 0 && formData.mrp <= formData.price && (
-                <p className="text-xs text-red-500 mt-1">⚠ MRP must be higher than sale price</p>
-              )}
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-bold text-[#0F172A] mb-1">Zodiac Alignment (Optional)</label>
-            <input
-              type="text"
-              placeholder="e.g. Leo, Virgo"
-              value={formData.zodiac}
-              onChange={(e) => setFormData({ ...formData, zodiac: e.target.value })}
-              className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none"
-            />
           </div>
           <div>
             <label className="block text-sm font-bold text-[#0F172A] mb-1">Certification Details (Optional)</label>
@@ -544,6 +528,75 @@ export default function ProductsManagement() {
               className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none"
             />
             <p className="text-xs text-gray-400 mt-1">Format: <strong>Label:Price</strong> — separate multiple options with commas. e.g. 5 carat:5000, 7 carat:7000</p>
+          </div>
+
+          {/* ── Benefits Section ─────────────────────────────────────────── */}
+          <div className="border border-[#E2E8F0] rounded-xl p-4 bg-[#FAFAFA]">
+            <div className="mb-3">
+              <h3 className="text-sm font-bold text-[#0F172A]">Product Benefits</h3>
+              <p className="text-xs text-[#64748B] mt-0.5">Add bullet points shown on the product page under &quot;Why this works&quot;. Leave empty to hide that section.</p>
+            </div>
+
+            {/* Existing benefits list */}
+            {benefits.length > 0 && (
+              <div className="space-y-1.5 mb-3">
+                {benefits.map((b, idx) => (
+                  <div key={idx} className="flex items-start justify-between bg-white border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-[#0F172A] truncate">{b.label}</p>
+                      <p className="text-xs text-[#64748B] truncate">{b.desc}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setBenefits((prev) => prev.filter((_, i) => i !== idx))}
+                      className="text-red-400 hover:text-red-600 font-bold text-xs shrink-0 transition-colors mt-0.5"
+                      aria-label="Remove benefit"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Add new benefit row */}
+            <div className="space-y-2">
+              <div>
+                <label className="block text-xs font-semibold text-[#64748B] mb-1">Benefit Title</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Attract Wealth & Prosperity"
+                  value={newBenefitLabel}
+                  onChange={(e) => setNewBenefitLabel(e.target.value)}
+                  className="w-full px-2.5 py-1.5 text-sm border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-[#64748B] mb-1">Short Description</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Draws financial growth and abundance daily"
+                  value={newBenefitDesc}
+                  onChange={(e) => setNewBenefitDesc(e.target.value)}
+                  className="w-full px-2.5 py-1.5 text-sm border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const label = newBenefitLabel.trim();
+                  const desc = newBenefitDesc.trim();
+                  if (!label) return;
+                  setBenefits((prev) => [...prev, { label, desc }]);
+                  setNewBenefitLabel("");
+                  setNewBenefitDesc("");
+                }}
+                disabled={!newBenefitLabel.trim()}
+                className="px-3 py-1.5 bg-[#F97316] hover:bg-[#EA6C0A] text-white text-sm font-bold rounded-lg transition-colors disabled:opacity-50"
+              >
+                + Add Benefit
+              </button>
+            </div>
           </div>
 
           {/* ── Ring Material Section ────────────────────────────────────── */}
