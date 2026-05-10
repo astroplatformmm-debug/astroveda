@@ -5,11 +5,11 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  optimizeFonts: false,
   experimental: {
     serverActions: {
       bodySizeLimit: "10mb",
     },
-    
   },
 };
 
