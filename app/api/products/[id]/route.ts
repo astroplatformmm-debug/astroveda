@@ -108,6 +108,9 @@ export const PUT = withAdminAuth(async (req, context) => {
           )
         : [];
     }
+    if (body.rank !== undefined) {
+      updateData.rank = Number.isFinite(Number(body.rank)) ? Number(body.rank) : 0;
+    }
 
     const product = await Product.findByIdAndUpdate(
       id,
