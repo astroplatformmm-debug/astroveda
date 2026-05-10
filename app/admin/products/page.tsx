@@ -32,6 +32,7 @@ export default function ProductsManagement() {
     title: "",
     description: "",
     price: 0,
+    mrp: 0,
     image: "",
     zodiac: "",
     certification: "",
@@ -50,6 +51,7 @@ export default function ProductsManagement() {
       title: "",
       description: "",
       price: 0,
+      mrp: 0,
       image: "",
       zodiac: "",
       certification: "",
@@ -72,6 +74,7 @@ export default function ProductsManagement() {
       title: product.title,
       description: product.description,
       price: product.price,
+      mrp: product.mrp ?? 0,
       image: product.image || "",
       zodiac: product.zodiac || "",
       certification: product.certification || "",
@@ -233,6 +236,7 @@ export default function ProductsManagement() {
       const primaryImage = formData.image;
       const payload: Record<string, unknown> = {
         ...formData,
+        mrp: formData.mrp && formData.mrp > 0 ? formData.mrp : null,
         category: typeof formData.category === "string" ? formData.category.toLowerCase().trim() : "gemstones",
         images: extraImages.slice(0, 4),
         options,
@@ -277,6 +281,7 @@ export default function ProductsManagement() {
           title: "",
           description: "",
           price: 0,
+          mrp: 0,
           image: "",
           zodiac: "",
           certification: "",
@@ -427,17 +432,9 @@ export default function ProductsManagement() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-bold text-[#0F172A] mb-1">Zodiac Alignment (Optional)</label>
-              <input
-                type="text"
-                placeholder="e.g. Leo, Virgo"
-                value={formData.zodiac}
-                onChange={(e) => setFormData({ ...formData, zodiac: e.target.value })}
-                className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-[#0F172A] mb-1">Price (₹)</label>
+              <label className="block text-sm font-bold text-[#0F172A] mb-1">
+                Sale Price (₹) <span className="text-[#F97316]">*</span>
+              </label>
               <input
                 type="number"
                 required
@@ -447,6 +444,38 @@ export default function ProductsManagement() {
                 className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none"
               />
             </div>
+            <div>
+              <label className="block text-sm font-bold text-[#0F172A] mb-1">
+                MRP / Original Price (₹)
+                <span className="text-[#94A3B8] font-normal ml-1">(optional)</span>
+              </label>
+              <input
+                type="number"
+                min="0"
+                placeholder="e.g. 1599"
+                value={formData.mrp || ""}
+                onChange={(e) => setFormData({ ...formData, mrp: Number(e.target.value) })}
+                className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none"
+              />
+              {formData.mrp > 0 && formData.price > 0 && formData.mrp > formData.price && (
+                <p className="text-xs text-green-600 font-semibold mt-1">
+                  ✓ {Math.round(((formData.mrp - formData.price) / formData.mrp) * 100)}% OFF will show on product page
+                </p>
+              )}
+              {formData.mrp > 0 && formData.mrp <= formData.price && (
+                <p className="text-xs text-red-500 mt-1">⚠ MRP must be higher than sale price</p>
+              )}
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-[#0F172A] mb-1">Zodiac Alignment (Optional)</label>
+            <input
+              type="text"
+              placeholder="e.g. Leo, Virgo"
+              value={formData.zodiac}
+              onChange={(e) => setFormData({ ...formData, zodiac: e.target.value })}
+              className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none"
+            />
           </div>
           <div>
             <label className="block text-sm font-bold text-[#0F172A] mb-1">Certification Details (Optional)</label>
