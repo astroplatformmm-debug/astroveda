@@ -52,6 +52,9 @@ export type Product = {
   ringMaterialEnabled?: boolean;
   ringMaterials?: RingMaterial[];
 
+  // ✅ Per-product benefits
+  benefits?: { label: string; desc: string }[];
+
   category?: string;
 
   zodiac?: string;
