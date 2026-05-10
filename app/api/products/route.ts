@@ -129,7 +129,14 @@ export const POST = withAdminAuth(async (req) => {
       ),
       ringMaterialEnabled: body.ringMaterialEnabled ?? false,
       ringMaterials: Array.isArray(body.ringMaterials) ? body.ringMaterials : [],
-      mrp: typeof body.mrp === "number" && body.mrp > 0 ? body.mrp : null,
+      benefits: Array.isArray(body.benefits)
+        ? body.benefits.filter(
+            (x: unknown) =>
+              x !== null &&
+              typeof x === "object" &&
+              typeof (x as { label: unknown }).label === "string",
+          )
+        : [],
     });
 
     return NextResponse.json(product, { status: 201 });
