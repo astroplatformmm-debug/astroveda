@@ -30,6 +30,7 @@ const productSchema = new Schema(
       type: [{ label: { type: String }, desc: { type: String } }],
       default: [],
     },
+    rank: { type: Number, default: 0 },
     isActive: { type: Boolean, default: true },
   },
   {
