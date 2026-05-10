@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Modal from "@/components/ui/Modal";
 import Spinner from "@/components/ui/Spinner";
 import type { Product } from "@/lib/types";
+
 const CATEGORY_LABELS: Record<string, string> = {
   healing: "Healing Crystals",
   gemstones: "Gemstones",
@@ -28,6 +29,12 @@ export default function ProductsManagement() {
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
+  // ── NEW: search + rank state ───────────────────────────────────────────────
+  const [searchQuery, setSearchQuery] = useState("");
+  const [rankValues, setRankValues] = useState<Record<string, string>>({});
+  const [rankSaving, setRankSaving] = useState<Record<string, boolean>>({});
+  const [rankSuccess, setRankSuccess] = useState<Record<string, boolean>>({});
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -49,15 +56,7 @@ export default function ProductsManagement() {
 
   const openAddModal = () => {
     setEditingId(null);
-    setFormData({
-      title: "",
-      description: "",
-      price: 0,
-      image: "",
-      zodiac: "",
-      certification: "",
-      category: "gemstones",
-    });
+    setFormData({ title: "", description: "", price: 0, image: "", zodiac: "", certification: "", category: "gemstones" });
     setExtraImages([]);
     setOptionsInput("");
     setRingMaterialEnabled(false);
@@ -130,13 +129,18 @@ export default function ProductsManagement() {
     try {
       const res = await fetch("/api/products", { credentials: "include" });
       if (!res.ok) {
-        if (res.status === 401) {
-          throw new Error("Session expired. Please log in again.");
-        }
+        if (res.status === 401) throw new Error("Session expired. Please log in again.");
         throw new Error(await extractErrorMessage(res));
       }
       const data = (await res.json()) as Product[];
       setProductsList(data);
+      // Initialise rank inputs from fetched data
+      const initialRanks: Record<string, string> = {};
+      data.forEach((p) => {
+        const id = p._id || p.id || "";
+        if (id) initialRanks[id] = String(p.rank ?? 0);
+      });
+      setRankValues(initialRanks);
       setLoadError(null);
     } catch (err: unknown) {
       console.error("Fetch failed:", err);
@@ -156,9 +160,7 @@ export default function ProductsManagement() {
       try {
         const res = await fetch(`/api/products/${id}`, { method: "DELETE", credentials: "include" });
         if (!res.ok) {
-          if (res.status === 401) {
-            throw new Error("Session expired. Please log in again.");
-          }
+          if (res.status === 401) throw new Error("Session expired. Please log in again.");
           throw new Error(await extractErrorMessage(res));
         }
         setLoadError(null);
@@ -168,6 +170,35 @@ export default function ProductsManagement() {
         setLoadError(getErrorMessage(err));
         setLoading(false);
       }
+    }
+  };
+
+  // ── NEW: save rank inline ─────────────────────────────────────────────────
+  const handleSaveRank = async (id: string) => {
+    const newRank = Number(rankValues[id]);
+    if (!Number.isFinite(newRank)) return;
+    setRankSaving((prev) => ({ ...prev, [id]: true }));
+    try {
+      const res = await fetch(`/api/products/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ rank: newRank }),
+      });
+      if (!res.ok) {
+        if (res.status === 401) throw new Error("Session expired. Please log in again.");
+        throw new Error(await extractErrorMessage(res));
+      }
+      setRankSuccess((prev) => ({ ...prev, [id]: true }));
+      setTimeout(() => setRankSuccess((prev) => ({ ...prev, [id]: false })), 1800);
+      // Update local list rank without full refetch
+      setProductsList((prev) =>
+        prev.map((p) => (p._id === id || p.id === id ? { ...p, rank: newRank } : p))
+      );
+    } catch (err: unknown) {
+      alert(getErrorMessage(err));
+    } finally {
+      setRankSaving((prev) => ({ ...prev, [id]: false }));
     }
   };
 
@@ -199,7 +230,6 @@ export default function ProductsManagement() {
     }
     const toProcess = files.slice(0, slots);
     setError(null);
-
     toProcess.forEach((file) => {
       if (file.size > 1024 * 1024) {
         setError("Each additional image must be under 1MB.");
@@ -239,6 +269,7 @@ export default function ProductsManagement() {
           return { label, price: Number.isFinite(price) ? price : 0 };
         })
         .filter((o) => o.label.length > 0);
+
       const primaryImage = formData.image;
       const payload: Record<string, unknown> = {
         ...formData,
@@ -249,6 +280,7 @@ export default function ProductsManagement() {
         ringMaterials,
         benefits,
       };
+
       if (
         typeof primaryImage === "string" &&
         primaryImage.startsWith("data:image") &&
@@ -261,6 +293,7 @@ export default function ProductsManagement() {
           throw new Error("An additional image is too large. Each must be under 1MB.");
         }
       }
+
       const requestPayload =
         editingId && typeof primaryImage === "string" && primaryImage && !primaryImage.startsWith("data:image")
           ? (({ image: _image, ...rest }) => rest)(payload)
@@ -274,24 +307,14 @@ export default function ProductsManagement() {
       });
 
       if (!res.ok) {
-        if (res.status === 401) {
-          throw new Error("Session expired. Please log in again.");
-        }
+        if (res.status === 401) throw new Error("Session expired. Please log in again.");
         throw new Error(await extractErrorMessage(res));
       }
 
       setSaveSuccess(true);
       await fetchProducts();
       setTimeout(() => {
-        setFormData({
-          title: "",
-          description: "",
-          price: 0,
-          image: "",
-          zodiac: "",
-          certification: "",
-          category: "gemstones",
-        });
+        setFormData({ title: "", description: "", price: 0, image: "", zodiac: "", certification: "", category: "gemstones" });
         setExtraImages([]);
         setOptionsInput("");
         setRingMaterialEnabled(false);
@@ -315,6 +338,18 @@ export default function ProductsManagement() {
     }
   };
 
+  // ── NEW: filtered products list ───────────────────────────────────────────
+  const filteredProducts = productsList.filter((p) => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase().trim();
+    return (
+      p.title.toLowerCase().includes(q) ||
+      (p.description || "").toLowerCase().includes(q) ||
+      (p.category || "").toLowerCase().includes(q) ||
+      (p.zodiac || "").toLowerCase().includes(q)
+    );
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -333,6 +368,33 @@ export default function ProductsManagement() {
         </button>
       </div>
 
+      {/* ── NEW: Admin Search Bar ─────────────────────────────────────────── */}
+      <div className="relative max-w-sm">
+        <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+          <svg className="w-4 h-4 text-[#94A3B8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+          </svg>
+        </div>
+        <input
+          type="text"
+          placeholder="Search products by name, category…"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full pl-9 pr-9 py-2 border border-[#E2E8F0] rounded-lg text-sm text-[#0F172A] placeholder-[#94A3B8] focus:outline-none focus:border-[#F97316] focus:ring-1 focus:ring-[#F97316] bg-white transition"
+        />
+        {searchQuery && (
+          <button
+            onClick={() => setSearchQuery("")}
+            className="absolute inset-y-0 right-3 flex items-center text-[#94A3B8] hover:text-[#F97316] transition-colors"
+            aria-label="Clear search"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        )}
+      </div>
+
       <div className="bg-white rounded-xl shadow-sm border border-[#E2E8F0] overflow-hidden">
         {loading ? (
           <div className="py-10 flex justify-center">
@@ -348,47 +410,98 @@ export default function ProductsManagement() {
                   <th className="px-6 py-4 font-bold text-[#64748B]">Zodiac</th>
                   <th className="px-6 py-4 font-bold text-[#64748B]">Certification</th>
                   <th className="px-6 py-4 font-bold text-[#64748B]">Price</th>
+                  {/* ── NEW: Rank column header ── */}
+                  <th className="px-6 py-4 font-bold text-[#64748B]">
+                    <div className="flex items-center gap-1">
+                      <svg className="w-3.5 h-3.5 text-[#F97316]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M3 12h12M3 17h6" />
+                      </svg>
+                      Rank
+                    </div>
+                  </th>
                   <th className="px-6 py-4 font-bold text-[#64748B] text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E2E8F0]">
-                {productsList.length > 0 ? (
-                  productsList.map((product) => (
-                    <tr key={product._id || product.id} className="hover:bg-[#F8FAFC]">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center">
-                          <img
-                            src={product.image || "https://picsum.photos/seed/placeholder/100/100"}
-                            alt=""
-                            className="w-10 h-10 rounded-md object-cover mr-3 border border-[#E2E8F0]"
-                          />
-                          <div className="font-bold text-[#0F172A] truncate max-w-[200px]">{product.title}</div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-[#64748B] font-mono text-xs">{categoryLabel(product.category)}</td>
-                      <td className="px-6 py-4 text-[#64748B]">{product.zodiac || "-"}</td>
-                      <td className="px-6 py-4 text-[#64748B] truncate max-w-[150px]">{product.certification || "-"}</td>
-                      <td className="px-6 py-4 font-bold text-[#F97316]">₹{product.price}</td>
-                      <td className="px-6 py-4 text-right">
-                        <button
-                          onClick={() => openEditModal(product)}
-                          className="text-blue-600 hover:text-blue-800 font-bold mr-4"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(product._id || product.id || "")}
-                          className="text-red-500 hover:text-red-700 font-bold"
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))
+                {filteredProducts.length > 0 ? (
+                  filteredProducts.map((product) => {
+                    const id = product._id || product.id || "";
+                    return (
+                      <tr key={id} className="hover:bg-[#F8FAFC]">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center">
+                            <img
+                              src={product.image || "https://picsum.photos/seed/placeholder/100/100"}
+                              alt=""
+                              className="w-10 h-10 rounded-md object-cover mr-3 border border-[#E2E8F0]"
+                            />
+                            <div className="font-bold text-[#0F172A] truncate max-w-[200px]">{product.title}</div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-[#64748B] font-mono text-xs">{categoryLabel(product.category)}</td>
+                        <td className="px-6 py-4 text-[#64748B]">{product.zodiac || "-"}</td>
+                        <td className="px-6 py-4 text-[#64748B] truncate max-w-[150px]">{product.certification || "-"}</td>
+                        <td className="px-6 py-4 font-bold text-[#F97316]">₹{product.price}</td>
+
+                        {/* ── NEW: Rank cell ── */}
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-1.5">
+                            <input
+                              type="number"
+                              min={0}
+                              value={rankValues[id] ?? "0"}
+                              onChange={(e) =>
+                                setRankValues((prev) => ({ ...prev, [id]: e.target.value }))
+                              }
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") handleSaveRank(id);
+                              }}
+                              className="w-16 px-2 py-1 border border-[#E2E8F0] rounded-lg text-sm text-center font-bold text-[#0F172A] focus:outline-none focus:border-[#F97316] focus:ring-1 focus:ring-[#F97316]"
+                              title="Higher rank = shown first in shop"
+                            />
+                            <button
+                              onClick={() => handleSaveRank(id)}
+                              disabled={rankSaving[id]}
+                              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                                rankSuccess[id]
+                                  ? "bg-green-500 text-white"
+                                  : "bg-[#F97316] hover:bg-[#EA6C0A] text-white"
+                              } disabled:opacity-50`}
+                              title="Save rank"
+                            >
+                              {rankSaving[id] ? (
+                                <Spinner className="w-3 h-3 text-white" />
+                              ) : rankSuccess[id] ? (
+                                "✓"
+                              ) : (
+                                "Set"
+                              )}
+                            </button>
+                          </div>
+                          <p className="text-[10px] text-[#94A3B8] mt-0.5">Higher = first</p>
+                        </td>
+
+                        <td className="px-6 py-4 text-right">
+                          <button
+                            onClick={() => openEditModal(product)}
+                            className="text-blue-600 hover:text-blue-800 font-bold mr-4"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(id)}
+                            className="text-red-500 hover:text-red-700 font-bold"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })
                 ) : (
                   <tr>
-                    <td colSpan={6} className="px-6 py-10 text-center text-[#64748B] font-medium">
-                      No products found. Add one to get started.
+                    <td colSpan={7} className="px-6 py-10 text-center text-[#64748B] font-medium">
+                      {searchQuery ? `No products matching "${searchQuery}".` : "No products found. Add one to get started."}
                     </td>
                   </tr>
                 )}
@@ -402,6 +515,14 @@ export default function ProductsManagement() {
           </div>
         )}
       </div>
+
+      {/* ── Search results count ─────────────────────────────────────────── */}
+      {searchQuery && !loading && (
+        <p className="text-xs text-[#64748B]">
+          Showing <span className="font-bold text-[#0F172A]">{filteredProducts.length}</span> of{" "}
+          <span className="font-bold text-[#0F172A]">{productsList.length}</span> products
+        </p>
+      )}
 
       <Modal
         isOpen={isModalOpen}
@@ -536,8 +657,6 @@ export default function ProductsManagement() {
               <h3 className="text-sm font-bold text-[#0F172A]">Product Benefits</h3>
               <p className="text-xs text-[#64748B] mt-0.5">Add bullet points shown on the product page under &quot;Why this works&quot;. Leave empty to hide that section.</p>
             </div>
-
-            {/* Existing benefits list */}
             {benefits.length > 0 && (
               <div className="space-y-1.5 mb-3">
                 {benefits.map((b, idx) => (
@@ -558,8 +677,6 @@ export default function ProductsManagement() {
                 ))}
               </div>
             )}
-
-            {/* Add new benefit row */}
             <div className="space-y-2">
               <div>
                 <label className="block text-xs font-semibold text-[#64748B] mb-1">Benefit Title</label>
@@ -615,19 +732,14 @@ export default function ProductsManagement() {
                     checked={ringMaterialEnabled}
                     onChange={(e) => setRingMaterialEnabled(e.target.checked)}
                   />
-                  <div
-                    className={`w-10 h-5 rounded-full transition-colors ${ringMaterialEnabled ? "bg-[#F97316]" : "bg-gray-300"}`}
-                  />
-                  <div
-                    className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${ringMaterialEnabled ? "translate-x-5" : "translate-x-0"}`}
-                  />
+                  <div className={`w-10 h-5 rounded-full transition-colors ${ringMaterialEnabled ? "bg-[#F97316]" : "bg-gray-300"}`} />
+                  <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${ringMaterialEnabled ? "translate-x-5" : "translate-x-0"}`} />
                 </div>
               </label>
             </div>
 
             {ringMaterialEnabled && (
               <div className="space-y-3">
-                {/* Existing ring materials list */}
                 {ringMaterials.length > 0 && (
                   <div className="space-y-1.5">
                     {ringMaterials.map((mat, idx) => (
@@ -650,8 +762,6 @@ export default function ProductsManagement() {
                     ))}
                   </div>
                 )}
-
-                {/* Add new ring material row */}
                 <div className="flex gap-2 items-end">
                   <div className="flex-1">
                     <label className="block text-xs font-semibold text-[#64748B] mb-1">Material Name</label>
@@ -691,12 +801,13 @@ export default function ProductsManagement() {
                   </button>
                 </div>
                 <p className="text-xs text-gray-400">
-                  Set extra price to <strong>0</strong> for "Only Gemstone" (no ring charge).
+                  Set extra price to <strong>0</strong> for &quot;Only Gemstone&quot; (no ring charge).
                 </p>
               </div>
             )}
           </div>
-            {error && (
+
+          {error && (
             <div className="flex-1 bg-red-50 border border-red-200 text-red-600 px-4 py-2 rounded-lg text-sm mr-auto">
               {error}
             </div>
