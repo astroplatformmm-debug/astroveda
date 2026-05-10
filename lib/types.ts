@@ -55,6 +55,8 @@ export type Product = {
   // ✅ Per-product benefits
   benefits?: { label: string; desc: string }[];
 
+  rank?: number;
+
   category?: string;
 
   zodiac?: string;
