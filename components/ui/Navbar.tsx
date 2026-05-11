@@ -24,15 +24,18 @@ export default function Navbar() {
   return (
     <>
       <div className="bg-[#F97316] text-white py-2 px-3 sm:px-6 flex items-center justify-between max-w-[100vw]">
-        <span className="text-sm md:text-base font-medium leading-snug">
+        <div className="flex-1" />
+        <span className="text-sm md:text-base font-medium leading-snug text-center">
           🔥 Limited Daily Consultations — 5 slots this week — Book soon!
         </span>
-        <a
-          href="tel:+917069110573"
-          className="flex items-center gap-1.5 bg-white text-[#F97316] text-sm font-semibold px-3 py-1.5 rounded-full hover:bg-orange-50 transition-colors whitespace-nowrap ml-4 shrink-0"
-        >
-          📞 +91 70691 10573
-        </a>
+        <div className="flex-1 flex justify-end">
+          <a
+            href="tel:+917069110573"
+            className="flex items-center gap-1.5 bg-white text-[#F97316] text-sm font-semibold px-3 py-1.5 rounded-full hover:bg-orange-50 transition-colors whitespace-nowrap ml-4 shrink-0"
+          >
+            📞+91 70691 10573
+          </a>
+        </div>
       </div>
       <nav className="sticky top-0 z-40 bg-white border-b border-[#E2E8F0] shadow-sm relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
