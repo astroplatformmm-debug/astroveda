@@ -27,6 +27,15 @@ function PaymentSuccessContent() {
         }
         const data = (await res.json()) as Order;
         setOrder(data);
+
+        // Meta Pixel - Track Purchase event
+        if (typeof window !== "undefined" && (window as any).fbq) {
+          (window as any).fbq("track", "Purchase", {
+            value: data.totalAmount,
+            currency: "INR",
+            order_id: data._id,
+          });
+        }
       } catch (err: unknown) {
         console.error("Payment success order fetch failed:", err);
       } finally {
