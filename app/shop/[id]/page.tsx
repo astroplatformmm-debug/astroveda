@@ -228,7 +228,18 @@ export default function GemstoneDetail() {
         const res = await fetch(`/api/products/${id}`);
         if (res.status === 404) { setNotFound(true); return; }
         if (!res.ok) { const b = await res.json().catch(() => ({})); throw new Error(b.error || `Request failed: ${res.status}`); }
-        setGemstone((await res.json()) as Product);
+        const productData = (await res.json()) as Product;
+        setGemstone(productData);
+        // Meta Pixel - Track ViewContent event
+        if (typeof window !== "undefined" && (window as any).fbq) {
+          (window as any).fbq("track", "ViewContent", {
+            content_ids: [id],
+            content_name: productData.title,
+            content_type: "product",
+            value: productData.price,
+            currency: "INR",
+          });
+        }
       } catch (err) { console.error("Gemstone detail fetch failed:", err); setNotFound(true); }
       finally { setLoading(false); }
     };
