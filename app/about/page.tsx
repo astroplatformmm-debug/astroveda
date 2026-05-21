@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
 const ITEMS_PER_SLIDE = 4;
@@ -17,7 +18,7 @@ function AwardsPhotoCarousel({
     for (let i = 0; i < images.length; i += ITEMS_PER_SLIDE) {
       chunks.push(images.slice(i, i + ITEMS_PER_SLIDE));
     }
-    return chunks.length > 0 ? chunks : [[]];
+    return chunks.length > 0 ? chunks : [[]]
   }, [images]);
 
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -40,15 +41,19 @@ function AwardsPhotoCarousel({
             onClick={() => onImageClick(src)}
             className="rounded-xl overflow-hidden cursor-pointer hover:scale-105 transition-all duration-200 shadow-md border-0 p-0 bg-transparent block w-full text-left"
           >
-            <img
-              src={src}
-              alt=""
-              className="w-full h-48 object-cover"
-              onError={(e) => {
-                e.currentTarget.classList.add("hidden");
-                console.error("[About] Award image failed to load:", src);
-              }}
-            />
+            <div className="relative w-full h-48">
+              <Image
+                src={src}
+                alt="Award"
+                fill
+                sizes="(max-width: 768px) 50vw, 25vw"
+                className="object-cover"
+                loading="lazy"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).style.display = "none";
+                }}
+              />
+            </div>
           </button>
         ))}
       </div>
@@ -164,7 +169,14 @@ export default function AboutPage() {
           <div className="relative mx-auto lg:mx-0 w-full max-w-[450px]">
             <div className="absolute -top-2 -left-2 md:-top-4 md:-left-4 w-16 h-16 md:w-24 md:h-24 border-t-4 border-l-4 border-[#F97316] z-0" />
             <div className="absolute -bottom-2 -right-2 md:-bottom-4 md:-right-4 w-16 h-16 md:w-24 md:h-24 border-b-4 border-r-4 border-[#F97316] z-0" />
-            <img src="/astrologer.png" alt="Mukesh Ravindra Gupta" className="w-full relative z-10 shadow-xl object-cover" />
+            <Image
+              src="/astrologer.png"
+              alt="Mukesh Ravindra Gupta"
+              width={450}
+              height={550}
+              className="w-full relative z-10 shadow-xl object-cover"
+              priority
+            />
           </div>
 
           <div className="space-y-6">
@@ -209,10 +221,14 @@ export default function AboutPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: "🏆", title: "Best Astrologer Award 2020", desc: "For exceptional contribution in astrology & guidance" },
-              { icon: "🥇", title: "Excellence in Astrology 2021", desc: "For accurate predictions and client satisfaction" },
-              { icon: "🏅", title: "Jyotish Ratna Award 2022", desc: "For outstanding services in Vedic Astrology" },
-              { icon: "🌟", title: "Global Excellence Award 2023", desc: "For spiritual guidance and social impact" },
+              { icon: "🏆", title: "Gujarat Business Icon Award 2025", desc: "Lifetime Achievement in Astrology & Vastu Consultancy — Prime Tycoon Media" },
+              { icon: "🌟", title: "Global Excellence & Leadership 2025", desc: "Grand Maestro of Astrology Vastu and Numerology — by Bipasha Basu" },
+              { icon: "⭐", title: "Rising Star Best Astrologer 2025", desc: "Top 10 Rising Star Award by Heights of Success" },
+              { icon: "🥇", title: "National Achievers Award 2025", desc: "Most Trusted Astrologer in Gujarat — by Mahima Chaudhry" },
+              { icon: "🏅", title: "Glam Glory Award 2025 & 2026", desc: "Celebrating Journey & Achievement — The Glam Event Season 1 & 2" },
+              { icon: "🎖️", title: "Astro-Vastu Ratna Award", desc: "Excellency Iconic Awards — presented by Bollywood Celebrity Esha Deol" },
+              { icon: "🌐", title: "Global Iconic Leader Award 2025", desc: "Iconic Best Astrologer of the Year — MTTV India Digital TV Media" },
+              { icon: "✨", title: "Real Excellence Award 2025", desc: "Real Excellence Awards & Business Conclave — New Delhi" },
             ].map((award, i) => (
               <div key={i} className="bg-[#FAF7F2] p-6 md:p-8 rounded-xl border border-[#E2E8F0] text-center shadow-sm">
                 <span className="text-4xl block mb-4">{award.icon}</span>
