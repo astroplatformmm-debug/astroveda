@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
   try {
-    const res = await fetch(`https://www.omkkaar.com/api/products/${params.id}`, {
+    const res = await fetch(`https://www.omkkaar.com/api/products/${id}`, {
       next: { revalidate: 3600 },
     });
     if (!res.ok) throw new Error("Product not found");
