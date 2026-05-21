@@ -129,6 +129,18 @@ export default function AboutPage() {
     "/awards/WhatsApp Image 2026-04-27 at 22.37.25.jpeg",
     "/awards/WhatsApp Image 2026-04-27 at 22.37.30.jpeg",
     "/awards/_J0A6182.JPG",
+    "/awards1/A01_JPG-Copy.jpeg",
+    "/awards1/A02_JPG-Copy.jpeg",
+    "/awards1/A03_JPG1-Copy.jpeg",
+    "/awards1/A04_JPG-Copy.jpeg",
+    "/awards1/A05_JPG-Copy.jpeg",
+    "/awards1/A06_JPG-Copy.jpeg",
+    "/awards1/A07_JPG-Copy.jpeg",
+    "/awards1/A08_JPG-Copy.jpeg",
+    "/awards1/A09_JPG-Copy.jpeg",
+    "/awards1/A10_JPG-Copy.jpeg",
+    "/awards1/A11_JPG-Copy.jpeg",
+    "/awards1/A12_JPG-Copy.jpeg",
   ];
 
   return (
