@@ -6,6 +6,7 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
+
   try {
     const res = await fetch(`https://www.omkkaar.com/api/products/${id}`, {
       next: { revalidate: 3600 },
@@ -20,12 +21,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       alternates: {
-        canonical: `/products/${params.id}`,
+        canonical: `/products/${id}`,        // ✅ was params.id
       },
       openGraph: {
         title,
         description,
-        url: `https://www.omkkaar.com/products/${params.id}`,
+        url: `https://www.omkkaar.com/products/${id}`,   // ✅ was params.id
         images: product.image ? [{ url: product.image, alt: product.title }] : [],
       },
     };
