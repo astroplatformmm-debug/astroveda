@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 
 type Props = {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+
   try {
-    const res = await fetch(`https://www.omkkaar.com/api/blogs/${params.slug}`, {
+    const res = await fetch(`https://www.omkkaar.com/api/blogs/${slug}`, {
       next: { revalidate: 3600 },
     });
     if (!res.ok) throw new Error("Blog not found");
@@ -16,12 +18,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: blog.title,
       description: blog.excerpt || `Read about ${blog.title} on Omkkaar Astroworld blog.`,
       alternates: {
-        canonical: `/blogs/${params.slug}`,
+        canonical: `/blogs/${slug}`,
       },
       openGraph: {
         title: blog.title,
         description: blog.excerpt,
-        url: `https://www.omkkaar.com/blogs/${params.slug}`,
+        url: `https://www.omkkaar.com/blogs/${slug}`,
         images: blog.image ? [{ url: blog.image, alt: blog.title }] : [],
         type: "article",
       },
