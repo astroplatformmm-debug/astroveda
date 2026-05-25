@@ -67,7 +67,8 @@ const serviceSchema = new Schema(
 );
 
 // Auto-generate slug from title before save
-serviceSchema.pre("save", function (next) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+serviceSchema.pre("save" as any, function (this: any, next: () => void) {
   if (this.isModified("title") && !this.slug) {
     this.slug = generateSlug(this.title);
   }
