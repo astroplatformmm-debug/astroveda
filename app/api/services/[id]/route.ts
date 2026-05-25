@@ -2,14 +2,27 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Service from "@/models/Service";
 import { withAdminAuth } from "@/lib/auth";
+import { normalizeServiceCategory, generateServiceSlug } from "@/lib/serviceCategory";
 
 type Context = { params: Promise<{ id: string }> };
+
+/** Support lookup by MongoDB ObjectId OR slug */
+async function findService(id: string) {
+  // Try by slug first
+  const bySlug = await Service.findOne({ slug: id, isActive: { $ne: false } }).lean();
+  if (bySlug) return bySlug;
+  // Fall back to ObjectId
+  if (/^[a-f\d]{24}$/i.test(id)) {
+    return await Service.findOne({ _id: id, isActive: { $ne: false } }).lean();
+  }
+  return null;
+}
 
 export async function GET(_req: Request, context: Context) {
   try {
     await connectDB();
     const { id } = await context.params;
-    const service = await Service.findOne({ _id: id, isActive: true });
+    const service = await findService(id);
 
     if (!service) {
       return NextResponse.json({ error: "Service not found" }, { status: 404 });
@@ -33,13 +46,32 @@ export const PUT = withAdminAuth(async (req, context) => {
 
     const updateData: Record<string, unknown> = {
       title: body.title,
+      shortDescription: body.shortDescription ?? "",
       description: body.description,
       price: body.price,
-      duration: body.duration,
+      duration: body.duration ?? "",
+      ctaText: body.ctaText ?? "Book Now",
+      ctaLink: body.ctaLink ?? "",
+      seoTitle: body.seoTitle ?? "",
+      seoDescription: body.seoDescription ?? "",
     };
 
     if (typeof body.category === "string") {
-      updateData.category = body.category.toLowerCase();
+      updateData.category = normalizeServiceCategory(body.category.toLowerCase().trim());
+    }
+
+    if (body.slug?.trim()) {
+      updateData.slug = body.slug.trim();
+    } else if (body.title) {
+      updateData.slug = generateServiceSlug(body.title);
+    }
+
+    if (body.rank !== undefined) {
+      updateData.rank = Number.isFinite(Number(body.rank)) ? Number(body.rank) : 0;
+    }
+
+    if (body.isActive !== undefined) {
+      updateData.isActive = Boolean(body.isActive);
     }
 
     if (body.image) {
@@ -47,19 +79,46 @@ export const PUT = withAdminAuth(async (req, context) => {
       if (imageUrl.startsWith("data:image")) {
         try {
           const { uploadImage } = await import("@/lib/cloudinary");
-          imageUrl = await uploadImage(imageUrl);
+          imageUrl = await uploadImage(imageUrl, "astroveda/services");
         } catch (err: unknown) {
-          return NextResponse.json({ error: 'Image upload failed: ' + (err instanceof Error ? err.message : 'Unknown error') }, { status: 500 });
+          return NextResponse.json({ error: "Thumbnail upload failed: " + (err instanceof Error ? err.message : "Unknown error") }, { status: 500 });
         }
       }
       updateData.image = imageUrl;
     }
 
-    const service = await Service.findByIdAndUpdate(
-      id,
-      updateData,
-      { new: true },
-    );
+    if (body.bannerImage) {
+      let bannerUrl = body.bannerImage;
+      if (bannerUrl.startsWith("data:image")) {
+        try {
+          const { uploadImage } = await import("@/lib/cloudinary");
+          bannerUrl = await uploadImage(bannerUrl, "astroveda/services/banners");
+        } catch (err: unknown) {
+          return NextResponse.json({ error: "Banner upload failed: " + (err instanceof Error ? err.message : "Unknown error") }, { status: 500 });
+        }
+      }
+      updateData.bannerImage = bannerUrl;
+    }
+
+    if (body.keyPoints !== undefined) {
+      updateData.keyPoints = Array.isArray(body.keyPoints)
+        ? body.keyPoints.filter((x: unknown) => x !== null && typeof x === "object" && typeof (x as { label: unknown }).label === "string")
+        : [];
+    }
+
+    if (body.benefits !== undefined) {
+      updateData.benefits = Array.isArray(body.benefits)
+        ? body.benefits.filter((x: unknown) => x !== null && typeof x === "object" && typeof (x as { label: unknown }).label === "string")
+        : [];
+    }
+
+    if (body.faq !== undefined) {
+      updateData.faq = Array.isArray(body.faq)
+        ? body.faq.filter((x: unknown) => x !== null && typeof x === "object" && typeof (x as { question: unknown }).question === "string")
+        : [];
+    }
+
+    const service = await Service.findByIdAndUpdate(id, updateData, { new: true });
 
     if (!service) {
       return NextResponse.json({ error: "Service not found" }, { status: 404 });
