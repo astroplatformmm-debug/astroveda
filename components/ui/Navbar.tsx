@@ -89,7 +89,7 @@ export default function Navbar() {
                 </Link>
 
                 <Link
-                  href="/services"
+                  href="https://www.omkkaar.com/services?category=astrology"
                   className="shrink-0 px-5 sm:px-7 py-2.5 sm:py-3 rounded-full bg-[#F97316] text-white text-sm sm:text-base font-semibold hover:bg-[#EA6C0A] transition-all duration-200 shadow-md hover:shadow-lg whitespace-nowrap text-center"
                 >
                   ✦ Get My Kundli
@@ -142,7 +142,7 @@ export default function Navbar() {
               ))}
               <div className="pt-4 border-t border-[#E2E8F0] mt-4">
                 <Link
-                  href="/services"
+                  href="https://www.omkkaar.com/services?category=astrology"
                   onClick={() => setIsOpen(false)}
                   className="w-full block text-center px-5 py-3 rounded-full bg-[#F97316] text-white font-medium hover:bg-[#EA6C0A] transition-all shadow-md"
                 >
