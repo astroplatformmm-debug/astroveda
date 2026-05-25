@@ -7,13 +7,46 @@ import Spinner from "@/components/ui/Spinner";
 import type { Service } from "@/lib/types";
 import { SERVICE_CATEGORY_LABELS, SERVICE_CATEGORY_ICONS } from "@/lib/serviceCategory";
 
+function FAQItem({ question, answer }: { question: string; answer: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="border border-[#E2E8F0] rounded-xl overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center justify-between px-5 py-4 text-left bg-white hover:bg-[#FFF7ED] transition-colors"
+      >
+        <span className="font-semibold text-sm text-[#0F172A]">{question}</span>
+        <svg
+          className={`w-4 h-4 text-[#F97316] flex-shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
+          fill="none" viewBox="0 0 24 24" stroke="currentColor"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      {open && (
+        <div className="px-5 pb-4 bg-[#FFF7ED] text-sm text-[#475569] leading-relaxed border-t border-[#F97316]/20">
+          {answer}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ServiceDetail() {
   const params = useParams<{ id: string }>();
   const [service, setService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const router = useRouter();
+
+  // Build image gallery from bannerImage + image fields
+  const allImages: string[] = service
+    ? [service.bannerImage, service.image]
+        .filter((src): src is string => typeof src === "string" && src.trim() !== "")
+        .filter((v, i, a) => a.indexOf(v) === i)
+    : [];
 
   useEffect(() => {
     const fetchService = async () => {
@@ -25,6 +58,16 @@ export default function ServiceDetail() {
         if (!res.ok) throw new Error(`Request failed: ${res.status}`);
         const data = (await res.json()) as Service;
         setService(data);
+        // Meta Pixel — ViewContent event
+        if (typeof window !== "undefined" && (window as any).fbq) {
+          (window as any).fbq("track", "ViewContent", {
+            content_ids: [id],
+            content_name: data.title,
+            content_type: "product",
+            value: data.price,
+            currency: "INR",
+          });
+        }
       } catch (err: unknown) {
         console.error("Service detail fetch failed:", err);
         setNotFound(true);
@@ -37,31 +80,38 @@ export default function ServiceDetail() {
 
   const handleCta = () => {
     if (!service) return;
-    // If a custom CTA link is set, use it; otherwise go to contact
     if (service.ctaLink) {
       if (service.ctaLink.startsWith("http")) { window.location.href = service.ctaLink; return; }
       router.push(service.ctaLink);
       return;
     }
-    // Default: go to book-slot with service info
     const p = new URLSearchParams({
       serviceId: service._id || "",
       title: service.title,
       price: String(service.price),
     });
     router.push(`/book-slot?${p.toString()}`);
+    // Meta Pixel — InitiateCheckout event
+    if (typeof window !== "undefined" && (window as any).fbq) {
+      (window as any).fbq("track", "InitiateCheckout", {
+        content_ids: [service._id],
+        content_name: service.title,
+        value: service.price,
+        currency: "INR",
+      });
+    }
   };
 
   const consultNow = () => router.push("/contact");
 
   if (loading) return (
-    <div className="max-w-7xl mx-auto px-4 md:px-8 py-12 flex justify-center">
+    <div className="max-w-7xl mx-auto px-4 md:px-8 py-12 flex justify-center min-h-screen bg-[#FAF7F2] items-start pt-32">
       <Spinner className="w-10 h-10 text-[#F97316]" />
     </div>
   );
 
   if (notFound || !service) return (
-    <div className="max-w-7xl mx-auto px-4 md:px-8 py-12 text-center">
+    <div className="max-w-7xl mx-auto px-4 md:px-8 py-12 text-center min-h-screen bg-[#FAF7F2]">
       <div className="text-6xl mb-4">🔮</div>
       <h1 className="font-playfair text-3xl font-bold text-[#0F172A] mb-3">Service Not Found</h1>
       <p className="text-[#64748B] mb-6">This service doesn&apos;t exist or may have been removed.</p>
@@ -74,14 +124,15 @@ export default function ServiceDetail() {
   const category = (service.category || "astrology").toLowerCase() as keyof typeof SERVICE_CATEGORY_LABELS;
   const catIcon = SERVICE_CATEGORY_ICONS[category] ?? "🔮";
   const catLabel = SERVICE_CATEGORY_LABELS[category] ?? service.category ?? "Astrology";
-
-  const bannerSrc = service.bannerImage || service.image;
+  const whatsappMessage = encodeURIComponent(`Hi, I am interested in the ${service.title} (₹${service.price}). Can you help me?`);
+  const whatsappUrl = `https://wa.me/917069110573?text=${whatsappMessage}`;
 
   return (
-    <div className="bg-[#FAF7F2] min-h-screen">
-      {/* ── BREADCRUMB ── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <nav className="flex items-center gap-2 text-sm text-[#64748B]">
+    <div className="bg-[#FAF7F2] min-h-screen pb-28 lg:pb-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12">
+
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-2 text-sm text-[#64748B] mb-8 flex-wrap">
           <Link href="/" className="hover:text-[#F97316] transition-colors">Home</Link>
           <span>/</span>
           <Link href="/services" className="hover:text-[#F97316] transition-colors">Services</Link>
@@ -96,210 +147,263 @@ export default function ServiceDetail() {
           <span>/</span>
           <span className="text-[#0F172A] font-medium truncate max-w-[200px]">{service.title}</span>
         </nav>
-      </div>
 
-      {/* ── HERO BANNER ── */}
-      <div className="relative w-full h-[280px] sm:h-[380px] bg-gradient-to-br from-[#0F172A] to-[#1E293B] overflow-hidden">
-        {bannerSrc ? (
-          <img src={bannerSrc} alt={service.title} className="absolute inset-0 w-full h-full object-cover opacity-40" />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-[120px] opacity-10">{catIcon}</div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 z-10">
-          <span className="inline-flex items-center gap-1.5 bg-[#F97316]/90 text-white text-xs font-bold px-4 py-1.5 rounded-full mb-4">
-            {catIcon} {catLabel}
-          </span>
-          <h1 className="font-playfair text-3xl sm:text-5xl font-bold text-white mb-3 max-w-3xl leading-tight">
-            {service.title}
-          </h1>
-          {service.shortDescription && (
-            <p className="text-white/80 text-base sm:text-lg max-w-2xl">{service.shortDescription}</p>
-          )}
-        </div>
-      </div>
+        {/* ── PRODUCT-STYLE GRID ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-start">
 
-      {/* ── MAIN CONTENT ── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-          {/* ── LEFT: Main Content ── */}
-          <div className="lg:col-span-2 space-y-8">
-
-            {/* About section */}
-            <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-6 sm:p-8">
-              <h2 className="font-playfair text-2xl font-bold text-[#0F172A] mb-4">About This Service</h2>
-              <div className="prose prose-orange max-w-none text-[#374151] leading-relaxed whitespace-pre-line">
-                {service.description}
-              </div>
-            </div>
-
-            {/* Key Points */}
-            {service.keyPoints && service.keyPoints.length > 0 && (
-              <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-6 sm:p-8">
-                <h2 className="font-playfair text-2xl font-bold text-[#0F172A] mb-6">What&apos;s Included</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {service.keyPoints.map((kp, i) => (
-                    <div key={i} className="flex items-start gap-3 p-4 bg-[#FFF7ED] rounded-xl border border-[#FED7AA]">
-                      <div className="w-8 h-8 bg-[#F97316] rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0 mt-0.5">
-                        {i + 1}
-                      </div>
-                      <div>
-                        <p className="font-semibold text-[#0F172A]">{kp.label}</p>
-                        {kp.desc && <p className="text-sm text-[#64748B] mt-0.5">{kp.desc}</p>}
-                      </div>
-                    </div>
-                  ))}
+          {/* LEFT — Image gallery */}
+          <div className="relative">
+            <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-[#1E293B] to-[#0F172A] shadow-xl border border-[#E2E8F0] aspect-square sm:aspect-auto sm:h-96 flex items-center justify-center">
+              {allImages.length > 0 ? (
+                <img
+                  src={allImages[currentImageIndex]}
+                  alt={service.title}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center gap-4 py-20 px-8 text-center">
+                  <span className="text-8xl">{catIcon}</span>
+                  <p className="text-white/50 text-sm">No image available</p>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Benefits */}
-            {service.benefits && service.benefits.length > 0 && (
-              <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-6 sm:p-8">
-                <h2 className="font-playfair text-2xl font-bold text-[#0F172A] mb-6">Benefits</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {service.benefits.map((benefit, i) => (
-                    <div key={i} className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-green-100 border border-green-200 flex items-center justify-center shrink-0 mt-0.5">
-                        <svg className="w-3.5 h-3.5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                      </div>
-                      <div>
-                        <p className="font-semibold text-[#0F172A]">{benefit.label}</p>
-                        {benefit.desc && <p className="text-sm text-[#64748B] mt-0.5">{benefit.desc}</p>}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Default "what to expect" if no keyPoints */}
-            {(!service.keyPoints || service.keyPoints.length === 0) && (
-              <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-6 sm:p-8">
-                <h2 className="font-playfair text-2xl font-bold text-[#0F172A] mb-4">What to Expect</h2>
-                <ul className="space-y-3">
-                  {["Detailed analysis of your planetary positions.", "Actionable insights and personalized remedies.", "Complete privacy and confidential consultation.", "PDF report delivered within 24 hours."].map((item, i) => (
-                    <li key={i} className="flex items-start text-[#374151]">
-                      <svg className="w-5 h-5 text-[#F97316] mr-3 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* FAQ */}
-            {service.faq && service.faq.length > 0 && (
-              <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-6 sm:p-8">
-                <h2 className="font-playfair text-2xl font-bold text-[#0F172A] mb-6">Frequently Asked Questions</h2>
-                <div className="space-y-3">
-                  {service.faq.map((item, i) => (
-                    <div key={i} className="border border-[#E2E8F0] rounded-xl overflow-hidden">
-                      <button
-                        type="button"
-                        onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                        className="w-full flex items-center justify-between px-5 py-4 text-left font-semibold text-[#0F172A] hover:bg-[#FAFAFA] transition-colors"
-                      >
-                        <span>{item.question}</span>
-                        <svg className={`w-5 h-5 text-[#F97316] shrink-0 transition-transform ${openFaq === i ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </button>
-                      {openFaq === i && (
-                        <div className="px-5 pb-4 text-[#64748B] leading-relaxed border-t border-[#E2E8F0]">
-                          <p className="pt-3">{item.answer}</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* ── RIGHT: Booking Sidebar ── */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-24 space-y-4">
-              {/* Pricing card */}
-              <div className="bg-white rounded-2xl shadow-md border border-[#E2E8F0] p-6">
-                <div className="flex items-end gap-2 mb-1">
-                  <span className="font-playfair text-4xl font-bold text-[#F97316]">₹{service.price}</span>
-                </div>
-                {service.duration && (
-                  <div className="flex items-center gap-1.5 text-sm text-[#64748B] mb-4">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />
+              {allImages.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentImageIndex((i) => (i === 0 ? allImages.length - 1 : i - 1))}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-md text-[#0F172A] hover:text-[#F97316] transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
-                    {service.duration} session
-                  </div>
-                )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentImageIndex((i) => (i === allImages.length - 1 ? 0 : i + 1))}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-md text-[#0F172A] hover:text-[#F97316] transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </>
+              )}
+            </div>
 
-                <button
-                  type="button"
-                  onClick={handleCta}
-                  className="w-full py-3 bg-[#F97316] hover:bg-[#EA6C0A] text-white font-bold rounded-xl transition-all duration-200 shadow-md text-base mb-3"
-                >
-                  {service.ctaText || "Book Now"} →
-                </button>
-                <button
-                  type="button"
-                  onClick={consultNow}
-                  className="w-full py-3 border-2 border-[#0F172A] text-[#0F172A] hover:bg-[#0F172A] hover:text-white font-bold rounded-xl transition-all duration-200 text-base"
-                >
-                  Talk to Astrologer
-                </button>
+            {allImages.length > 1 && (
+              <div className="flex gap-2 mt-3 flex-wrap justify-center">
+                {allImages.map((src, i) => (
+                  <button
+                    key={src + i}
+                    type="button"
+                    onClick={() => setCurrentImageIndex(i)}
+                    className={`shrink-0 rounded-lg overflow-hidden border-2 transition-all ${i === currentImageIndex ? "border-[#F97316]" : "border-transparent"}`}
+                  >
+                    <img src={src} alt="" className="w-16 h-16 object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
 
-                <div className="mt-4 pt-4 border-t border-[#E2E8F0] space-y-2">
-                  {[
-                    { icon: "✅", text: "100% Confidential" },
-                    { icon: "📄", text: "Detailed PDF Report" },
-                    { icon: "⚡", text: "Response within 24 hours" },
-                    { icon: "🏆", text: "ISO 9001:2015 Certified" },
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-center gap-2 text-sm text-[#64748B]">
-                      <span>{item.icon}</span>
-                      {item.text}
+            {/* Astrologer card below image */}
+            <div className="mt-4 bg-white rounded-2xl border border-[#E2E8F0] p-4 flex items-center gap-3">
+              <img
+                src="/astrologer.png"
+                alt="Mukesh Ravindra Gupta"
+                className="w-14 h-14 rounded-full object-cover border-2 border-[#F97316]"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+              />
+              <div>
+                <p className="font-bold text-[#0F172A] text-sm">Mukesh Ravindra Gupta</p>
+                <p className="text-xs text-[#F97316]">Certified Vedic Astrologer</p>
+                <div className="flex items-center gap-1 mt-0.5">
+                  {"⭐⭐⭐⭐⭐".split("").map((s, i) => <span key={i} className="text-[10px]">{s}</span>)}
+                  <span className="text-[10px] text-[#64748B] ml-1">5.0 (12k+ clients)</span>
+                </div>
+                <p className="text-xs text-[#64748B] mt-1">25+ years · ISO 9001:2015 Certified</p>
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT — Info panel */}
+          <div>
+            {/* Category tag */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="inline-flex items-center gap-1.5 bg-[#FFF7ED] text-[#F97316] text-xs px-3 py-1 rounded-full font-semibold">
+                {catIcon} {catLabel}
+              </span>
+              <span className="inline-flex items-center gap-1 bg-green-50 text-green-700 text-xs px-3 py-1 rounded-full font-semibold border border-green-200">
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                ISO Certified
+              </span>
+            </div>
+
+            <h1 className="font-playfair text-3xl md:text-4xl font-bold text-[#0F172A] mt-3 leading-tight">
+              {service.title}
+            </h1>
+
+            {service.shortDescription && (
+              <p className="text-[#64748B] mt-2 text-sm leading-relaxed">{service.shortDescription}</p>
+            )}
+
+            {/* Price */}
+            <div className="flex items-baseline gap-3 mt-4">
+              <span className="text-3xl font-bold text-[#F97316]">₹{service.price?.toLocaleString("en-IN")}</span>
+              {service.duration && (
+                <span className="text-sm text-[#64748B] flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />
+                  </svg>
+                  {service.duration} session
+                </span>
+              )}
+            </div>
+
+            {/* Benefits / Description */}
+            {service.benefits && service.benefits.length > 0 ? (
+              <div className="mt-5">
+                <p className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest mb-3">What you get</p>
+                <div className="flex flex-col gap-3">
+                  {service.benefits.map((b, i) => (
+                    <div key={i} className="flex items-start gap-3">
+                      <svg className="w-5 h-5 text-[#F97316] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div>
+                        <p className="text-sm font-semibold text-[#0F172A]">{b.label}</p>
+                        {b.desc && <p className="text-xs text-[#64748B] mt-0.5">{b.desc}</p>}
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
-
-              {/* Category badge */}
-              <div className="bg-[#FFF7ED] border border-[#FED7AA] rounded-2xl p-4 text-center">
-                <div className="text-4xl mb-2">{catIcon}</div>
-                <p className="font-semibold text-[#0F172A]">{catLabel}</p>
-                <Link href={`/services?category=${service.category}`} className="text-xs text-[#F97316] hover:underline mt-1 block">
-                  Browse more {catLabel} services →
-                </Link>
+            ) : (
+              <div className="mt-5">
+                <p className="text-sm text-[#475569] leading-relaxed">{service.description}</p>
               </div>
+            )}
 
-              {/* Trust indicators */}
-              <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-4">
-                <div className="flex items-center gap-3 mb-3">
-                  <img src="/astrologer.png" alt="Mukesh Ravindra Gupta" className="w-12 h-12 rounded-full object-cover border-2 border-[#F97316]" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+            {/* Mini trust cards */}
+            <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {[
+                { icon: "🔒", label: "Private", value: "100% Confidential" },
+                { icon: "📄", label: "Report", value: "PDF Delivered" },
+                { icon: "⚡", label: "Response", value: "Within 24 hrs" },
+                { icon: "🏆", label: "Certified", value: "ISO 9001:2015" },
+              ].map((c) => (
+                <div key={c.label} className="bg-white border border-[#E2E8F0] rounded-xl p-3 flex flex-col gap-1">
+                  <span className="text-xs text-[#94A3B8]">{c.icon} {c.label}</span>
+                  <span className="text-xs font-bold text-[#0F172A]">{c.value}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* CTA Buttons */}
+            <div className="mt-6 flex flex-col gap-3">
+              <button
+                type="button"
+                onClick={handleCta}
+                className="w-full py-4 bg-[#F97316] hover:bg-[#EA6C0A] text-white font-bold rounded-xl transition-all duration-200 shadow-md hover:shadow-lg text-base"
+              >
+                {service.ctaText || "Book Now"} →
+              </button>
+
+              <button
+                type="button"
+                onClick={consultNow}
+                className="w-full py-4 border-2 border-[#0F172A] text-[#0F172A] hover:bg-[#0F172A] hover:text-white font-bold rounded-xl transition-all duration-200 text-base"
+              >
+                Talk to Astrologer
+              </button>
+
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full border-2 border-green-500 text-green-700 py-3.5 rounded-xl font-semibold text-base hover:bg-green-50 transition-all duration-200"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#16a34a">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                  <path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.554 4.124 1.523 5.86L.057 23.885a.5.5 0 00.611.611l6.115-1.526A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.815 9.815 0 01-4.992-1.364l-.358-.213-3.712.926.943-3.623-.234-.372A9.818 9.818 0 012.182 12C2.182 6.58 6.58 2.182 12 2.182S21.818 6.58 21.818 12 17.42 21.818 12 21.818z"/>
+                </svg>
+                Ask on WhatsApp before booking
+              </a>
+
+              <Link href="/services" className="block text-center text-[#64748B] hover:text-[#F97316] text-sm transition-colors">
+                ← Back to all Services
+              </Link>
+            </div>
+
+            {/* Trust badges row */}
+            <div className="mt-8 pt-6 border-t border-[#E2E8F0] grid grid-cols-2 gap-4">
+              {[
+                { bg: "bg-[#FFF7ED]", color: "text-[#F97316]", title: "Secure & Private", sub: "100% confidential" },
+                { bg: "bg-blue-50", color: "text-blue-600", title: "Expert Guidance", sub: "25+ yrs experience" },
+                { bg: "bg-green-50", color: "text-green-600", title: "Detailed Report", sub: "PDF within 24 hrs" },
+                { bg: "bg-amber-50", color: "text-amber-600", title: "ISO Certified", sub: "9001:2015 standard" },
+              ].map((b) => (
+                <div key={b.title} className="flex items-center gap-3">
+                  <div className={`w-11 h-11 rounded-full ${b.bg} flex items-center justify-center ${b.color} flex-shrink-0`}>
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  </div>
                   <div>
-                    <p className="font-bold text-[#0F172A] text-sm">Mukesh Ravindra Gupta</p>
-                    <p className="text-xs text-[#F97316]">Certified Vedic Astrologer</p>
-                    <div className="flex items-center gap-1 mt-0.5">
-                      {"⭐⭐⭐⭐⭐".split("").map((s, i) => <span key={i} className="text-[10px]">{s}</span>)}
-                      <span className="text-[10px] text-[#64748B] ml-1">5.0 (12k+)</span>
-                    </div>
+                    <h4 className="font-bold text-sm text-[#0F172A]">{b.title}</h4>
+                    <p className="text-xs text-[#64748B]">{b.sub}</p>
                   </div>
                 </div>
-                <p className="text-xs text-[#64748B] leading-relaxed">
-                  25+ years of expertise in Vedic Astrology, Numerology &amp; Vastu. ISO certified professional.
-                </p>
-              </div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* ── RELATED SERVICES CTA ── */}
+        {/* ── FULL-WIDTH SECTIONS BELOW ── */}
+
+        {/* About / Description */}
+        <div className="mt-12 bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-6 sm:p-8">
+          <h2 className="font-playfair text-2xl font-bold text-[#0F172A] mb-4">About This Service</h2>
+          <div className="prose prose-orange max-w-none text-[#374151] leading-relaxed whitespace-pre-line">
+            {service.description}
+          </div>
+        </div>
+
+        {/* Key Points / What's Included */}
+        {service.keyPoints && service.keyPoints.length > 0 && (
+          <div className="mt-8 bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-6 sm:p-8">
+            <h2 className="font-playfair text-2xl font-bold text-[#0F172A] mb-6">What&apos;s Included</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {service.keyPoints.map((kp, i) => (
+                <div key={i} className="flex items-start gap-3 p-4 bg-[#FFF7ED] rounded-xl border border-[#FED7AA]">
+                  <div className="w-8 h-8 bg-[#F97316] rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0 mt-0.5">
+                    {i + 1}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-[#0F172A]">{kp.label}</p>
+                    {kp.desc && <p className="text-sm text-[#64748B] mt-0.5">{kp.desc}</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* FAQ */}
+        {service.faq && service.faq.length > 0 && (
+          <div className="mt-8">
+            <h2 className="font-playfair text-2xl font-bold text-[#0F172A] mb-6">Frequently Asked Questions</h2>
+            <div className="flex flex-col gap-3">
+              {service.faq.map((item, i) => (
+                <FAQItem key={i} question={item.question} answer={item.answer} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Explore more CTA */}
         <div className="mt-12 bg-[#0F172A] rounded-2xl py-10 px-6 text-center">
           <h3 className="font-playfair text-2xl font-bold text-white mb-2">Explore More Services</h3>
           <p className="text-white/60 mb-6">Discover our full range of Vedic consultations and remedies.</p>
@@ -312,6 +416,25 @@ export default function ServiceDetail() {
             </Link>
           </div>
         </div>
+
+      </div>
+
+      {/* Mobile sticky CTA */}
+      <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-[#E2E8F0] p-3 flex gap-2 lg:hidden shadow-2xl">
+        <button
+          type="button"
+          onClick={consultNow}
+          className="flex-1 flex items-center justify-center gap-1.5 border-2 border-[#0F172A] text-[#0F172A] py-3 rounded-xl font-semibold text-sm transition-all hover:bg-[#0F172A] hover:text-white"
+        >
+          Talk to Astrologer
+        </button>
+        <button
+          type="button"
+          onClick={handleCta}
+          className="flex-1 flex items-center justify-center bg-[#F97316] hover:bg-[#EA6C0A] text-white py-3 rounded-xl font-semibold text-sm transition-colors"
+        >
+          {service.ctaText || "Book Now"} ₹{service.price?.toLocaleString("en-IN")}
+        </button>
       </div>
     </div>
   );
