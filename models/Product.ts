@@ -38,6 +38,10 @@ const productSchema = new Schema(
   },
 );
 
+// ── Indexes for fast queries ──
+productSchema.index({ isActive: 1, rank: -1, createdAt: -1 });
+productSchema.index({ category: 1, isActive: 1 });
+
 const Product = models.Product || model("Product", productSchema);
 
 export default Product;
