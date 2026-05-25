@@ -23,10 +23,23 @@ export const metadata: Metadata = {
     description:
       "Book Kundli reading, Vastu consultation, and numerology services with certified astrologer Mukesh Gupta, Vadodara.",
     url: "https://www.omkkaar.com/services",
+    images: [
+      {
+        url: "/astrologer.png",
+        width: 1200,
+        height: 630,
+        alt: "Vedic Astrology Services — Omkkaar Astroworld Vadodara",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Vedic Astrology Services | Omkkaar Astroworld",
+    description: "Kundli, Vastu, Numerology & Tarot by certified astrologer Mukesh Gupta.",
+    images: ["/astrologer.png"],
   },
 };
 
-// FAQ schema for rich results in search
 const faqSchema = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
@@ -82,12 +95,25 @@ const faqSchema = {
   ],
 };
 
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home",     item: "https://www.omkkaar.com" },
+    { "@type": "ListItem", position: 2, name: "Services", item: "https://www.omkkaar.com/services" },
+  ],
+};
+
 export default function ServicesLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       {children}
     </>
