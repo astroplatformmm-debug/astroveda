@@ -13,7 +13,7 @@ function ServicesContent() {
   const [error, setError] = useState("");
   const searchParams = useSearchParams();
   const router = useRouter();
-  const currentCategory = searchParams.get('category') || 'all';
+  const currentCategory = searchParams.get("category") || "all";
 
   const extractErrorMessage = async (response: Response) => {
     try {
@@ -50,50 +50,82 @@ function ServicesContent() {
     fetchServices();
   }, [currentCategory]);
 
+  const categories = [
+    { label: "✦ All Services", value: "all" },
+    { label: "Astrology", value: "astrology" },
+    { label: "Tarot Reading", value: "tarot" },
+    { label: "Numerology Consultation", value: "numerology" },
+    { label: "Vastu Consultation", value: "vastu" },
+  ];
+
+  const trustItems = [
+    { icon: "🙏", value: "10,000+", label: "Happy Clients" },
+    { icon: "⭐", value: "4.9/5", label: "Google Rating" },
+    { icon: "🏆", value: "ISO", label: "9001:2015 Certified" },
+    { icon: "🔒", value: "100%", label: "Confidential" },
+    { icon: "🎓", value: "10+ Yrs", label: "Experience" },
+  ];
+
   return (
-    <div className="flex flex-col min-h-screen pb-16">
-      {/* Header Banner */}
-      <div className="bg-[#F97316] text-white py-14 sm:py-20 px-4 sm:px-6 lg:px-8">
+    <div className="flex flex-col min-h-screen pb-16 bg-[#FAF6F0]">
+
+      {/* ── HERO BANNER ── */}
+      <div
+        className="text-white py-14 sm:py-20 px-4 sm:px-6 lg:px-8"
+        style={{
+          background: "linear-gradient(135deg, #1C1410 0%, #3A2510 50%, #1C1410 100%)",
+        }}
+      >
         <div className="max-w-7xl mx-auto text-center min-w-0">
-          <h1 className="font-playfair text-2xl sm:text-4xl md:text-5xl font-bold mb-4 px-1">Our Astrology Services</h1>
-          <p className="text-white/90 max-w-2xl mx-auto text-lg">
-            Ancient wisdom tailored for the modern world. Find clarity, overcome obstacles, and discover your true potential.
+          <p className="text-[#E8B94A] text-xs font-semibold tracking-widest uppercase mb-3">
+            ✦ Trusted by 10,000+ Souls ✦
+          </p>
+          <h1 className="font-playfair text-2xl sm:text-4xl md:text-5xl font-bold mb-4 px-1">
+            Our{" "}
+            <em className="text-[#E8B94A] italic not-italic font-playfair">
+              Sacred
+            </em>{" "}
+            Services
+          </h1>
+          <p className="text-white/70 max-w-2xl mx-auto text-base sm:text-lg">
+            Ancient wisdom tailored for the modern world. Find clarity,
+            overcome obstacles, and discover your true potential.
           </p>
         </div>
       </div>
 
-      {/* Category Tabs */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-        <div className="flex flex-wrap justify-center gap-2 sm:gap-3 pb-2 mb-8">
-          {[
-            { label: "All Services", value: "all" },
-            { label: "Astrology", value: "astrology" },
-            { label: "Tarot Reading", value: "tarot" },
-            { label: "Numerology Consultation", value: "numerology" },
-            { label: "Vastu Consultation", value: "vastu" },
-          ].map((cat) => (
-            <button
-              key={cat.value}
-              onClick={() => {
-                if (cat.value === 'all') {
-                  router.push('/services');
-                } else {
-                  router.push(`/services?category=${cat.value}`);
-                }
-              }}
-              className={`px-4 py-2 sm:px-6 sm:py-2.5 rounded-full font-bold transition-all duration-200 border-2 text-sm sm:text-base ${currentCategory === cat.value ? 'bg-[#F97316] text-white border-[#F97316] shadow-md' : 'bg-white text-[#0F172A] border-[#E2E8F0] hover:border-[#F97316] hover:bg-[#FFF7ED]'}`}
-            >
-              {cat.label}
-            </button>
-          ))}
+      {/* ── CATEGORY TABS ── */}
+      <div className="bg-white border-b border-[#E8D5B8] sticky top-0 z-20 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-3 py-4">
+            {categories.map((cat) => (
+              <button
+                key={cat.value}
+                onClick={() => {
+                  if (cat.value === "all") {
+                    router.push("/services");
+                  } else {
+                    router.push(`/services?category=${cat.value}`);
+                  }
+                }}
+                className={`px-4 py-2 sm:px-5 sm:py-2 rounded-full font-semibold transition-all duration-200 border-2 text-sm sm:text-sm ${
+                  currentCategory === cat.value
+                    ? "bg-[#C8922A] text-white border-[#C8922A] shadow-md"
+                    : "bg-white text-[#5C4A32] border-[#E8D5B8] hover:border-[#C8922A] hover:text-[#C8922A]"
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Services Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 relative z-10 w-full min-w-0">
+      {/* ── SERVICES GRID ── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 relative z-10 w-full min-w-0">
         {loading ? (
           <div className="flex justify-center py-16">
-            <Spinner className="w-10 h-10 text-[#F97316]" />
+            <Spinner className="w-10 h-10 text-[#C8922A]" />
           </div>
         ) : (
           <>
@@ -105,18 +137,49 @@ function ServicesContent() {
                 ))}
               </div>
             ) : (
-              <p className="text-center text-gray-500 py-12">No services available</p>
+              <p className="text-center text-[#9B8572] py-12">
+                No services available
+              </p>
             )}
           </>
         )}
       </div>
+
+      {/* ── TRUST BAR ── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20 mb-4 w-full">
+        <div className="bg-white border border-[#E8D5B8] rounded-2xl py-10 px-6">
+          <h2 className="font-playfair text-2xl sm:text-3xl font-bold text-center text-[#1C1410] mb-8">
+            Trusted by Thousands
+          </h2>
+          <div className="flex flex-wrap justify-center gap-8 sm:gap-12">
+            {trustItems.map((item) => (
+              <div key={item.label} className="text-center">
+                <div className="w-14 h-14 bg-[#FDF3E3] border border-[#E8D5B8] rounded-full flex items-center justify-center text-2xl mx-auto mb-2">
+                  {item.icon}
+                </div>
+                <div className="font-playfair text-2xl font-bold text-[#1C1410]">
+                  {item.value}
+                </div>
+                <div className="text-xs text-[#9B8572] mt-0.5">{item.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 }
 
 export default function ServicesPage() {
   return (
-    <Suspense fallback={<div className="flex justify-center py-16"><Spinner className="w-10 h-10 text-[#F97316]" /></div>}>
+    <Suspense
+      fallback={
+        <div className="flex justify-center py-16">
+          <Spinner className="w-10 h-10 text-[#C8922A]" />
+        </div>
+      }
+    >
       <ServicesContent />
     </Suspense>
   );
