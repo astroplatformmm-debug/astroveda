@@ -289,12 +289,12 @@ export default function Home() {
               Discover your cosmic destiny, career path, love life, and financial future through ancient Vedic wisdom. Receive a detailed PDF report + 30-minute consultation within 24 hours.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Link href="/services" className="w-full sm:w-auto">
+              <Link href="https://www.omkkaar.com/services?category=astrology" className="w-full sm:w-auto">
                 <button className="w-full sm:w-auto px-8 py-3.5 bg-[#F97316] text-white font-bold rounded-lg hover:bg-[#EA6C0A] transition-all duration-200 text-center shadow-lg hover:shadow-xl">
                   Get My Kundli Now
                 </button>
               </Link>
-              <Link href="/services" className="w-full sm:w-auto">
+              <Link href="/contact" className="w-full sm:w-auto">
                 <button className="w-full sm:w-auto px-8 py-3.5 bg-transparent border-2 border-[#0F172A] text-[#0F172A] font-bold rounded-lg hover:bg-[#0F172A] hover:text-white transition-all duration-200 text-center">
                   Talk to Astrologer Now
                 </button>
@@ -328,7 +328,7 @@ export default function Home() {
               <li className="flex items-start gap-2"><span className="text-[#F97316]">●</span> Trademark Certified Professional</li>
               <li className="flex items-start gap-2"><span className="text-[#F97316]">●</span> Specializes in Life, Career & Marriage Remedies</li>
             </ul>
-            <Link href="/services">
+            <Link href="/contact">
               <button className="block w-full py-3.5 bg-[#F97316] text-white font-bold rounded-lg hover:bg-[#EA6C0A] transition-all duration-200 text-center shadow-md">
                 Consult Now
               </button>
