@@ -63,7 +63,7 @@ function ServicesContent() {
     { icon: "⭐", value: "4.9/5", label: "Google Rating" },
     { icon: "🏆", value: "ISO", label: "9001:2015 Certified" },
     { icon: "🔒", value: "100%", label: "Confidential" },
-    { icon: "🎓", value: "10+ Yrs", label: "Experience" },
+    { icon: "🎓", value: "25+ Yrs", label: "Experience" },
   ];
 
   return (
