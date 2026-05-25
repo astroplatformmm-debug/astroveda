@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Modal from "@/components/ui/Modal";
 import Spinner from "@/components/ui/Spinner";
 import type { Service } from "@/lib/types";
-import { SERVICE_CATEGORY_LABELS, SERVICE_CATEGORY_ICONS } from "@/lib/serviceCategory";
+import { SERVICE_CATEGORY_LABELS, SERVICE_CATEGORY_ICONS, generateServiceSlug } from "@/lib/serviceCategory";
 
 const CATEGORY_OPTIONS = Object.entries(SERVICE_CATEGORY_LABELS).map(([value, label]) => ({ value, label }));
 
@@ -34,6 +34,9 @@ export default function ServicesManagement() {
   const [rankValues, setRankValues] = useState<Record<string, string>>({});
   const [rankSaving, setRankSaving] = useState<Record<string, boolean>>({});
   const [rankSuccess, setRankSuccess] = useState<Record<string, boolean>>({});
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+  const [migrating, setMigrating] = useState(false);
+  const [migrateResult, setMigrateResult] = useState<string | null>(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -63,6 +66,7 @@ export default function ServicesManagement() {
 
   const resetForm = () => {
     setFormData({ title: "", slug: "", category: "astrology", shortDescription: "", description: "", price: 0, duration: "", ctaText: "Book Now", ctaLink: "", seoTitle: "", seoDescription: "", image: "", bannerImage: "" });
+    setSlugManuallyEdited(false);
     setKeyPoints([]); setNewKpLabel(""); setNewKpDesc("");
     setBenefits([]); setNewBenLabel(""); setNewBenDesc("");
     setFaq([]); setNewFaqQ(""); setNewFaqA("");
@@ -73,6 +77,7 @@ export default function ServicesManagement() {
 
   const openEditModal = (service: Service) => {
     setEditingId(service._id || service.id || null);
+    setSlugManuallyEdited(true); // treat existing slug as intentional
     setFormData({
       title: service.title,
       slug: service.slug || "",
@@ -237,13 +242,49 @@ export default function ServicesManagement() {
           <h1 className="text-2xl font-bold font-playfair text-[#0F172A]">Services Management</h1>
           <p className="text-[#64748B] text-sm mt-1">Manage service pages, categories, content, and SEO — just like products.</p>
         </div>
-        <button onClick={openAddModal} className="px-4 py-2.5 bg-[#F97316] hover:bg-[#EA6C0A] text-white text-sm font-bold rounded-lg transition-colors shadow-sm flex items-center">
-          <svg className="w-5 h-5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-          Add New Service
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={async () => {
+              setMigrating(true);
+              setMigrateResult(null);
+              try {
+                const res = await fetch("/api/services/migrate-slugs", { method: "POST", credentials: "include" });
+                const data = await res.json();
+                if (res.ok) {
+                  setMigrateResult(`✅ Fixed ${data.updated} service${data.updated !== 1 ? "s" : ""}${data.updated === 0 ? " — all slugs already set!" : " with missing slugs."}`);
+                  fetchServices();
+                } else {
+                  setMigrateResult("❌ " + (data.error || "Migration failed"));
+                }
+              } catch {
+                setMigrateResult("❌ Network error");
+              } finally {
+                setMigrating(false);
+              }
+            }}
+            disabled={migrating}
+            className="px-4 py-2.5 bg-white border border-[#E2E8F0] hover:border-[#F97316] text-[#64748B] hover:text-[#F97316] text-sm font-bold rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-50"
+          >
+            {migrating ? (
+              <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+            ) : (
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+            )}
+            Fix Old URLs
+          </button>
+          <button onClick={openAddModal} className="px-4 py-2.5 bg-[#F97316] hover:bg-[#EA6C0A] text-white text-sm font-bold rounded-lg transition-colors shadow-sm flex items-center">
+            <svg className="w-5 h-5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+            Add New Service
+          </button>
+        </div>
       </div>
 
-      {/* Search */}
+      {migrateResult && (
+        <div className={`text-sm px-4 py-3 rounded-lg border ${migrateResult.startsWith("✅") ? "bg-green-50 border-green-200 text-green-700" : "bg-red-50 border-red-200 text-red-600"}`}>
+          {migrateResult}
+          <button onClick={() => setMigrateResult(null)} className="ml-3 underline text-xs opacity-70 hover:opacity-100">Dismiss</button>
+        </div>
+      )}
       <div className="relative max-w-sm">
         <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
           <svg className="w-4 h-4 text-[#94A3B8]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" /></svg>
@@ -352,12 +393,57 @@ export default function ServicesManagement() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-bold text-[#0F172A] mb-1">Service Name *</label>
-              <input type="text" required value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none" />
+              <input
+                type="text"
+                required
+                value={formData.title}
+                onChange={(e) => {
+                  const newTitle = e.target.value;
+                  setFormData((prev) => ({
+                    ...prev,
+                    title: newTitle,
+                    // Auto-fill slug only if user hasn't manually edited it
+                    slug: slugManuallyEdited ? prev.slug : generateServiceSlug(newTitle),
+                  }));
+                }}
+                className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none"
+              />
             </div>
             <div>
-              <label className="block text-sm font-bold text-[#0F172A] mb-1">Slug (auto-generated)</label>
-              <input type="text" placeholder="e.g. kundli-reading" value={formData.slug} onChange={(e) => setFormData({ ...formData, slug: e.target.value })} className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none font-mono text-sm" />
-              <p className="text-xs text-[#94A3B8] mt-1">Leave blank to auto-generate from title</p>
+              <label className="block text-sm font-bold text-[#0F172A] mb-1">
+                URL Slug
+                {!slugManuallyEdited && formData.title && (
+                  <span className="ml-2 text-xs font-normal text-green-600 bg-green-50 px-2 py-0.5 rounded-full">auto</span>
+                )}
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="e.g. kundli-reading"
+                  value={formData.slug}
+                  onChange={(e) => {
+                    setSlugManuallyEdited(true);
+                    setFormData({ ...formData, slug: e.target.value });
+                  }}
+                  className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none font-mono text-sm"
+                />
+                {slugManuallyEdited && formData.title && (
+                  <button
+                    type="button"
+                    title="Reset to auto-generated slug"
+                    onClick={() => {
+                      setSlugManuallyEdited(false);
+                      setFormData((prev) => ({ ...prev, slug: generateServiceSlug(prev.title) }));
+                    }}
+                    className="shrink-0 px-3 py-2 rounded-lg bg-[#FFF7ED] border border-[#FED7AA] text-[#F97316] text-xs font-bold hover:bg-[#FFE8D6] transition-colors"
+                  >
+                    ↺ Reset
+                  </button>
+                )}
+              </div>
+              <p className="text-xs text-[#94A3B8] mt-1">
+                URL: <span className="font-mono">/services/{formData.slug || "…"}</span>
+              </p>
             </div>
           </div>
 
