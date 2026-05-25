@@ -13,8 +13,6 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // CHANGED: was false — this was hurting Core Web Vitals
-  optimizeFonts: true,
   experimental: {
     serverActions: {
       bodySizeLimit: "10mb",
