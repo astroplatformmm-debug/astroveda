@@ -7,20 +7,45 @@ export type TimeSlot = {
   bookedByOrderId?: string;
 };
 
+export type ServiceKeyPoint = { label: string; desc: string };
+export type ServiceBenefit = { label: string; desc: string };
+export type ServiceFaq = { question: string; answer: string };
+
 export type Service = {
   _id?: string;
   id?: string;
 
   title: string;
+  slug?: string;
+  category?: string;
+
+  // Images
+  image?: string;
+  bannerImage?: string;
+
+  // Descriptions
+  shortDescription?: string;
   description: string;
 
+  // Structured content
+  keyPoints?: ServiceKeyPoint[];
+  benefits?: ServiceBenefit[];
+  faq?: ServiceFaq[];
+
+  // Pricing & booking
   price: number;
-
   duration?: string;
-  image?: string;
 
+  // CTA
+  ctaText?: string;
+  ctaLink?: string;
+
+  // SEO
+  seoTitle?: string;
+  seoDescription?: string;
+
+  rank?: number;
   isActive?: boolean;
-
   createdAt?: string;
 };
 
