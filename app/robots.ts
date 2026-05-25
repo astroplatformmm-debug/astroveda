@@ -6,7 +6,14 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin/", "/api/", "/cart", "/checkout", "/payment-success"],
+        disallow: [
+          "/admin/",
+          "/api/",
+          "/cart",
+          "/checkout",
+          "/payment-success",
+          "/admin/login",
+        ],
       },
     ],
     sitemap: "https://www.omkkaar.com/sitemap.xml",
