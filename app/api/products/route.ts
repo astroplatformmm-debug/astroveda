@@ -40,7 +40,10 @@ export async function GET(req: NextRequest) {
       console.log("[GET /api/products] MONGO_QUERY:", JSON.stringify(query));
     }
 
-    const products = await Product.find(query).sort({ rank: -1, createdAt: -1 }).lean();
+    const products = await Product.find(query)
+      .select("title price image images category zodiac rank options ringMaterialEnabled ringMaterials")
+      .sort({ rank: -1, createdAt: -1 })
+      .lean();
 
     if (verbose) {
       console.log("[GET /api/products] RESULT COUNT:", products.length);
@@ -57,7 +60,9 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json(products, {
-      headers: { "Cache-Control": "no-store, must-revalidate" },
+      headers: {
+        "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+      },
     });
   } catch (error: unknown) {
     console.error("[GET /api/products] FULL ERROR:", error);
@@ -82,7 +87,10 @@ export const POST = withAdminAuth(async (req) => {
       try {
         imageUrl = await uploadImage(imageUrl, "astroveda/products");
       } catch (err: unknown) {
-        return NextResponse.json({ error: "Image upload failed: " + (err instanceof Error ? err.message : "Unknown error") }, { status: 500 });
+        return NextResponse.json(
+          { error: "Image upload failed: " + (err instanceof Error ? err.message : "Unknown error") },
+          { status: 500 },
+        );
       }
     }
 
