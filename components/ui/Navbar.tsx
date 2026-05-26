@@ -12,6 +12,8 @@ export default function Navbar() {
   const { totalItems } = useCart();
   const { language, setLanguage } = useLanguage();
 
+  const t = (en: string, hi: string) => (language === "hi" ? hi : en);
+
   if (pathname.startsWith("/admin")) return null;
 
   const navLinks = [
