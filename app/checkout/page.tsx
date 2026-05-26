@@ -344,7 +344,7 @@ function CheckoutContent() {
     <div className="bg-[#FAF7F2] min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 md:py-20 min-w-0">
         <h1 className="font-playfair text-2xl sm:text-3xl font-bold text-[#0F172A] mb-8 border-b border-[#E2E8F0] pb-4">
-          Checkout
+          {t("Checkout", "चेकआउट")}
         </h1>
 
         <div className="flex flex-col-reverse md:flex-row gap-8 lg:gap-12">
@@ -359,7 +359,7 @@ function CheckoutContent() {
                 <input
                   type="text"
                   className={`w-full px-4 py-2.5 rounded-lg border ${errors.name ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
-                  placeholder="{t("Enter your full name", "अपना पूरा नाम दर्ज करें")}"
+                  placeholder={t("Enter your full name", "अपना पूरा नाम दर्ज करें")}
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   disabled={isSubmitting}
@@ -373,7 +373,7 @@ function CheckoutContent() {
                 <input
                   type="email"
                   className={`w-full px-4 py-2.5 rounded-lg border ${errors.email ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
-                  placeholder="{t("you@example.com", "your@email.com")}"
+                  placeholder={t("you@example.com", "your@email.com")}
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   disabled={isSubmitting}
@@ -387,7 +387,7 @@ function CheckoutContent() {
                 <input
                   type="tel"
                   className={`w-full px-4 py-2.5 rounded-lg border ${errors.phone ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
-                  placeholder="{t("10-digit mobile number", "10 अंकों का मोबाइल नंबर")}"
+                  placeholder={t("10-digit mobile number", "10 अंकों का मोबाइल नंबर")}
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   disabled={isSubmitting}
@@ -404,7 +404,7 @@ function CheckoutContent() {
                     <input
                       type="text"
                       className={`w-full px-4 py-2.5 rounded-lg border ${errors.addressLine ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
-                      placeholder="{t("House/Flat No., Street, Area", "मकान/फ्लैट नं., गली, क्षेत्र")}"
+                      placeholder={t("House/Flat No., Street, Area", "मकान/फ्लैट नं., गली, क्षेत्र")}
                       value={formData.addressLine}
                       onChange={(e) => setFormData({ ...formData, addressLine: e.target.value })}
                       disabled={isSubmitting}
@@ -444,7 +444,7 @@ function CheckoutContent() {
                     <input
                       type="text"
                       className={`w-full px-4 py-2.5 rounded-lg border ${errors.pincode ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
-                      placeholder="{t("6-digit Pincode", "6 अंकों का पिन कोड")}"
+                      placeholder={t("6-digit Pincode", "6 अंकों का पिन कोड")}
                       value={formData.pincode}
                       onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
                       disabled={isSubmitting}
