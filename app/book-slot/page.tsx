@@ -75,8 +75,8 @@ function BookSlotContent() {
   }, [selectedDate]);
 
   const handleContinue = () => {
-    if (!selectedDate) { setError("{t("Please select a date.", "कृपया तारीख चुनें।")}"); return; }
-    if (!selectedTime) { setError("{t("Please select a time slot.", "कृपया समय स्लॉट चुनें।")}"); return; }
+    if (!selectedDate) { setError(t("Please select a date.", "कृपया तारीख चुनें।")); return; }
+    if (!selectedTime) { setError(t("Please select a time slot.", "कृपया समय स्लॉट चुनें।")); return; }
     const params = new URLSearchParams({
       serviceId,
       date: selectedDate,
