@@ -306,7 +306,7 @@ export default function ContactPage() {
             </svg>
             <div>
               <p>+91 70691 10573</p>
-              <p>+91 87338 98927</p>
+              <p>+91 63595 15655</p>
             </div>
           </div>
 
