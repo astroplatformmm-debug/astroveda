@@ -4,21 +4,23 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCart } from "@/context/CartContext";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const { totalItems } = useCart();
+  const { language, setLanguage } = useLanguage();
 
   if (pathname.startsWith("/admin")) return null;
 
   const navLinks = [
-    { href: "/", label: "Home" },
-    { href: "/shop", label: "Shop" },
-    { href: "/services", label: "Services" },
-    { href: "/about", label: "About" },
-    { href: "/blogs", label: "Blogs" },
-    { href: "/contact", label: "Contact Us" },
+    { href: "/", label: language === "hi" ? "होम" : "Home" },
+    { href: "/shop", label: language === "hi" ? "शॉप" : "Shop" },
+    { href: "/services", label: language === "hi" ? "सेवाएं" : "Services" },
+    { href: "/about", label: language === "hi" ? "हमारे बारे में" : "About" },
+    { href: "/blogs", label: language === "hi" ? "ब्लॉग" : "Blogs" },
+    { href: "/contact", label: language === "hi" ? "संपर्क करें" : "Contact Us" },
   ];
 
   return (
@@ -74,6 +76,17 @@ export default function Navbar() {
               ))}
 
               <div className="flex items-center space-x-4 border-l border-[#E2E8F0] pl-6">
+                {/* Language Toggle */}
+                <button
+                  type="button"
+                  onClick={() => setLanguage(language === "en" ? "hi" : "en")}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#E2E8F0] hover:border-[#F97316] text-[#64748B] hover:text-[#F97316] text-sm font-semibold transition-all"
+                  title={language === "en" ? "Switch to Hindi" : "Switch to English"}
+                >
+                  <span className="text-base">{language === "en" ? "🇮🇳" : "🇬🇧"}</span>
+                  <span>{language === "en" ? "हिंदी" : "EN"}</span>
+                </button>
+
                 {/* Cart Icon */}
                 <Link href="/cart" className="relative text-[#64748B] hover:text-[#F97316] transition-colors">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -98,7 +111,16 @@ export default function Navbar() {
             </div>
 
             {/* Mobile: cart + hamburger */}
-            <div className="md:hidden flex items-center gap-4">
+            <div className="md:hidden flex items-center gap-3">
+              {/* Language toggle mobile */}
+              <button
+                type="button"
+                onClick={() => setLanguage(language === "en" ? "hi" : "en")}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-full border border-[#E2E8F0] text-[#64748B] text-xs font-semibold transition-all hover:border-[#F97316] hover:text-[#F97316]"
+              >
+                <span>{language === "en" ? "🇮🇳" : "🇬🇧"}</span>
+                <span>{language === "en" ? "हिंदी" : "EN"}</span>
+              </button>
               <Link href="/cart" className="relative text-[#64748B] hover:text-[#F97316]">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
