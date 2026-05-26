@@ -28,7 +28,7 @@ export default function Navbar() {
       <div className="bg-[#F97316] text-white py-2 px-3 sm:px-6 flex items-center justify-between max-w-[100vw]">
         <div className="flex-1" />
         <span className="text-sm md:text-base font-medium leading-snug text-center">
-          🔥 Limited Daily Consultations — 5 slots this week — Book soon!
+          🔥 {t("Limited Daily Consultations — 5 slots this week — Book soon!", "सीमित दैनिक परामर्श — इस सप्ताह 5 स्लॉट — जल्दी बुक करें!")}
         </span>
         <div className="flex-1 flex justify-end">
           <a
@@ -105,7 +105,7 @@ export default function Navbar() {
                   href="https://www.omkkaar.com/services?category=astrology"
                   className="shrink-0 px-5 sm:px-7 py-2.5 sm:py-3 rounded-full bg-[#F97316] text-white text-sm sm:text-base font-semibold hover:bg-[#EA6C0A] transition-all duration-200 shadow-md hover:shadow-lg whitespace-nowrap text-center"
                 >
-                  ✦ Get My Kundli
+                  ✦ {t("Get My Kundli", "कुंडली बनवाएं")}
                 </Link>
               </div>
             </div>
@@ -168,7 +168,7 @@ export default function Navbar() {
                   onClick={() => setIsOpen(false)}
                   className="w-full block text-center px-5 py-3 rounded-full bg-[#F97316] text-white font-medium hover:bg-[#EA6C0A] transition-all shadow-md"
                 >
-                  ✦ Get My Kundli Now
+                  ✦ {t("Get My Kundli Now", "अभी कुंडली बनवाएं")}
                 </Link>
               </div>
             </div>
