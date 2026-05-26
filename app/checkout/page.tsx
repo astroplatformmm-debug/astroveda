@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useRef, useState, useEffect, Suspense } from "react";
 import { services, gemstones } from "@/lib/mockData";
 import Spinner from "@/components/ui/Spinner";
+import { useLanguage } from "@/context/LanguageContext";
 import type { Product, Service } from "@/lib/types";
 
 declare global {
@@ -18,6 +19,7 @@ type PaymentMethod = "online";
 function CheckoutContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { t } = useLanguage();
 
   const serviceId = searchParams.get("serviceId");
   const productId = searchParams.get("productId");
@@ -107,7 +109,7 @@ function CheckoutContent() {
   if (!item) {
     return (
       <div className="flex flex-col items-center justify-center py-20 bg-[#FAF7F2] min-h-screen">
-        <h2 className="text-2xl font-bold mb-4 text-[#0F172A]">No item selected for checkout</h2>
+        <h2 className="text-2xl font-bold mb-4 text-[#0F172A]">{t("No item selected for checkout", "चेकआउट के लिए कोई आइटम नहीं चुना")}</h2>
         <button onClick={() => router.push("/")} className="text-[#F97316] underline font-medium">
           Return Home
         </button>
@@ -348,16 +350,16 @@ function CheckoutContent() {
         <div className="flex flex-col-reverse md:flex-row gap-8 lg:gap-12">
           {/* ── Form Section ── */}
           <div className="flex-1 bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-[#E2E8F0]">
-            <h2 className="text-xl font-bold text-[#0F172A] mb-6 font-playfair">Billing Details</h2>
+            <h2 className="text-xl font-bold text-[#0F172A] mb-6 font-playfair">{t("Billing Details", "बिलिंग विवरण")}</h2>
 
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Name */}
               <div>
-                <label className="block text-sm font-bold text-[#0F172A] mb-1">Full Name</label>
+                <label className="block text-sm font-bold text-[#0F172A] mb-1">{t("Full Name", "पूरा नाम")}</label>
                 <input
                   type="text"
                   className={`w-full px-4 py-2.5 rounded-lg border ${errors.name ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
-                  placeholder="Enter your full name"
+                  placeholder="{t("Enter your full name", "अपना पूरा नाम दर्ज करें")}"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   disabled={isSubmitting}
@@ -367,11 +369,11 @@ function CheckoutContent() {
 
               {/* Email */}
               <div>
-                <label className="block text-sm font-bold text-[#0F172A] mb-1">Email Address</label>
+                <label className="block text-sm font-bold text-[#0F172A] mb-1">{t("Email Address", "ईमेल पता")}</label>
                 <input
                   type="email"
                   className={`w-full px-4 py-2.5 rounded-lg border ${errors.email ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
-                  placeholder="you@example.com"
+                  placeholder="{t("you@example.com", "your@email.com")}"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   disabled={isSubmitting}
@@ -381,11 +383,11 @@ function CheckoutContent() {
 
               {/* Phone */}
               <div>
-                <label className="block text-sm font-bold text-[#0F172A] mb-1">Phone Number</label>
+                <label className="block text-sm font-bold text-[#0F172A] mb-1">{t("Phone Number", "फ़ोन नंबर")}</label>
                 <input
                   type="tel"
                   className={`w-full px-4 py-2.5 rounded-lg border ${errors.phone ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
-                  placeholder="10-digit mobile number"
+                  placeholder="{t("10-digit mobile number", "10 अंकों का मोबाइल नंबर")}"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   disabled={isSubmitting}
@@ -395,14 +397,14 @@ function CheckoutContent() {
 
               {/* Shipping Address */}
               <div className="pt-2 border-t border-[#E2E8F0] mt-2">
-                <h3 className="text-lg font-bold text-[#0F172A] mb-4 font-playfair">Shipping Address</h3>
+                <h3 className="text-lg font-bold text-[#0F172A] mb-4 font-playfair">{t("Shipping Address", "डिलीवरी पता")}</h3>
                 <div className="space-y-5">
                   <div>
-                    <label className="block text-sm font-bold text-[#0F172A] mb-1">Address Line</label>
+                    <label className="block text-sm font-bold text-[#0F172A] mb-1">{t("Address Line", "पता पंक्ति")}</label>
                     <input
                       type="text"
                       className={`w-full px-4 py-2.5 rounded-lg border ${errors.addressLine ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
-                      placeholder="House/Flat No., Street, Area"
+                      placeholder="{t("House/Flat No., Street, Area", "मकान/फ्लैट नं., गली, क्षेत्र")}"
                       value={formData.addressLine}
                       onChange={(e) => setFormData({ ...formData, addressLine: e.target.value })}
                       disabled={isSubmitting}
@@ -412,7 +414,7 @@ function CheckoutContent() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-bold text-[#0F172A] mb-1">City</label>
+                      <label className="block text-sm font-bold text-[#0F172A] mb-1">{t("City", "शहर")}</label>
                       <input
                         type="text"
                         className={`w-full px-4 py-2.5 rounded-lg border ${errors.city ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
@@ -424,7 +426,7 @@ function CheckoutContent() {
                       {errors.city && <p className="mt-1 text-sm text-red-500">{errors.city}</p>}
                     </div>
                     <div>
-                      <label className="block text-sm font-bold text-[#0F172A] mb-1">State</label>
+                      <label className="block text-sm font-bold text-[#0F172A] mb-1">{t("State", "राज्य")}</label>
                       <input
                         type="text"
                         className={`w-full px-4 py-2.5 rounded-lg border ${errors.state ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
@@ -438,11 +440,11 @@ function CheckoutContent() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-bold text-[#0F172A] mb-1">Pincode</label>
+                    <label className="block text-sm font-bold text-[#0F172A] mb-1">{t("Pincode", "पिन कोड")}</label>
                     <input
                       type="text"
                       className={`w-full px-4 py-2.5 rounded-lg border ${errors.pincode ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
-                      placeholder="6-digit Pincode"
+                      placeholder="{t("6-digit Pincode", "6 अंकों का पिन कोड")}"
                       value={formData.pincode}
                       onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
                       disabled={isSubmitting}
@@ -454,19 +456,19 @@ function CheckoutContent() {
 
               {/* ── Payment Method ── */}
               <div className="pt-2 border-t border-[#E2E8F0]">
-                <h3 className="text-lg font-bold text-[#0F172A] mb-4 font-playfair">Payment Method</h3>
+                <h3 className="text-lg font-bold text-[#0F172A] mb-4 font-playfair">{t("Payment Method", "भुगतान विधि")}</h3>
                 <div className="flex items-center gap-3 p-4 rounded-xl border-2 border-[#F97316] bg-[#FFF7ED]">
                   <svg className="w-7 h-7 text-[#F97316] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                   </svg>
                   <div>
-                    <p className="text-sm font-bold text-[#F97316]">Pay Online</p>
-                    <p className="text-xs text-[#64748B]">UPI / Credit Card / Debit Card / Net Banking</p>
+                    <p className="text-sm font-bold text-[#F97316]">{t("Pay Online", "ऑनलाइन भुगतान करें")}</p>
+                    <p className="text-xs text-[#64748B]">{t("UPI / Credit Card / Debit Card / Net Banking", "UPI / क्रेडिट कार्ड / डेबिट कार्ड / नेट बैंकिंग")}</p>
                   </div>
-                  <span className="ml-auto text-xs bg-[#F97316] text-white px-2 py-0.5 rounded-full">Selected ✓</span>
+                  <span className="ml-auto text-xs bg-[#F97316] text-white px-2 py-0.5 rounded-full">{t("Selected ✓", "चयनित ✓")}</span>
                 </div>
                 <p className="mt-3 text-xs text-[#64748B] bg-[#FFF7ED] border border-[#F97316]/20 rounded-lg px-3 py-2">
-                  🔒 Secure payment via Razorpay. Supports UPI, Credit/Debit Cards & Net Banking.
+                  {t("🔒 Secure payment via Razorpay. Supports UPI, Credit/Debit Cards & Net Banking.", "🔒 Razorpay द्वारा सुरक्षित भुगतान। UPI, क्रेडिट/डेबिट कार्ड और नेट बैंकिंग समर्थित।")}
                 </p>
               </div>
 
@@ -481,7 +483,7 @@ function CheckoutContent() {
                   {isSubmitting ? (
                     <Spinner />
                   ) : (
-                    `💳 Pay Now — ₹${totalAmount}`
+                    `${t("💳 Pay Now", "💳 अभी भुगतान करें")} — ₹${totalAmount}`
                   )}
                 </button>
               </div>
@@ -491,7 +493,7 @@ function CheckoutContent() {
           {/* ── Order Summary ── */}
           <div className="w-full md:w-96 md:max-w-md min-w-0 shrink-0">
             <div className="bg-[#FFF7ED] p-6 md:p-8 rounded-2xl border border-[#F97316]/20 md:sticky md:top-24">
-              <h2 className="text-xl font-bold text-[#0F172A] mb-6 font-playfair">Order Summary</h2>
+              <h2 className="text-xl font-bold text-[#0F172A] mb-6 font-playfair">{t("Order Summary", "ऑर्डर सारांश")}</h2>
 
               <div className="flex items-start mb-6">
                 <img
@@ -515,7 +517,7 @@ function CheckoutContent() {
                   )}
                   {serviceId && bookingDate && bookingTime && (
                     <div className="mt-3 bg-purple-50 border border-purple-200 rounded-xl px-4 py-3">
-                      <p className="text-xs font-bold text-[#7C3AED] uppercase mb-1">Appointment</p>
+                      <p className="text-xs font-bold text-[#7C3AED] uppercase mb-1">{t("Appointment", "अपॉइंटमेंट")}</p>
                       <p className="text-sm font-semibold text-gray-900">
                         {new Date(bookingDate + "T00:00:00").toLocaleDateString("en-IN", {
                           weekday: "short", day: "numeric", month: "long", year: "numeric",
@@ -529,7 +531,7 @@ function CheckoutContent() {
 
               <div className="border-t border-[#F97316]/20 pt-4 space-y-3">
                 <div className="flex justify-between text-sm text-[#64748B] font-medium">
-                  <span>Subtotal</span>
+                  <span>{t("Subtotal", "उप-कुल")}</span>
                   <span>₹{selectedOptionPrice && selectedOptionPrice > 0 ? selectedOptionPrice : item.price}</span>
                 </div>
                 {ringMaterialExtraPrice > 0 && (
@@ -539,21 +541,21 @@ function CheckoutContent() {
                   </div>
                 )}
                 <div className="flex justify-between text-sm text-[#64748B] font-medium">
-                  <span>Shipping</span>
-                  <span className="text-green-600 font-semibold">Free</span>
+                  <span>{t("Shipping", "शिपिंग")}</span>
+                  <span className="text-green-600 font-semibold">{t("Free", "मुफ़्त")}</span>
                 </div>
                 <div className="flex justify-between text-sm text-[#64748B] font-medium">
-                  <span>Taxes & Fees</span>
+                  <span>{t("Taxes & Fees", "कर और शुल्क")}</span>
                   <span>₹0</span>
                 </div>
                 <div className="flex justify-between text-xl font-extrabold text-[#0F172A] pt-3 border-t border-[#F97316]/20">
-                  <span>Total</span>
+                  <span>{t("Total", "कुल")}</span>
                   <span className="text-[#F97316]">₹{totalAmount}</span>
                 </div>
 
                 {/* Payment method badge in summary */}
                 <div className="mt-2 flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-lg bg-[#FFF7ED] text-[#F97316] border border-[#F97316]/20">
-                  💳 Online Payment
+                  {t("💳 Online Payment", "💳 ऑनलाइन भुगतान")}
                 </div>
               </div>
             </div>
