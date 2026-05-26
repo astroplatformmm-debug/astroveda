@@ -6,7 +6,6 @@ type ServiceCardData = Service & { id?: string };
 
 const CATEGORY_ICONS: Record<string, string> = {
   astrology: "🔮",
-  puja: "🪔",
   numerology: "🔢",
   vastu: "🏠",
   horoscope: "⭐",
