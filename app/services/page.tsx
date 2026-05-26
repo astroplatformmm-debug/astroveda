@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import ServiceCard from "@/components/cards/ServiceCard";
 import Spinner from "@/components/ui/Spinner";
+import TestimonialsSection from "@/components/reviews/TestimonialsSection";
 import type { Service } from "@/lib/types";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
@@ -151,6 +152,9 @@ function ServicesContent() {
           </div>
         )}
       </div>
+
+      {/* TESTIMONIALS */}
+      <TestimonialsSection />
     </div>
   );
 }
