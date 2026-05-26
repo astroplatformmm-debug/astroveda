@@ -1,4 +1,5 @@
 "use client";
+import { useLanguage } from "@/context/LanguageContext";
 
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -47,6 +48,7 @@ function fmtFull(d: string) {
 function BookSlotContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { t } = useLanguage();
   const serviceId = searchParams.get("serviceId") || "";
   const serviceTitle = searchParams.get("title") || "Service";
   const servicePrice = searchParams.get("price") || "";
@@ -73,8 +75,8 @@ function BookSlotContent() {
   }, [selectedDate]);
 
   const handleContinue = () => {
-    if (!selectedDate) { setError("Please select a date."); return; }
-    if (!selectedTime) { setError("Please select a time slot."); return; }
+    if (!selectedDate) { setError("{t("Please select a date.", "कृपया तारीख चुनें।")}"); return; }
+    if (!selectedTime) { setError("{t("Please select a time slot.", "कृपया समय स्लॉट चुनें।")}"); return; }
     const params = new URLSearchParams({
       serviceId,
       date: selectedDate,
@@ -101,26 +103,26 @@ function BookSlotContent() {
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-1">Select Date &amp; Time</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-1">{t("Select Date & Time", "तारीख और समय चुनें")}</h1>
           <p className="text-gray-500 text-sm">
-            Booking for: <span className="font-semibold text-purple-700">{decodeURIComponent(serviceTitle)}</span>
+            {t("Booking for:", "बुकिंग:")} <span className="font-semibold text-purple-700">{decodeURIComponent(serviceTitle)}</span>
             {servicePrice && <span className="ml-2 text-amber-600 font-bold">₹{servicePrice}</span>}
           </p>
         </div>
 
         {/* Progress */}
         <div className="flex items-center gap-2 mb-10 text-xs font-semibold text-gray-400">
-          <span className="text-purple-700 font-bold">1. Service</span>
+          <span className="text-purple-700 font-bold">{t("1. Service", "1. सेवा")}</span>
           <span className="text-gray-300">→</span>
-          <span className="text-purple-700 font-bold underline">2. Date &amp; Time</span>
+          <span className="text-purple-700 font-bold underline">{t("2. Date & Time", "2. तारीख और समय")}</span>
           <span className="text-gray-300">→</span>
-          <span>3. Checkout</span>
+          <span>{t("3. Checkout", "3. चेकआउट")}</span>
         </div>
 
         {/* Date Selection */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
-          <h2 className="text-lg font-bold text-gray-800 mb-1">Choose a Date</h2>
-          <p className="text-xs text-gray-400 mb-4">Sundays excluded. Showing next 14 available days.</p>
+          <h2 className="text-lg font-bold text-gray-800 mb-1">{t("Choose a Date", "तारीख चुनें")}</h2>
+          <p className="text-xs text-gray-400 mb-4">{t("Sundays excluded. Showing next 14 available days.", "रविवार को छोड़कर। अगले 14 उपलब्ध दिन दिखाए जा रहे हैं।")}</p>
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
             {availableDates.map((d) => (
               <button
@@ -151,10 +153,10 @@ function BookSlotContent() {
         {selectedDate && (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
             <h2 className="text-lg font-bold text-gray-800 mb-1">
-              Available Times for{" "}
+              {t("Available Times for", "उपलब्ध समय:")}{" "}
               <span className="text-purple-700">{fmtFull(selectedDate)}</span>
             </h2>
-            <p className="text-xs text-gray-400 mb-4">All times are in Indian Standard Time (IST).</p>
+            <p className="text-xs text-gray-400 mb-4">{t("All times are in Indian Standard Time (IST).", "सभी समय भारतीय मानक समय (IST) में हैं।")}</p>
 
             {loadingSlots ? (
               <div className="flex justify-center py-8">
@@ -163,8 +165,8 @@ function BookSlotContent() {
             ) : timeSlotsForDate.length === 0 ? (
               <div className="text-center py-8">
                 <div className="text-4xl mb-3">📅</div>
-                <p className="text-gray-500 font-medium">No slots available for this date.</p>
-                <p className="text-xs text-gray-400 mt-1">Please select a different date.</p>
+                <p className="text-gray-500 font-medium">{t("No slots available for this date.", "इस तारीख के लिए कोई स्लॉट उपलब्ध नहीं है।")}</p>
+                <p className="text-xs text-gray-400 mt-1">{t("Please select a different date.", "कृपया कोई अन्य तारीख चुनें।")}</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
@@ -192,7 +194,7 @@ function BookSlotContent() {
           <div className="bg-purple-50 border border-purple-100 rounded-xl px-5 py-4 mb-4 flex items-center gap-3">
             <div className="text-2xl">✅</div>
             <div>
-              <p className="text-sm font-bold text-purple-800">Slot Selected</p>
+              <p className="text-sm font-bold text-purple-800">{t("Slot Selected", "स्लॉट चुना गया")}</p>
               <p className="text-sm text-purple-700">
                 {fmtFull(selectedDate)} at <span className="font-bold">{selectedTime}</span>
               </p>
