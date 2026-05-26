@@ -7,7 +7,6 @@ import {
   FaXTwitter,
   FaFacebook,
   FaYoutube,
-  FaShare,
   FaXmark,
 } from "react-icons/fa6";
 
@@ -54,30 +53,27 @@ const socials = [
   },
 ];
 
+// 3 brand dots shown on the toggle button
+const previewDots = ["#25D366", "#E1306C", "#FF0000"];
+
 export default function FloatingSocials() {
   const [open, setOpen] = useState(false);
   const [hovered, setHovered] = useState<number | null>(null);
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
+  useEffect(() => { setMounted(true); }, []);
   if (!mounted) return null;
 
   return (
     <>
-      {/* Backdrop blur when open */}
       {open && (
-        <div
-          className="fixed inset-0 z-40"
-          onClick={() => setOpen(false)}
-        />
+        <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
       )}
 
-      <div className="fixed bottom-6 right-5 flex flex-col items-center gap-3 z-50">
-        {/* Social icons — stagger from bottom up */}
-        <div className="flex flex-col-reverse items-center gap-3">
+      <div className="fixed bottom-6 right-5 flex flex-col items-end gap-3 z-50">
+
+        {/* Social icons — stagger upward */}
+        <div className="flex flex-col-reverse items-end gap-3">
           {socials.map((s, i) => {
             const Icon = s.icon;
             const delay = open ? i * 60 : (socials.length - 1 - i) * 40;
@@ -96,7 +92,7 @@ export default function FloatingSocials() {
                 onMouseEnter={() => setHovered(i)}
                 onMouseLeave={() => setHovered(null)}
               >
-                {/* Tooltip label */}
+                {/* Tooltip */}
                 <span
                   style={{
                     opacity: isHovered ? 1 : 0,
@@ -107,11 +103,10 @@ export default function FloatingSocials() {
                   className="absolute right-14 whitespace-nowrap text-xs font-semibold text-white px-2.5 py-1 rounded-md bg-gray-900/90 backdrop-blur-sm shadow-lg"
                 >
                   {s.label}
-                  {/* Arrow */}
                   <span className="absolute right-[-5px] top-1/2 -translate-y-1/2 w-0 h-0 border-t-[5px] border-t-transparent border-b-[5px] border-b-transparent border-l-[5px] border-l-gray-900/90" />
                 </span>
 
-                {/* Icon button */}
+                {/* Icon */}
                 <a
                   href={s.href}
                   target="_blank"
@@ -133,43 +128,58 @@ export default function FloatingSocials() {
           })}
         </div>
 
-        {/* Toggle button */}
+        {/* ── Toggle button ── */}
         <button
           onClick={() => setOpen((v) => !v)}
-          aria-label={open ? "Close social links" : "Open social links"}
+          aria-label={open ? "Close social links" : "Follow us on social media"}
           style={{
-            background: open
-              ? "#1e1e1e"
-              : "linear-gradient(135deg, #F97316, #ea580c)",
-            boxShadow: open
-              ? "0 4px 20px rgba(0,0,0,0.4)"
-              : "0 4px 20px rgba(249,115,22,0.55)",
-            transform: open ? "rotate(0deg)" : "rotate(0deg)",
             transition: "all 300ms cubic-bezier(0.34,1.56,0.64,1)",
+            boxShadow: open
+              ? "0 4px 20px rgba(0,0,0,0.35)"
+              : "0 4px 24px rgba(0,0,0,0.22)",
           }}
-          className="relative w-13 h-13 rounded-full text-white flex items-center justify-center cursor-pointer outline-none"
+          className="relative flex items-center gap-2 bg-white border border-gray-200 rounded-full pl-2.5 pr-4 py-2 cursor-pointer outline-none hover:shadow-xl"
         >
           {/* Pulse ring — only when closed */}
           {!open && (
             <span
-              className="absolute inset-0 rounded-full animate-ping"
-              style={{
-                background: "rgba(249,115,22,0.35)",
-                animationDuration: "1.8s",
-              }}
+              className="absolute inset-0 rounded-full animate-ping pointer-events-none"
+              style={{ background: "rgba(249,115,22,0.15)", animationDuration: "2s" }}
             />
           )}
-          <span
-            style={{
-              transform: open ? "rotate(90deg) scale(1.1)" : "rotate(0deg) scale(1)",
-              transition: "transform 300ms cubic-bezier(0.34,1.56,0.64,1)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            {open ? <FaXmark className="w-5 h-5" /> : <FaShare className="w-5 h-5" />}
-          </span>
+
+          {open ? (
+            /* Close state */
+            <>
+              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100">
+                <FaXmark className="w-4 h-4 text-gray-600" />
+              </span>
+              <span className="text-xs font-semibold text-gray-500 leading-none">Close</span>
+            </>
+          ) : (
+            /* Default state — social preview */
+            <>
+              {/* Stacked brand-color dots */}
+              <div className="flex items-center">
+                {previewDots.map((color, idx) => (
+                  <span
+                    key={idx}
+                    style={{
+                      background: color,
+                      marginLeft: idx === 0 ? 0 : "-6px",
+                      zIndex: previewDots.length - idx,
+                      border: "2px solid white",
+                    }}
+                    className="w-7 h-7 rounded-full flex items-center justify-center relative"
+                  />
+                ))}
+              </div>
+              {/* Label */}
+              <span className="text-xs font-bold text-gray-700 leading-tight tracking-wide">
+                Follow Us
+              </span>
+            </>
+          )}
         </button>
       </div>
     </>
