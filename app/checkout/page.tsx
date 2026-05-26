@@ -13,7 +13,7 @@ declare global {
 }
 
 type CheckoutItem = (Service | Product) & { _id: string };
-type PaymentMethod = "online" | "cod";
+type PaymentMethod = "online";
 
 function CheckoutContent() {
   const searchParams = useSearchParams();
@@ -351,11 +351,7 @@ function CheckoutContent() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (paymentMethod === "cod") {
-      handleCOD();
-    } else {
-      handleOnlinePayment();
-    }
+    handleOnlinePayment();
   };
 
   return (
@@ -472,65 +468,22 @@ function CheckoutContent() {
                 </div>
               </div>
 
-              {/* ── Payment Method Selector ── */}
+              {/* ── Payment Method ── */}
               <div className="pt-2 border-t border-[#E2E8F0]">
                 <h3 className="text-lg font-bold text-[#0F172A] mb-4 font-playfair">Payment Method</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  {/* Pay Online */}
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("online")}
-                    className={`flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all ${
-                      paymentMethod === "online"
-                        ? "border-[#F97316] bg-[#FFF7ED]"
-                        : "border-[#E2E8F0] bg-white hover:border-[#F97316]/50"
-                    }`}
-                  >
-                    <svg className={`w-7 h-7 ${paymentMethod === "online" ? "text-[#F97316]" : "text-[#64748B]"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                    </svg>
-                    <span className={`text-sm font-bold ${paymentMethod === "online" ? "text-[#F97316]" : "text-[#64748B]"}`}>
-                      Pay Online
-                    </span>
-                    <span className="text-xs text-[#64748B]">UPI / Card / Net Banking</span>
-                    {paymentMethod === "online" && (
-                      <span className="text-xs bg-[#F97316] text-white px-2 py-0.5 rounded-full">Selected ✓</span>
-                    )}
-                  </button>
-
-                  {/* Cash on Delivery */}
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("cod")}
-                    className={`flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all ${
-                      paymentMethod === "cod"
-                        ? "border-[#16A34A] bg-green-50"
-                        : "border-[#E2E8F0] bg-white hover:border-green-400/50"
-                    }`}
-                  >
-                    <svg className={`w-7 h-7 ${paymentMethod === "cod" ? "text-green-600" : "text-[#64748B]"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    <span className={`text-sm font-bold ${paymentMethod === "cod" ? "text-green-600" : "text-[#64748B]"}`}>
-                      Cash on Delivery
-                    </span>
-                    <span className="text-xs text-[#64748B]">Pay when you receive</span>
-                    {paymentMethod === "cod" && (
-                      <span className="text-xs bg-green-600 text-white px-2 py-0.5 rounded-full">Selected ✓</span>
-                    )}
-                  </button>
+                <div className="flex items-center gap-3 p-4 rounded-xl border-2 border-[#F97316] bg-[#FFF7ED]">
+                  <svg className="w-7 h-7 text-[#F97316] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                  </svg>
+                  <div>
+                    <p className="text-sm font-bold text-[#F97316]">Pay Online</p>
+                    <p className="text-xs text-[#64748B]">UPI / Credit Card / Debit Card / Net Banking</p>
+                  </div>
+                  <span className="ml-auto text-xs bg-[#F97316] text-white px-2 py-0.5 rounded-full">Selected ✓</span>
                 </div>
-
-                {paymentMethod === "cod" && (
-                  <p className="mt-3 text-xs text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
-                    🚚 Pay in cash when your order is delivered. No advance payment needed.
-                  </p>
-                )}
-                {paymentMethod === "online" && (
-                  <p className="mt-3 text-xs text-[#64748B] bg-[#FFF7ED] border border-[#F97316]/20 rounded-lg px-3 py-2">
-                    🔒 Secure payment via Razorpay. Supports UPI, Credit/Debit Cards & Net Banking.
-                  </p>
-                )}
+                <p className="mt-3 text-xs text-[#64748B] bg-[#FFF7ED] border border-[#F97316]/20 rounded-lg px-3 py-2">
+                  🔒 Secure payment via Razorpay. Supports UPI, Credit/Debit Cards & Net Banking.
+                </p>
               </div>
 
               {/* ── Submit Button ── */}
@@ -539,16 +492,10 @@ function CheckoutContent() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className={`w-full flex items-center justify-center py-4 px-4 border border-transparent rounded-xl shadow-lg text-lg font-bold text-white transition-all disabled:opacity-70 ${
-                    paymentMethod === "cod"
-                      ? "bg-green-600 hover:bg-green-700 focus:ring-green-500"
-                      : "bg-[#F97316] hover:bg-[#EA6C0A] focus:ring-[#F97316]"
-                  } focus:outline-none focus:ring-2 focus:ring-offset-2`}
+                  className="w-full flex items-center justify-center py-4 px-4 border border-transparent rounded-xl shadow-lg text-lg font-bold text-white transition-all disabled:opacity-70 bg-[#F97316] hover:bg-[#EA6C0A] focus:ring-[#F97316] focus:outline-none focus:ring-2 focus:ring-offset-2"
                 >
                   {isSubmitting ? (
                     <Spinner />
-                  ) : paymentMethod === "cod" ? (
-                    `🚚 Place Order (COD) — ₹${totalAmount}`
                   ) : (
                     `💳 Pay Now — ₹${totalAmount}`
                   )}
@@ -621,10 +568,8 @@ function CheckoutContent() {
                 </div>
 
                 {/* Payment method badge in summary */}
-                <div className={`mt-2 flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-lg ${
-                  paymentMethod === "cod" ? "bg-green-50 text-green-700 border border-green-200" : "bg-[#FFF7ED] text-[#F97316] border border-[#F97316]/20"
-                }`}>
-                  {paymentMethod === "cod" ? "🚚 Cash on Delivery" : "💳 Online Payment"}
+                <div className="mt-2 flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-lg bg-[#FFF7ED] text-[#F97316] border border-[#F97316]/20">
+                  💳 Online Payment
                 </div>
               </div>
             </div>
