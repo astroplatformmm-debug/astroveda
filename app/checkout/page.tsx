@@ -222,22 +222,6 @@ function CheckoutContent() {
     return orderId;
   };
 
-  // ── COD handler ───────────────────────────────────────────────────────────
-  const handleCOD = async () => {
-    if (!validate()) return;
-    setIsSubmitting(true);
-    setCheckoutError("");
-    try {
-      const orderId = await createOrder("cod");
-      orderIdRef.current = orderId;
-      window.location.href = `/payment-success?orderId=${orderId}&method=cod`;
-    } catch (err: unknown) {
-      console.error("COD order failed:", err instanceof Error ? err.message : err);
-      setCheckoutError("Could not place order. Please try again.");
-      setIsSubmitting(false);
-    }
-  };
-
   // ── Online payment handler ────────────────────────────────────────────────
   const handleOnlinePayment = async () => {
     if (!validate()) return;
