@@ -1,10 +1,12 @@
 "use client";
+import { useLanguage } from "@/context/LanguageContext";
 
 import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function CartPage() {
+  const { t } = useLanguage();
   const { cart, removeFromCart, updateQty, totalItems } = useCart();
   const router = useRouter();
 
@@ -14,7 +16,7 @@ export default function CartPage() {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
         <div className="text-6xl mb-6">🛒</div>
-        <h2 className="font-playfair text-2xl font-bold text-[#0F172A] mb-3">Your cart is empty</h2>
+        <h2 className="font-playfair text-2xl font-bold text-[#0F172A] mb-3">{t("Your cart is empty", "आपकी कार्ट खाली है")}</h2>
         <p className="text-[#64748B] mb-8">Add some products to get started</p>
         <Link
           href="/shop"
@@ -62,7 +64,7 @@ export default function CartPage() {
               <button
                 onClick={() => removeFromCart(item.id)}
                 className="text-red-400 hover:text-red-600 text-xs mt-1"
-              >Remove</button>
+              >{t("Remove", "हटाएं")}</button>
             </div>
           </div>
         ))}
@@ -79,7 +81,7 @@ export default function CartPage() {
           <span className="text-green-600 font-semibold">Free</span>
         </div>
         <div className="flex justify-between items-center mb-6">
-          <span className="font-bold text-[#0F172A] text-lg">Total</span>
+          <span className="font-bold text-[#0F172A] text-lg">{t("Total", "कुल")}</span>
           <span className="font-bold text-[#F97316] text-2xl">₹{total}</span>
         </div>
 
@@ -93,7 +95,7 @@ export default function CartPage() {
         >
           Proceed to Checkout →
         </button>
-        <p className="text-center text-xs text-[#64748B] mt-3">🔒 Secure Payment · Cash on Delivery Available</p>
+        <p className="text-center text-xs text-[#64748B] mt-3">{t("🔒 Secure Payment via Razorpay · UPI / Card / Net Banking", "🔒 Razorpay द्वारा सुरक्षित भुगतान · UPI / कार्ड / नेट बैंकिंग")}</p>
       </div>
     </div>
   );
