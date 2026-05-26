@@ -472,7 +472,7 @@ export default function Home() {
                 </button>
               ) : (
                 <Link
-                  href={homeVastu?._id ? `/checkout?serviceId=${homeVastu._id}` : "/services"}
+                  href={homeVastu?._id ? `/book-slot?serviceId=${homeVastu._id}&title=${encodeURIComponent(homeVastu.title)}&price=${homeVastu.price}` : "/services"}
                   className="w-full block py-3 border-2 border-[#0F172A] text-[#0F172A] text-center font-bold rounded-lg hover:bg-[#0F172A] hover:text-white transition-colors mt-auto"
                 >
                   Book Home Vastu
@@ -511,7 +511,7 @@ export default function Home() {
                 </button>
               ) : (
                 <Link
-                  href={officeVastu?._id ? `/checkout?serviceId=${officeVastu._id}` : "/services"}
+                  href={officeVastu?._id ? `/book-slot?serviceId=${officeVastu._id}&title=${encodeURIComponent(officeVastu.title)}&price=${officeVastu.price}` : "/services"}
                   className="w-full block py-3 bg-[#F97316] hover:bg-[#EA6C0A] text-white text-center font-bold rounded-lg transition-colors mt-auto shadow-md"
                 >
                   Book Office Vastu
@@ -547,7 +547,7 @@ export default function Home() {
                 </button>
               ) : (
                 <Link
-                  href={industrialVastu?._id ? `/checkout?serviceId=${industrialVastu._id}` : "/services"}
+                  href={industrialVastu?._id ? `/book-slot?serviceId=${industrialVastu._id}&title=${encodeURIComponent(industrialVastu.title)}&price=${industrialVastu.price}` : "/services"}
                   className="w-full block py-3 border-2 border-[#0F172A] text-[#0F172A] text-center font-bold rounded-lg hover:bg-[#0F172A] hover:text-white transition-colors mt-auto"
                 >
                   Book Industrial Vastu
