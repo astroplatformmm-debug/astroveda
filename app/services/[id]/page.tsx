@@ -1,11 +1,249 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Spinner from "@/components/ui/Spinner";
+import ServiceCard from "@/components/cards/ServiceCard";
 import type { Service } from "@/lib/types";
 import { SERVICE_CATEGORY_LABELS, SERVICE_CATEGORY_ICONS } from "@/lib/serviceCategory";
+
+// ── Review types ──────────────────────────────────────────────────────────────
+interface Review {
+  _id: string;
+  name: string;
+  rating: number;
+  message: string;
+  profile_image?: string;
+  featured?: boolean;
+  created_at: string;
+}
+
+function ReviewAvatar({ name, imageUrl }: { name: string; imageUrl?: string }) {
+  const initials = name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+  const colors = ["bg-orange-500","bg-amber-500","bg-yellow-500","bg-purple-500","bg-indigo-500","bg-teal-500","bg-red-500"];
+  const bg = colors[name.charCodeAt(0) % colors.length];
+  if (imageUrl) {
+    return (
+      <img src={imageUrl} alt={name}
+        className="w-10 h-10 rounded-full object-cover border-2 border-[#F97316]/30"
+        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+      />
+    );
+  }
+  return (
+    <div className={`w-10 h-10 rounded-full ${bg} flex items-center justify-center text-white font-bold text-sm`}>
+      {initials}
+    </div>
+  );
+}
+
+// ── Customer Reviews Section ──────────────────────────────────────────────────
+function ServiceReviewsSection() {
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [formName, setFormName] = useState("");
+  const [formRating, setFormRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [formMessage, setFormMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+
+  useEffect(() => {
+    fetch("/api/reviews")
+      .then((r) => r.json())
+      .then((data) => { if (Array.isArray(data)) setReviews(data); })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitError("");
+    if (!formName.trim() || formRating === 0 || !formMessage.trim()) {
+      setSubmitError("Please fill in all fields and select a rating.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: formName.trim(), rating: formRating, message: formMessage.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setSubmitError(data.error || "Failed to submit. Try again."); return; }
+      setSubmitSuccess(true);
+      setFormName(""); setFormRating(0); setFormMessage("");
+    } catch { setSubmitError("Something went wrong. Please try again."); }
+    finally { setSubmitting(false); }
+  };
+
+  const avgRating = reviews.length > 0 ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1) : "5.0";
+
+  const formatDate = (d: string) => {
+    try { return new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }); }
+    catch { return ""; }
+  };
+
+  return (
+    <div className="mt-12">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <div>
+          <h2 className="font-playfair text-2xl font-bold text-[#0F172A]">Customer Reviews</h2>
+          <div className="flex items-center gap-2 mt-1">
+            <div className="flex gap-0.5">
+              {[1,2,3,4,5].map(s => (
+                <svg key={s} className="w-4 h-4 text-[#F59E0B]" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+              ))}
+            </div>
+            <span className="font-bold text-[#0F172A]">{avgRating} / 5</span>
+            <span className="text-sm text-[#64748B]">({reviews.length} reviews)</span>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowForm(f => !f)}
+          className="flex items-center gap-2 px-4 py-2 border-2 border-[#F97316] text-[#F97316] hover:bg-[#F97316] hover:text-white rounded-full text-sm font-semibold transition-all"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+          Write a Review
+        </button>
+      </div>
+
+      {/* Write Review Form */}
+      {showForm && !submitSuccess && (
+        <div className="mb-8 bg-[#FFF7ED] border border-[#FED7AA] rounded-2xl p-6">
+          <h3 className="font-semibold text-[#0F172A] mb-4">Share Your Experience</h3>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <input
+              type="text" placeholder="Your name" value={formName}
+              onChange={e => setFormName(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-xl border border-[#E2E8F0] text-sm focus:outline-none focus:border-[#F97316]"
+            />
+            <div>
+              <p className="text-sm text-[#64748B] mb-2">Your rating</p>
+              <div className="flex gap-1">
+                {[1,2,3,4,5].map(s => (
+                  <button key={s} type="button"
+                    onMouseEnter={() => setHoverRating(s)}
+                    onMouseLeave={() => setHoverRating(0)}
+                    onClick={() => setFormRating(s)}
+                  >
+                    <svg className={`w-7 h-7 transition-colors ${s <= (hoverRating || formRating) ? "text-[#F59E0B]" : "text-[#E2E8F0]"}`} fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <textarea
+              placeholder="Write your review here…" value={formMessage}
+              onChange={e => setFormMessage(e.target.value)}
+              rows={3}
+              className="w-full px-4 py-2.5 rounded-xl border border-[#E2E8F0] text-sm focus:outline-none focus:border-[#F97316] resize-none"
+            />
+            {submitError && <p className="text-red-500 text-xs">{submitError}</p>}
+            <button type="submit" disabled={submitting}
+              className="px-6 py-2.5 bg-[#F97316] text-white font-semibold rounded-xl hover:bg-[#EA6C0A] transition-colors disabled:opacity-60"
+            >
+              {submitting ? "Submitting…" : "Submit Review"}
+            </button>
+          </form>
+        </div>
+      )}
+      {submitSuccess && (
+        <div className="mb-8 bg-green-50 border border-green-200 rounded-2xl p-5 text-center">
+          <div className="text-3xl mb-2">🙏</div>
+          <p className="font-semibold text-green-800">Thank you for your review!</p>
+          <p className="text-sm text-green-600 mt-1">It will appear after admin approval.</p>
+        </div>
+      )}
+
+      {/* Reviews Grid */}
+      {loading ? (
+        <div className="flex justify-center py-10"><Spinner className="w-8 h-8 text-[#F97316]" /></div>
+      ) : reviews.length === 0 ? (
+        <div className="text-center py-10 bg-white rounded-2xl border border-[#E2E8F0]">
+          <p className="text-[#94A3B8]">No reviews yet — be the first to share your experience!</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {reviews.map((review) => (
+            <div key={review._id} className="bg-white border border-[#E2E8F0] rounded-2xl p-5 flex flex-col gap-3">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <ReviewAvatar name={review.name} imageUrl={review.profile_image} />
+                  <div>
+                    <p className="font-semibold text-sm text-[#0F172A]">{review.name}</p>
+                    <div className="flex gap-0.5 mt-0.5">
+                      {[1,2,3,4,5].map(s => (
+                        <svg key={s} className={`w-3.5 h-3.5 ${s <= review.rating ? "text-[#F59E0B]" : "text-[#E2E8F0]"}`} fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <span className="text-xs text-[#94A3B8] shrink-0">{formatDate(review.created_at)}</span>
+              </div>
+              <p className="text-sm text-[#374151] leading-relaxed">{review.message}</p>
+              <div className="flex items-center gap-1.5">
+                <svg className="w-3.5 h-3.5 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span className="text-xs text-green-600 font-medium">Verified Purchase</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Related Services Section ──────────────────────────────────────────────────
+function RelatedServices({ currentId }: { currentId: string }) {
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/services")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setServices(data.filter((s: Service) => s._id !== currentId).slice(0, 3));
+        }
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [currentId]);
+
+  if (loading || services.length === 0) return null;
+
+  return (
+    <div className="mt-12">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="font-playfair text-2xl font-bold text-[#0F172A]">Explore More Services</h2>
+        <Link href="/services" className="text-sm text-[#F97316] font-semibold hover:underline">
+          View All →
+        </Link>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {services.map((s) => (
+          <ServiceCard key={s._id} service={s} />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function FAQItem({ question, answer }: { question: string; answer: string }) {
   const [open, setOpen] = useState(false);
