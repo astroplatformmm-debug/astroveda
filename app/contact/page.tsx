@@ -217,7 +217,7 @@ export default function ContactPage() {
                 +91 70691 10573
               </a>
               <a href="tel:+918733898927" className="block text-[#F97316] text-sm hover:underline">
-                +91 87338 98927
+                +91 63595 15655
               </a>
             </div>
           </div>
