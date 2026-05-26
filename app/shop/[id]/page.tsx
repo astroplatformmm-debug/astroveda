@@ -6,6 +6,7 @@ import Spinner from "@/components/ui/Spinner";
 import type { Product } from "@/lib/types";
 import { useParams } from "next/navigation";
 import { useCart } from "@/context/CartContext";
+import TestimonialsSection from "@/components/reviews/TestimonialsSection";
 
 interface Review {
   _id: string;
@@ -562,6 +563,9 @@ export default function GemstoneDetail() {
         </div>
 
       </div>
+
+      {/* Testimonials */}
+      <TestimonialsSection />
 
       {/* Mobile sticky CTA — Add to Cart + Buy Now */}
       <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-[#E2E8F0] p-3 flex gap-2 lg:hidden shadow-2xl">
