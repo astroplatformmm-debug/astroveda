@@ -53,8 +53,12 @@ const socials = [
   },
 ];
 
-// 3 brand dots shown on the toggle button
-const previewDots = ["#25D366", "#E1306C", "#FF0000"];
+// 3 brand icons shown on the toggle button
+const previewIcons = [
+  { icon: FaWhatsapp, bg: "#25D366" },
+  { icon: FaInstagram, bg: "linear-gradient(135deg, #f09433, #dc2743, #bc1888)" },
+  { icon: FaXTwitter, bg: "#000000" },
+];
 
 export default function FloatingSocials() {
   const [open, setOpen] = useState(false);
@@ -159,19 +163,21 @@ export default function FloatingSocials() {
           ) : (
             /* Default state — social preview */
             <>
-              {/* Stacked brand-color dots */}
+              {/* Stacked brand icons */}
               <div className="flex items-center">
-                {previewDots.map((color, idx) => (
+                {previewIcons.map(({ icon: Icon, bg }, idx) => (
                   <span
                     key={idx}
                     style={{
-                      background: color,
+                      background: bg,
                       marginLeft: idx === 0 ? 0 : "-6px",
-                      zIndex: previewDots.length - idx,
+                      zIndex: previewIcons.length - idx,
                       border: "2px solid white",
                     }}
-                    className="w-7 h-7 rounded-full flex items-center justify-center relative"
-                  />
+                    className="w-7 h-7 rounded-full flex items-center justify-center relative text-white"
+                  >
+                    <Icon style={{ width: "13px", height: "13px" }} />
+                  </span>
                 ))}
               </div>
               {/* Label */}
