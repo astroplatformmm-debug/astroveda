@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 import type { Service } from "@/lib/types";
 import { SERVICE_CATEGORY_LABELS, SERVICE_CATEGORY_ICONS } from "@/lib/serviceCategory";
 
@@ -8,27 +11,44 @@ const CATEGORY_ICONS: Record<string, string> = {
   astrology: "🔮",
   numerology: "🔢",
   vastu: "🏠",
-  horoscope: "⭐",
   palmreading: "✋",
   tarot: "🃏",
 };
 
 export default function ServiceCard({ service }: { service: ServiceCardData }) {
   const serviceId = service._id || service.id || "";
-  // Use slug if available, otherwise fall back to ID (for backward compat)
   const href = service.slug
     ? `/services/${service.slug}`
     : `/services/${serviceId}`;
 
   const category = (service.category || "astrology").toLowerCase();
-  const catIcon = CATEGORY_ICONS[category] ?? "🔮";
+  const catIcon = CATEGORY_ICONS[category] ?? SERVICE_CATEGORY_ICONS[category as keyof typeof SERVICE_CATEGORY_ICONS] ?? "🔮";
   const catLabel = SERVICE_CATEGORY_LABELS[category as keyof typeof SERVICE_CATEGORY_LABELS] ?? category;
 
   const displayDescription = service.shortDescription || service.description;
 
-  return (
-    <div className="bg-white rounded-2xl shadow-md overflow-hidden border border-[#E2E8F0] flex flex-col h-full group hover:-translate-y-1 hover:shadow-xl transition-all duration-300">
+  // Like state — persisted to localStorage
+  const storageKey = `liked_service_${serviceId}`;
+  const [liked, setLiked] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem(storageKey) === "1";
+  });
 
+  const handleLike = (e: React.MouseEvent) => {
+    e.preventDefault();   // don't navigate
+    e.stopPropagation();
+    setLiked((prev) => {
+      const next = !prev;
+      localStorage.setItem(storageKey, next ? "1" : "0");
+      return next;
+    });
+  };
+
+  return (
+    <Link
+      href={href}
+      className="bg-white rounded-2xl shadow-md overflow-hidden border border-[#E2E8F0] flex flex-col h-full group hover:-translate-y-1 hover:shadow-xl transition-all duration-300 cursor-pointer"
+    >
       {/* ── IMAGE AREA ── */}
       <div className="relative w-full h-52 bg-gradient-to-br from-[#FFF7ED] to-[#FED7AA] overflow-hidden">
         {service.image ? (
@@ -54,6 +74,28 @@ export default function ServiceCard({ service }: { service: ServiceCardData }) {
             {service.duration}
           </div>
         )}
+
+        {/* Like button */}
+        <button
+          type="button"
+          onClick={handleLike}
+          aria-label={liked ? "Unlike service" : "Like service"}
+          className={`absolute bottom-3 right-3 z-10 w-9 h-9 rounded-full flex items-center justify-center shadow-md border-2 transition-all duration-200 ${
+            liked
+              ? "bg-red-500 border-red-500 text-white scale-110"
+              : "bg-white/90 border-white text-[#94A3B8] hover:text-red-500 hover:border-red-300"
+          }`}
+        >
+          <svg
+            className="w-4 h-4"
+            viewBox="0 0 24 24"
+            fill={liked ? "currentColor" : "none"}
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+          </svg>
+        </button>
 
         {/* Icon circle overlapping card body */}
         <div className="absolute -bottom-5 left-4 w-10 h-10 bg-[#F97316] rounded-full flex items-center justify-center text-lg border-[3px] border-white shadow-md z-10">
@@ -108,18 +150,15 @@ export default function ServiceCard({ service }: { service: ServiceCardData }) {
             <span className="font-playfair text-xl font-bold text-[#F97316]">₹{service.price}</span>
             {service.duration && <p className="text-[10px] text-[#94A3B8]">{service.duration}</p>}
           </div>
-          <Link
-            href={href}
-            className="flex items-center gap-1.5 px-4 py-2 bg-[#F97316] text-white hover:bg-[#EA6C0A] text-sm font-semibold rounded-full transition-all duration-200 shadow-sm"
-          >
+          <span className="flex items-center gap-1.5 px-4 py-2 bg-[#F97316] text-white text-sm font-semibold rounded-full shadow-sm group-hover:bg-[#EA6C0A] transition-all duration-200">
             {service.ctaText || "View Details"}
             <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
-          </Link>
+          </span>
         </div>
 
       </div>
-    </div>
+    </Link>
   );
 }
