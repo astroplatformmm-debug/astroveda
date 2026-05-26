@@ -3,7 +3,6 @@ export const SERVICE_CATEGORY_ENUM = [
   "puja",
   "numerology",
   "vastu",
-  "horoscope",
   "palmreading",
   "tarot",
 ] as const;
@@ -17,7 +16,6 @@ export const SERVICE_CATEGORY_LABELS: Record<ServiceCategorySlug, string> = {
   puja: "Puja",
   numerology: "Numerology",
   vastu: "Vastu",
-  horoscope: "Horoscope",
   palmreading: "Palm Reading",
   tarot: "Tarot Reading",
 };
@@ -27,7 +25,6 @@ export const SERVICE_CATEGORY_ICONS: Record<ServiceCategorySlug, string> = {
   puja: "🪔",
   numerology: "🔢",
   vastu: "🏠",
-  horoscope: "⭐",
   palmreading: "✋",
   tarot: "🃏",
 };
