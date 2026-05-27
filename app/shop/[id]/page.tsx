@@ -6,7 +6,6 @@ import Spinner from "@/components/ui/Spinner";
 import type { Product } from "@/lib/types";
 import { useParams } from "next/navigation";
 import { useCart } from "@/context/CartContext";
-import TestimonialsSection from "@/components/reviews/TestimonialsSection";
 
 interface Review {
   _id: string;
@@ -288,7 +287,7 @@ export default function GemstoneDetail() {
   );
 
   return (
-    <div className="bg-[#FAF7F2] min-h-screen pb-28 lg:pb-20">
+    <div className="bg-[#FAF7F2] min-h-screen pb-28 lg:pb-20" style={{ '--sticky-cta-height': '68px' } as React.CSSProperties}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 min-w-0">
 
         {/* Breadcrumb */}
@@ -563,9 +562,6 @@ export default function GemstoneDetail() {
         </div>
 
       </div>
-
-      {/* Testimonials */}
-      <TestimonialsSection />
 
       {/* Mobile sticky CTA — Add to Cart + Buy Now */}
       <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-[#E2E8F0] p-3 flex gap-2 lg:hidden shadow-2xl">
