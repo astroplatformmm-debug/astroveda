@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Spinner from "@/components/ui/Spinner";
 import ServiceCard from "@/components/cards/ServiceCard";
@@ -38,174 +38,160 @@ function ReviewAvatar({ name, imageUrl }: { name: string; imageUrl?: string }) {
   );
 }
 
-// ── Customer Reviews Section ──────────────────────────────────────────────────
-function ServiceReviewsSection() {
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [formName, setFormName] = useState("");
-  const [formRating, setFormRating] = useState(0);
-  const [hoverRating, setHoverRating] = useState(0);
-  const [formMessage, setFormMessage] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [submitError, setSubmitError] = useState("");
+// ── Review components ─────────────────────────────────────────────────────────
+function StarRating({ rating, size = "sm" }: { rating: number; size?: "sm" | "lg" }) {
+  const cls = size === "lg" ? "w-5 h-5" : "w-4 h-4";
+  return (
+    <div className="flex gap-0.5">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <svg key={star} className={`${cls} ${star <= rating ? "text-[#F59E0B]" : "text-[#E2E8F0]"}`} fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+        </svg>
+      ))}
+    </div>
+  );
+}
 
-  useEffect(() => {
-    fetch("/api/reviews")
-      .then((r) => r.json())
-      .then((data) => { if (Array.isArray(data)) setReviews(data); })
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, []);
+function Avatar({ name, imageUrl }: { name: string; imageUrl?: string }) {
+  const initials = name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+  const colors = ["bg-orange-500", "bg-amber-500", "bg-yellow-500", "bg-purple-500", "bg-teal-500"];
+  const bgColor = colors[name.charCodeAt(0) % colors.length];
+  const [imgFailed, setImgFailed] = useState(false);
+  if (imageUrl && !imgFailed) {
+    return <img src={imageUrl} alt={name} className="w-11 h-11 rounded-full object-cover border-2 border-[#F97316]/30 flex-shrink-0" onError={() => setImgFailed(true)} />;
+  }
+  return <div className={`w-11 h-11 rounded-full ${bgColor} flex items-center justify-center text-white font-bold text-sm flex-shrink-0`}>{initials}</div>;
+}
+
+function ReviewCard({ review }: { review: Review }) {
+  const date = new Date(review.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+  return (
+    <div className="bg-white border border-[#E2E8F0] rounded-2xl p-5 flex flex-col gap-3">
+      <div className="flex items-start gap-3">
+        <Avatar name={review.name} imageUrl={review.profile_image} />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <p className="font-semibold text-[#0F172A] text-sm">{review.name}</p>
+            <span className="text-xs text-[#94A3B8]">{date}</span>
+          </div>
+          <StarRating rating={review.rating} />
+        </div>
+      </div>
+      <p className="text-[#475569] text-sm leading-relaxed">{review.message}</p>
+      <div className="flex items-center gap-1 text-xs text-green-600 font-medium">
+        <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+        Verified Purchase
+      </div>
+    </div>
+  );
+}
+
+function ReviewForm({ onSuccess }: { onSuccess: () => void }) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [message, setMessage] = useState("");
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2_000_000) { setError("Image must be smaller than 2 MB."); return; }
+    if (!file.type.startsWith("image/")) { setError("Please select a valid image file."); return; }
+    setError(null);
+    const reader = new FileReader();
+    reader.onloadend = () => { const r = reader.result as string; setProfileImage(r); setPreviewUrl(r); };
+    reader.readAsDataURL(file);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitError("");
-    if (!formName.trim() || formRating === 0 || !formMessage.trim()) {
-      setSubmitError("Please fill in all fields and select a rating.");
-      return;
-    }
+    e.preventDefault(); setError(null);
+    if (!name.trim() || name.trim().length < 2) { setError("Please enter your name (at least 2 characters)."); return; }
+    if (rating === 0) { setError("Please select a star rating."); return; }
+    if (!message.trim() || message.trim().length < 10) { setError("Please write a review (at least 10 characters)."); return; }
     setSubmitting(true);
     try {
-      const res = await fetch("/api/reviews", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: formName.trim(), rating: formRating, message: formMessage.trim() }),
-      });
+      const res = await fetch("/api/reviews", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: name.trim(), email: email.trim() || undefined, rating, message: message.trim(), profile_image: profileImage || undefined }) });
       const data = await res.json();
-      if (!res.ok) { setSubmitError(data.error || "Failed to submit. Try again."); return; }
-      setSubmitSuccess(true);
-      setFormName(""); setFormRating(0); setFormMessage("");
-    } catch { setSubmitError("Something went wrong. Please try again."); }
-    finally { setSubmitting(false); }
+      if (!res.ok) { setError(data.error || "Something went wrong. Please try again."); return; }
+      setSuccess(true); onSuccess();
+    } catch { setError("Network error. Please check your connection and try again."); } finally { setSubmitting(false); }
   };
 
-  const avgRating = reviews.length > 0 ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1) : "5.0";
-
-  const formatDate = (d: string) => {
-    try { return new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }); }
-    catch { return ""; }
-  };
+  if (success) {
+    return (
+      <div className="flex flex-col items-center justify-center py-10 text-center">
+        <div className="w-16 h-16 rounded-full bg-[#FFF7ED] flex items-center justify-center mb-4">
+          <svg className="w-8 h-8 text-[#F97316]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+        </div>
+        <h3 className="text-xl font-bold font-playfair text-[#0F172A] mb-2">Thank You! 🙏</h3>
+        <p className="text-[#64748B] text-sm max-w-xs">Your review has been submitted and is awaiting admin approval. It will appear here soon.</p>
+        <button onClick={() => setSuccess(false)} className="mt-6 text-sm text-[#F97316] hover:text-[#EA6C0A] font-medium transition-colors">Write another review</button>
+      </div>
+    );
+  }
 
   return (
-    <div className="mt-12">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <div>
-          <h2 className="font-playfair text-2xl font-bold text-[#0F172A]">Customer Reviews</h2>
-          <div className="flex items-center gap-2 mt-1">
-            <div className="flex gap-0.5">
-              {[1,2,3,4,5].map(s => (
-                <svg key={s} className="w-4 h-4 text-[#F59E0B]" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                </svg>
-              ))}
-            </div>
-            <span className="font-bold text-[#0F172A]">{avgRating} / 5</span>
-            <span className="text-sm text-[#64748B]">({reviews.length} reviews)</span>
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={() => setShowForm(f => !f)}
-          className="flex items-center gap-2 px-4 py-2 border-2 border-[#F97316] text-[#F97316] hover:bg-[#F97316] hover:text-white rounded-full text-sm font-semibold transition-all"
-        >
-          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
-          Write a Review
-        </button>
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <div>
+        <label className="block text-sm font-semibold text-[#0F172A] mb-1.5">Your Name <span className="text-[#F97316]">*</span></label>
+        <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Priya Sharma" maxLength={100} className="w-full px-4 py-3 rounded-xl border border-[#E2E8F0] focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20 outline-none text-sm text-[#0F172A] placeholder:text-[#94A3B8] bg-white transition" />
       </div>
-
-      {/* Write Review Form */}
-      {showForm && !submitSuccess && (
-        <div className="mb-8 bg-[#FFF7ED] border border-[#FED7AA] rounded-2xl p-6">
-          <h3 className="font-semibold text-[#0F172A] mb-4">Share Your Experience</h3>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <input
-              type="text" placeholder="Your name" value={formName}
-              onChange={e => setFormName(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-[#E2E8F0] text-sm focus:outline-none focus:border-[#F97316]"
-            />
-            <div>
-              <p className="text-sm text-[#64748B] mb-2">Your rating</p>
-              <div className="flex gap-1">
-                {[1,2,3,4,5].map(s => (
-                  <button key={s} type="button"
-                    onMouseEnter={() => setHoverRating(s)}
-                    onMouseLeave={() => setHoverRating(0)}
-                    onClick={() => setFormRating(s)}
-                  >
-                    <svg className={`w-7 h-7 transition-colors ${s <= (hoverRating || formRating) ? "text-[#F59E0B]" : "text-[#E2E8F0]"}`} fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                    </svg>
-                  </button>
-                ))}
-              </div>
-            </div>
-            <textarea
-              placeholder="Write your review here…" value={formMessage}
-              onChange={e => setFormMessage(e.target.value)}
-              rows={3}
-              className="w-full px-4 py-2.5 rounded-xl border border-[#E2E8F0] text-sm focus:outline-none focus:border-[#F97316] resize-none"
-            />
-            {submitError && <p className="text-red-500 text-xs">{submitError}</p>}
-            <button type="submit" disabled={submitting}
-              className="px-6 py-2.5 bg-[#F97316] text-white font-semibold rounded-xl hover:bg-[#EA6C0A] transition-colors disabled:opacity-60"
-            >
-              {submitting ? "Submitting…" : "Submit Review"}
+      <div>
+        <label className="block text-sm font-semibold text-[#0F172A] mb-1.5">Email <span className="text-[#94A3B8] font-normal">(optional)</span></label>
+        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="your@email.com" maxLength={200} className="w-full px-4 py-3 rounded-xl border border-[#E2E8F0] focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20 outline-none text-sm text-[#0F172A] placeholder:text-[#94A3B8] bg-white transition" />
+      </div>
+      <div>
+        <label className="block text-sm font-semibold text-[#0F172A] mb-1.5">Rating <span className="text-[#F97316]">*</span></label>
+        <div className="flex gap-1.5 items-center">
+          {[1,2,3,4,5].map((star) => (
+            <button key={star} type="button" onClick={() => setRating(star)} onMouseEnter={() => setHoverRating(star)} onMouseLeave={() => setHoverRating(0)} className="focus:outline-none transition-transform hover:scale-110" aria-label={`Rate ${star} star${star>1?"s":""}`}>
+              <svg className={`w-8 h-8 transition-colors ${star<=(hoverRating||rating)?"text-[#F59E0B]":"text-[#E2E8F0]"}`} fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
             </button>
-          </form>
-        </div>
-      )}
-      {submitSuccess && (
-        <div className="mb-8 bg-green-50 border border-green-200 rounded-2xl p-5 text-center">
-          <div className="text-3xl mb-2">🙏</div>
-          <p className="font-semibold text-green-800">Thank you for your review!</p>
-          <p className="text-sm text-green-600 mt-1">It will appear after admin approval.</p>
-        </div>
-      )}
-
-      {/* Reviews Grid */}
-      {loading ? (
-        <div className="flex justify-center py-10"><Spinner className="w-8 h-8 text-[#F97316]" /></div>
-      ) : reviews.length === 0 ? (
-        <div className="text-center py-10 bg-white rounded-2xl border border-[#E2E8F0]">
-          <p className="text-[#94A3B8]">No reviews yet — be the first to share your experience!</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {reviews.map((review) => (
-            <div key={review._id} className="bg-white border border-[#E2E8F0] rounded-2xl p-5 flex flex-col gap-3">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <ReviewAvatar name={review.name} imageUrl={review.profile_image} />
-                  <div>
-                    <p className="font-semibold text-sm text-[#0F172A]">{review.name}</p>
-                    <div className="flex gap-0.5 mt-0.5">
-                      {[1,2,3,4,5].map(s => (
-                        <svg key={s} className={`w-3.5 h-3.5 ${s <= review.rating ? "text-[#F59E0B]" : "text-[#E2E8F0]"}`} fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                        </svg>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <span className="text-xs text-[#94A3B8] shrink-0">{formatDate(review.created_at)}</span>
-              </div>
-              <p className="text-sm text-[#374151] leading-relaxed">{review.message}</p>
-              <div className="flex items-center gap-1.5">
-                <svg className="w-3.5 h-3.5 text-green-500" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                <span className="text-xs text-green-600 font-medium">Verified Purchase</span>
-              </div>
-            </div>
           ))}
+          {rating > 0 && <span className="text-sm text-[#64748B] ml-1">{["","Poor","Fair","Good","Very Good","Excellent"][rating]}</span>}
+        </div>
+      </div>
+      <div>
+        <label className="block text-sm font-semibold text-[#0F172A] mb-1.5">Your Review <span className="text-[#F97316]">*</span></label>
+        <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Share your experience with OMKKAAR Astroworld..." rows={4} maxLength={1000} className="w-full px-4 py-3 rounded-xl border border-[#E2E8F0] focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20 outline-none text-sm text-[#0F172A] placeholder:text-[#94A3B8] bg-white transition resize-none" />
+        <p className="text-xs text-[#94A3B8] text-right mt-1">{message.length}/1000</p>
+      </div>
+      <div>
+        <label className="block text-sm font-semibold text-[#0F172A] mb-1.5">Profile Photo <span className="text-[#94A3B8] font-normal">(optional)</span></label>
+        <div className="flex items-center gap-4">
+          {previewUrl ? (
+            <div className="relative">
+              <img src={previewUrl} alt="Preview" className="w-14 h-14 rounded-full object-cover border-2 border-[#F97316]" />
+              <button type="button" onClick={() => { setProfileImage(null); setPreviewUrl(null); if (fileRef.current) fileRef.current.value = ""; }} className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs">x</button>
+            </div>
+          ) : (
+            <div className="w-14 h-14 rounded-full bg-[#FFF7ED] border-2 border-dashed border-[#F97316]/40 flex items-center justify-center text-[#F97316]">
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+            </div>
+          )}
+          <label className="cursor-pointer">
+            <span className="text-sm text-[#F97316] font-medium hover:text-[#EA6C0A] transition-colors">{previewUrl ? "Change photo" : "Upload photo"}</span>
+            <input ref={fileRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+          </label>
+        </div>
+      </div>
+      {error && (
+        <div className="flex items-start gap-2 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl">
+          <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
+          {error}
         </div>
       )}
-    </div>
+      <button type="submit" disabled={submitting} className="w-full py-3.5 rounded-xl bg-[#F97316] hover:bg-[#EA6C0A] disabled:opacity-60 text-white font-semibold text-sm transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+        {submitting ? (<><svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>Submitting...</>) : (<>Submit Review</>)}
+      </button>
+    </form>
   );
 }
 
@@ -276,6 +262,9 @@ export default function ServiceDetail() {
   const [service, setService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [showReviewForm, setShowReviewForm] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const router = useRouter();
 
@@ -286,6 +275,25 @@ export default function ServiceDetail() {
         .filter((v, i, a) => a.indexOf(v) === i)
     : [];
 
+  // ── Fetch reviews ─────────────────────────────────────────────────────────
+  const fetchReviews = useCallback(() => {
+    setReviewsLoading(true);
+    fetch("/api/reviews")
+      .then((r) => r.json())
+      .then((data) => { if (Array.isArray(data)) setReviews(data); })
+      .catch(console.error)
+      .finally(() => setReviewsLoading(false));
+  }, []);
+
+  useEffect(() => { fetchReviews(); }, [fetchReviews]);
+
+  // ── Computed average rating ───────────────────────────────────────────────
+  const avgRating: number | null =
+    reviews.length > 0
+      ? Math.round((reviews.reduce((s, r) => s + r.rating, 0) / reviews.length) * 10) / 10
+      : null;
+
+  // ── Fetch service ─────────────────────────────────────────────────────────
   useEffect(() => {
     const fetchService = async () => {
       const id = params?.id;
@@ -366,7 +374,8 @@ export default function ServiceDetail() {
   const whatsappUrl = `https://wa.me/917069110573?text=${whatsappMessage}`;
 
   return (
-    <div className="bg-[#FAF7F2] min-h-screen pb-28 lg:pb-16">
+    // FIX: CSS variable tells WhatsAppButton.tsx to float above the mobile sticky CTA bar
+    <div className="bg-[#FAF7F2] min-h-screen pb-28 lg:pb-16" style={{ "--sticky-cta-height": "68px" } as React.CSSProperties}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12">
 
         {/* Breadcrumb */}
@@ -629,6 +638,69 @@ export default function ServiceDetail() {
           </div>
         )}
 
+        {/* Gemstone Recommendations */}
+        <div className="mt-8 bg-white rounded-2xl shadow-sm border border-[#E2E8F0] overflow-hidden">
+          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 sm:px-8 py-6">
+            <div className="flex items-center gap-3 mb-1">
+              <span className="text-2xl">💎</span>
+              <h2 className="font-playfair text-2xl font-bold text-white">Gemstone Recommendations</h2>
+            </div>
+            <p className="text-purple-100 text-sm ml-11">Vedic astrology prescribes specific gemstones to strengthen planetary energies in your Kundli</p>
+          </div>
+
+          <div className="p-6 sm:p-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[
+                { planet: "Sun (Surya)", stone: "Ruby", hindi: "Manik", color: "#DC2626", bg: "bg-red-50", border: "border-red-200", gem: "🔴", finger: "Ring finger", metal: "Gold", day: "Sunday", benefits: ["Leadership & authority", "Self-confidence", "Career growth"] },
+                { planet: "Moon (Chandra)", stone: "Pearl", hindi: "Moti", color: "#6B7280", bg: "bg-gray-50", border: "border-gray-200", gem: "⚪", finger: "Little finger", metal: "Silver", day: "Monday", benefits: ["Mental peace", "Emotional balance", "Intuition"] },
+                { planet: "Mars (Mangal)", stone: "Red Coral", hindi: "Moonga", color: "#EA580C", bg: "bg-orange-50", border: "border-orange-200", gem: "🟠", finger: "Ring finger", metal: "Gold / Copper", day: "Tuesday", benefits: ["Courage & energy", "Health & vitality", "Removes obstacles"] },
+                { planet: "Mercury (Budh)", stone: "Emerald", hindi: "Panna", color: "#16A34A", bg: "bg-green-50", border: "border-green-200", gem: "💚", finger: "Little finger", metal: "Gold / Silver", day: "Wednesday", benefits: ["Intelligence & memory", "Business success", "Communication"] },
+                { planet: "Jupiter (Guru)", stone: "Yellow Sapphire", hindi: "Pukhraj", color: "#CA8A04", bg: "bg-yellow-50", border: "border-yellow-200", gem: "💛", finger: "Index finger", metal: "Gold", day: "Thursday", benefits: ["Wisdom & knowledge", "Wealth & prosperity", "Marriage luck"] },
+                { planet: "Venus (Shukra)", stone: "Diamond", hindi: "Heera", color: "#7C3AED", bg: "bg-violet-50", border: "border-violet-200", gem: "💜", finger: "Middle finger", metal: "Gold / Platinum", day: "Friday", benefits: ["Love & relationships", "Luxury & comfort", "Artistic talent"] },
+                { planet: "Saturn (Shani)", stone: "Blue Sapphire", hindi: "Neelam", color: "#1D4ED8", bg: "bg-blue-50", border: "border-blue-200", gem: "💙", finger: "Middle finger", metal: "Gold / Silver", day: "Saturday", benefits: ["Discipline & focus", "Career stability", "Removes delays"] },
+                { planet: "Rahu (North Node)", stone: "Hessonite", hindi: "Gomed", color: "#92400E", bg: "bg-amber-50", border: "border-amber-200", gem: "🟤", finger: "Middle finger", metal: "Silver / Panchdhatu", day: "Saturday", benefits: ["Ambition & success", "Removes confusion", "Foreign gains"] },
+                { planet: "Ketu (South Node)", stone: "Cat's Eye", hindi: "Lehsunia", color: "#065F46", bg: "bg-emerald-50", border: "border-emerald-200", gem: "🟢", finger: "Little finger", metal: "Silver / Panchdhatu", day: "Tuesday", benefits: ["Spiritual growth", "Moksha & liberation", "Psychic insight"] },
+              ].map((g) => (
+                <div key={g.planet} className={`rounded-xl border ${g.border} ${g.bg} p-4 flex flex-col gap-3`}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-semibold text-[#64748B] uppercase tracking-wide">{g.planet}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-lg">{g.gem}</span>
+                        <div>
+                          <p className="font-bold text-[#0F172A] text-base leading-tight">{g.stone}</p>
+                          <p className="text-xs text-[#94A3B8]">{g.hindi}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[{ label: "Finger", val: g.finger }, { label: "Metal", val: g.metal }, { label: "Day", val: g.day }].map((d) => (
+                      <span key={d.label} className="text-xs bg-white/70 border border-white rounded-full px-2 py-0.5 text-[#475569]">
+                        <span className="text-[#94A3B8]">{d.label}: </span>{d.val}
+                      </span>
+                    ))}
+                  </div>
+                  <ul className="flex flex-col gap-1">
+                    {g.benefits.map((b) => (
+                      <li key={b} className="flex items-center gap-1.5 text-xs text-[#374151]">
+                        <span style={{ color: g.color }} className="text-[10px]">✦</span>
+                        {b}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4">
+              <span className="text-xl shrink-0">⚠️</span>
+              <p className="text-xs text-amber-800 leading-relaxed">
+                <span className="font-bold">Important:</span> Gemstone recommendations are highly personal and depend on your Kundli&apos;s planetary positions, Dasha, and Lagna. Always consult our astrologer before wearing any gemstone — the wrong stone can have adverse effects.
+              </p>
+            </div>
+          </div>
+        </div>
 
         {/* FAQ */}
         {service.faq && service.faq.length > 0 && (
@@ -641,6 +713,57 @@ export default function ServiceDetail() {
             </div>
           </div>
         )}
+
+        {/* Customer Reviews */}
+        <div className="mt-12">
+          <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
+            <div>
+              <h2 className="font-playfair text-2xl font-bold text-[#0F172A]">Customer Reviews</h2>
+              {avgRating !== null && (
+                <div className="flex items-center gap-2 mt-1">
+                  <StarRating rating={Math.round(avgRating)} size="lg" />
+                  <span className="font-bold text-[#0F172A]">{avgRating} / 5</span>
+                  <span className="text-[#64748B] text-sm">({reviews.length} {reviews.length === 1 ? "review" : "reviews"})</span>
+                </div>
+              )}
+            </div>
+            <button
+              onClick={() => setShowReviewForm((v) => !v)}
+              className="flex items-center gap-2 bg-[#FFF7ED] hover:bg-[#FFE8D6] text-[#F97316] font-semibold text-sm px-5 py-2.5 rounded-xl transition-colors border border-[#F97316]/30"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Write a Review
+            </button>
+          </div>
+
+          {showReviewForm && (
+            <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 mb-8">
+              <h3 className="font-playfair text-xl font-bold text-[#0F172A] mb-5">Share Your Experience</h3>
+              <ReviewForm onSuccess={() => { fetchReviews(); setShowReviewForm(false); }} />
+            </div>
+          )}
+
+          {reviewsLoading ? (
+            <div className="flex justify-center py-10"><Spinner className="w-8 h-8 text-[#F97316]" /></div>
+          ) : reviews.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {reviews.map((review) => <ReviewCard key={review._id} review={review} />)}
+            </div>
+          ) : (
+            <div className="bg-white border border-[#E2E8F0] rounded-2xl p-10 text-center">
+              <div className="w-14 h-14 rounded-full bg-[#FFF7ED] flex items-center justify-center mx-auto mb-3">
+                <svg className="w-7 h-7 text-[#F97316]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </div>
+              <p className="text-[#0F172A] font-semibold mb-1">No reviews yet</p>
+              <p className="text-[#64748B] text-sm">Be the first to share your experience!</p>
+              <button onClick={() => setShowReviewForm(true)} className="mt-4 text-sm text-[#F97316] hover:text-[#EA6C0A] font-semibold transition-colors">Write a Review &#8594;</button>
+            </div>
+          )}
+        </div>
 
         {/* Explore more CTA */}
         <div className="mt-12 bg-[#0F172A] rounded-2xl py-10 px-6 text-center">
@@ -657,9 +780,6 @@ export default function ServiceDetail() {
         </div>
 
       </div>
-
-
-      <ServiceReviewsSection />
 
       {/* Mobile sticky CTA */}
       <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-[#E2E8F0] p-3 flex gap-2 lg:hidden shadow-2xl">
