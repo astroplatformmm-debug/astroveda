@@ -96,7 +96,7 @@ export default function Home() {
   const industrialVastu = services.find((s) => s.title.toLowerCase().includes("industrial vastu"));
 
   const features = [
-    { icon: "📋", title: t("Detailed Kundli Report", "विस्तृत कुंडली रिपोर्ट"), text: t("Comprehensive 20+ page PDF analyzing all 12 houses of your life.", "आपके जीवन के सभी 12 भावों का विश्लेषण करने वाली 20+ पेज की PDF।") },
+    { icon: "📋", title: t("Detailed Kundali Report", "विस्तृत कुंडली रिपोर्ट"), text: t("Comprehensive 20+ page PDF analyzing all 12 houses of your life.", "आपके जीवन के सभी 12 भावों का विश्लेषण करने वाली 20+ पेज की PDF।") },
     { icon: "⚡", title: t("Expert Consultation", "विशेषज्ञ परामर्श"), text: t("1-on-1 session to decode your chart and answer pressing questions.", "आपकी कुंडली को समझने के लिए व्यक्तिगत सत्र।") },
     { icon: "🕐", title: t("Fast Delivery", "त्वरित डिलीवरी"), text: t("Get your personalized reading and report delivered within 24 hours.", "24 घंटे के भीतर व्यक्तिगत रिपोर्ट प्राप्त करें।") },
     { icon: "🛡️", title: t("Lifetime Access", "आजीवन एक्सेस"), text: t("Keep your digital reports forever to reference as your life unfolds.", "अपनी डिजिटल रिपोर्ट हमेशा के लिए सुरक्षित रखें।") },
@@ -149,7 +149,7 @@ export default function Home() {
             </h1>
             <p className="text-xl md:text-2xl font-semibold text-[#0F172A] mt-4">
               {t(
-                "Get Your Personalized Kundli Report + Expert Consultation from Certified Vedic Astrologer",
+                "Get Your Personalized Kundali Report + Expert Consultation from Certified Vedic Astrologer",
                 "प्रमाणित वैदिक ज्योतिषी से व्यक्तिगत कुंडली रिपोर्ट + विशेषज्ञ परामर्श प्राप्त करें"
               )}
             </p>
