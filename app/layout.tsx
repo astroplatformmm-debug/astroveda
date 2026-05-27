@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   keywords: [
     "astrologer in Vadodara",
     "Vedic astrologer Vadodara",
-    "Kundli reading online",
+    "Kundali reading online",
     "Vastu consultant Vadodara",
     "buy gemstones online India",
     "original Rudraksha online",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     siteName: "Omkkaar Astroworld",
     title: "Best Vedic Astrologer in Vadodara | Gemstones & Vastu – Omkkaar",
     description:
-      "Consult certified Vedic astrologer Mukesh Gupta. Kundli reports, Vastu, genuine gemstones & Rudraksha. 12,000+ happy clients.",
+      "Consult certified Vedic astrologer Mukesh Gupta. Kundali reports, Vastu, genuine gemstones & Rudraksha. 12,000+ happy clients.",
     images: [
       {
         url: "/astrologer.png",
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
     creator: "@AstroworldOmkar",
     title: "Best Vedic Astrologer in Vadodara | Omkkaar Astroworld",
     description:
-      "Expert Vedic astrology, Kundli, Vastu & genuine gemstones from Vadodara. 25+ years experience.",
+      "Expert Vedic astrology, Kundali, Vastu & genuine gemstones from Vadodara. 25+ years experience.",
     images: ["/astrologer.png"],
   },
   verification: {
@@ -134,7 +134,7 @@ const jsonLd = {
       name: "Mukesh Ravindra Gupta",
       jobTitle: "Certified Vedic Astrologer and Vastu Consultant",
       description:
-        "ISO 9001-2015 and Trademark Certified Vedic Astrologer with 25+ years of experience. Specialises in Kundli analysis, Vastu, Numerology, and Lal Kitab remedies.",
+        "ISO 9001-2015 and Trademark Certified Vedic Astrologer with 25+ years of experience. Specialises in Kundali analysis, Vastu, Numerology, and Lal Kitab remedies.",
       url: "https://www.omkkaar.com/about",
       image: "https://www.omkkaar.com/astrologer.png",
       worksFor: { "@id": "https://www.omkkaar.com/#business" },
