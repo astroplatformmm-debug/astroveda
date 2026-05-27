@@ -47,6 +47,8 @@ const socials = [
   },
 ];
 
+const previewIcons = [FaWhatsapp, FaInstagram, FaXTwitter];
+
 export default function FloatingSocials() {
   const [open, setOpen] = useState(false);
   const [hovered, setHovered] = useState<number | null>(null);
@@ -55,7 +57,6 @@ export default function FloatingSocials() {
 
   useEffect(() => { setMounted(true); }, []);
 
-  // Close on outside click
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
@@ -72,17 +73,28 @@ export default function FloatingSocials() {
   return (
     <div
       ref={ref}
-      className="fixed right-0 top-1/2 -translate-y-1/2 z-50 flex items-center"
+      style={{
+        position: "fixed",
+        right: 0,
+        top: "50%",
+        transform: "translateY(-50%)",
+        zIndex: 50,
+        display: "flex",
+        alignItems: "center",
+      }}
     >
       {/* ── Sliding social panel ── */}
       <div
         style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "10px",
+          paddingRight: "10px",
           transform: open ? "translateX(0)" : "translateX(20px)",
           opacity: open ? 1 : 0,
           pointerEvents: open ? "auto" : "none",
           transition: "transform 420ms cubic-bezier(0.34,1.56,0.64,1), opacity 280ms ease",
         }}
-        className="flex flex-col gap-2.5 pr-2.5"
       >
         {socials.map((s, i) => {
           const Icon = s.icon;
@@ -93,36 +105,36 @@ export default function FloatingSocials() {
             <div
               key={s.label}
               style={{
-                transform: open
-                  ? "translateX(0) scale(1)"
-                  : "translateX(18px) scale(0.75)",
+                position: "relative",
+                display: "flex",
+                alignItems: "center",
+                transform: open ? "translateX(0) scale(1)" : "translateX(18px) scale(0.75)",
                 opacity: open ? 1 : 0,
                 transition: `transform 380ms cubic-bezier(0.34,1.56,0.64,1) ${staggerDelay}ms, opacity 260ms ease ${staggerDelay}ms`,
               }}
-              className="relative flex items-center"
               onMouseEnter={() => setHovered(i)}
               onMouseLeave={() => setHovered(null)}
             >
-              {/* Label tooltip */}
+              {/* Tooltip */}
               <span
                 style={{
-                  opacity: isHov ? 1 : 0,
-                  transform: isHov ? "translateX(0) scale(1)" : "translateX(6px) scale(0.96)",
-                  transition: "all 180ms ease",
-                  pointerEvents: "none",
+                  position: "absolute",
                   right: "52px",
-                }}
-                className="absolute whitespace-nowrap text-[11px] font-semibold text-white px-2.5 py-1 rounded-lg select-none"
-                style={{
-                  opacity: isHov ? 1 : 0,
-                  transform: isHov ? "translateX(0)" : "translateX(6px)",
-                  transition: "all 180ms ease",
-                  pointerEvents: "none",
-                  right: "52px",
+                  whiteSpace: "nowrap",
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  color: "white",
+                  padding: "4px 10px",
+                  borderRadius: "8px",
                   background: "rgba(15,23,42,0.92)",
                   backdropFilter: "blur(8px)",
                   WebkitBackdropFilter: "blur(8px)",
                   boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
+                  opacity: isHov ? 1 : 0,
+                  transform: isHov ? "translateX(0)" : "translateX(6px)",
+                  transition: "all 180ms ease",
+                  pointerEvents: "none",
+                  userSelect: "none",
                 }}
               >
                 {s.label}
@@ -161,6 +173,7 @@ export default function FloatingSocials() {
                   borderRadius: "50%",
                   color: "white",
                   border: "1.5px solid rgba(255,255,255,0.18)",
+                  textDecoration: "none",
                 }}
               >
                 <Icon style={{ width: "18px", height: "18px" }} />
@@ -199,23 +212,22 @@ export default function FloatingSocials() {
           overflow: "hidden",
         }}
       >
-        {/* Shimmer sweep on hover */}
+        {/* Pulse glow when closed */}
         {!open && (
           <span
-            className="animate-pulse"
             style={{
               position: "absolute",
               inset: 0,
-              background: "linear-gradient(180deg, transparent, rgba(249,115,22,0.07), transparent)",
               borderRadius: "inherit",
-              animationDuration: "2.5s",
+              background: "linear-gradient(180deg, transparent, rgba(249,115,22,0.07), transparent)",
+              animation: "socialPulse 2.5s ease-in-out infinite",
             }}
           />
         )}
 
         {/* Mini icons strip */}
         <span style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "3px" }}>
-          {[FaWhatsapp, FaInstagram, FaXTwitter].map((Icon, idx) => (
+          {previewIcons.map((Icon, idx) => (
             <Icon
               key={idx}
               style={{
@@ -228,7 +240,7 @@ export default function FloatingSocials() {
           ))}
         </span>
 
-        {/* Text label */}
+        {/* Label */}
         <span
           style={{
             fontSize: "10px",
@@ -242,6 +254,13 @@ export default function FloatingSocials() {
         >
           {open ? "close" : "follow"}
         </span>
+
+        <style>{`
+          @keyframes socialPulse {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+          }
+        `}</style>
       </button>
     </div>
   );
