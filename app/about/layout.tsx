@@ -3,14 +3,14 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "About Mukesh Ravindra Gupta — Certified Vedic Astrologer Vadodara",
   description:
-    "Meet Mukesh Ravindra Gupta — ISO 9001-2015 certified Vedic astrologer with 25+ years of experience in Vadodara. Expert in Kundli, Vastu, Numerology & Lal Kitab. 12,000+ consultations.",
+    "Meet Mukesh Ravindra Gupta — ISO 9001-2015 certified Vedic astrologer with 25+ years of experience in Vadodara. Expert in Kundali, Vastu, Numerology & Lal Kitab. 12,000+ consultations.",
   alternates: {
     canonical: "/about",
   },
   openGraph: {
     title: "About Mukesh Ravindra Gupta — Certified Vedic Astrologer Vadodara",
     description:
-      "25+ years of experience. ISO & Trademark certified. Expert in Kundli, Vastu, Numerology & Lal Kitab remedies.",
+      "25+ years of experience. ISO & Trademark certified. Expert in Kundali, Vastu, Numerology & Lal Kitab remedies.",
     url: "https://www.omkkaar.com/about",
     images: [
       {
@@ -35,7 +35,7 @@ const personSchema = {
   name: "Mukesh Ravindra Gupta",
   jobTitle: "Certified Vedic Astrologer and Vastu Consultant",
   description:
-    "ISO 9001-2015 and Trademark Certified Vedic Astrologer with 25+ years of experience. Specialises in Kundli analysis, Vastu, Numerology, and Lal Kitab remedies.",
+    "ISO 9001-2015 and Trademark Certified Vedic Astrologer with 25+ years of experience. Specialises in Kundali analysis, Vastu, Numerology, and Lal Kitab remedies.",
   url: "https://www.omkkaar.com/about",
   image: "https://www.omkkaar.com/astrologer.png",
   telephone: "+917069110573",
