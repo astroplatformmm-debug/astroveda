@@ -74,7 +74,7 @@ export default function FloatingSocials() {
         <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
       )}
 
-      <div className="fixed bottom-6 right-5 flex flex-col items-end gap-3 z-50">
+      <div className="fixed bottom-6 right-5 lg:bottom-6 flex flex-col items-end gap-3 z-50" style={{ bottom: 'calc(var(--sticky-cta-height, 0px) + 1.5rem)' }}>
 
         {/* Social icons — stagger upward */}
         <div className="flex flex-col-reverse items-end gap-3">
