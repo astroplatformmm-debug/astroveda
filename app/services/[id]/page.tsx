@@ -7,7 +7,6 @@ import Spinner from "@/components/ui/Spinner";
 import ServiceCard from "@/components/cards/ServiceCard";
 import type { Service } from "@/lib/types";
 import { SERVICE_CATEGORY_LABELS, SERVICE_CATEGORY_ICONS } from "@/lib/serviceCategory";
-import TestimonialsSection from "@/components/reviews/TestimonialsSection";
 
 // ── Review types ──────────────────────────────────────────────────────────────
 interface Review {
@@ -629,6 +628,8 @@ export default function ServiceDetail() {
             </div>
           </div>
         )}
+
+
         {/* FAQ */}
         {service.faq && service.faq.length > 0 && (
           <div className="mt-8">
@@ -657,8 +658,8 @@ export default function ServiceDetail() {
 
       </div>
 
-      {/* Testimonials */}
-      <TestimonialsSection />
+
+      <ServiceReviewsSection />
 
       {/* Mobile sticky CTA */}
       <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-[#E2E8F0] p-3 flex gap-2 lg:hidden shadow-2xl">
