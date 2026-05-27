@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Contact Omkkaar Astroworld — Book Astrology Consultation Vadodara",
   description:
-    "Contact Omkkaar Astroworld in Vadodara. Call +91 70691 10573 or email askme@omkkaar.com to book your Kundli, Vastu, or gemstone consultation with Mukesh Ravindra Gupta.",
+    "Contact Omkkaar Astroworld in Vadodara. Call +91 70691 10573 or email askme@omkkaar.com to book your Kundali, Vastu, or gemstone consultation with Mukesh Ravindra Gupta.",
   alternates: {
     canonical: "/contact",
   },
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Contact Omkkaar Astroworld | Vadodara",
-    description: "Book your Kundli or Vastu consultation with Mukesh Gupta.",
+    description: "Book your Kundali or Vastu consultation with Mukesh Gupta.",
     images: ["/astrologer.png"],
   },
 };
