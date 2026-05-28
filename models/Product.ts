@@ -4,6 +4,7 @@ import { PRODUCT_CATEGORY_ENUM } from "@/lib/productCategory";
 const productSchema = new Schema(
   {
     title: { type: String, required: true },
+    slug: { type: String, unique: true, sparse: true },   // ← NEW
     description: { type: String, required: true },
     price: { type: Number, required: true },
     image: { type: String, required: true },
@@ -38,9 +39,26 @@ const productSchema = new Schema(
   },
 );
 
-// ── Indexes for fast queries ──
+// Auto-generate slug from title before save (only when missing)
+productSchema.pre("save", async function () {
+  if (this.isModified("title") && !this.slug) {
+    this.slug = generateProductSlug(this.title);
+  }
+});
+
+export function generateProductSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+// ── Indexes ──
 productSchema.index({ isActive: 1, rank: -1, createdAt: -1 });
 productSchema.index({ category: 1, isActive: 1 });
+productSchema.index({ slug: 1 });   // ← NEW
 
 const Product = models.Product || model("Product", productSchema);
 
