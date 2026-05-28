@@ -41,3 +41,13 @@ export function normalizeProductCategory(input: unknown): ProductCategorySlug {
   if (ALLOWED.has(key)) return key as ProductCategorySlug;
   return "gemstones";
 }
+
+/** Generate a URL-safe slug from a product title. */
+export function generateProductSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
