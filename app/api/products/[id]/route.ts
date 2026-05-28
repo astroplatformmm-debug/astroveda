@@ -2,15 +2,27 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Product from "@/models/Product";
 import { withAdminAuth } from "@/lib/auth";
-import { normalizeProductCategory } from "@/lib/productCategory";
+import { normalizeProductCategory, generateProductSlug } from "@/lib/productCategory";
 
 type Context = { params: Promise<{ id: string }> };
+
+/** Support lookup by MongoDB ObjectId OR slug — mirrors how services work. */
+async function findProduct(id: string) {
+  // Try by slug first
+  const bySlug = await Product.findOne({ slug: id, isActive: { $ne: false } }).lean();
+  if (bySlug) return bySlug;
+  // Fall back to ObjectId
+  if (/^[a-f\d]{24}$/i.test(id)) {
+    return await Product.findOne({ _id: id, isActive: { $ne: false } }).lean();
+  }
+  return null;
+}
 
 export async function GET(_req: Request, context: Context) {
   try {
     await connectDB();
     const { id } = await context.params;
-    const product = await Product.findOne({ _id: id, isActive: true }).lean();
+    const product = await findProduct(id);
 
     if (!product) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
@@ -44,6 +56,13 @@ export const PUT = withAdminAuth(async (req, context) => {
       updateData.category = normalizeProductCategory(body.category.toLowerCase().trim());
     }
 
+    // Slug: use provided value, or regenerate from new title
+    if (body.slug?.trim()) {
+      updateData.slug = body.slug.trim();
+    } else if (body.title) {
+      updateData.slug = generateProductSlug(body.title);
+    }
+
     if (body.image) {
       let imageUrl = body.image;
       if (imageUrl.startsWith("data:image")) {
@@ -51,7 +70,7 @@ export const PUT = withAdminAuth(async (req, context) => {
           const { uploadImage } = await import("@/lib/cloudinary");
           imageUrl = await uploadImage(imageUrl, "astroveda/products");
         } catch (err: unknown) {
-          return NextResponse.json({ error: 'Image upload failed: ' + (err instanceof Error ? err.message : 'Unknown error') }, { status: 500 });
+          return NextResponse.json({ error: "Image upload failed: " + (err instanceof Error ? err.message : "Unknown error") }, { status: 500 });
         }
       }
       updateData.image = imageUrl;
