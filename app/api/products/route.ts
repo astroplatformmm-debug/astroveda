@@ -7,6 +7,7 @@ import { uploadImage } from "@/lib/cloudinary";
 import {
   normalizeProductCategory,
   parseShopCategoryFilter,
+  generateProductSlug,
   PRODUCT_CATEGORY_ENUM,
 } from "@/lib/productCategory";
 
@@ -41,7 +42,7 @@ export async function GET(req: NextRequest) {
     }
 
     const products = await Product.find(query)
-      .select("title price image images category zodiac rank options ringMaterialEnabled ringMaterials")
+      .select("title slug price image images category zodiac rank options ringMaterialEnabled ringMaterials") // ← slug added
       .sort({ rank: -1, createdAt: -1 })
       .lean();
 
@@ -123,8 +124,17 @@ export const POST = withAdminAuth(async (req) => {
         )
       : [];
 
+    // Generate unique slug
+    const baseSlug = body.slug?.trim() || generateProductSlug(body.title || "");
+    let productSlug = baseSlug;
+    let suffix = 1;
+    while (await Product.exists({ slug: productSlug })) {
+      productSlug = `${baseSlug}-${suffix++}`;
+    }
+
     const product = await Product.create({
       title: body.title,
+      slug: productSlug,   // ← NEW
       description: body.description,
       price: body.price,
       image: imageUrl,
