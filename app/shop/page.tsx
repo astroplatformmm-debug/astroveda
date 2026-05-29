@@ -31,7 +31,7 @@ const BENEFITS = ["Protection", "Success", "Wealth", "Health", "Peace & Harmony"
 function ShopCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
   const [added, setAdded] = useState(false);
-  const productId = product._id || product.id || "";
+  const productId = product.slug || product._id || product.id || "";
   const mrp = product.mrp ?? null;
   const discountPct =
     mrp && mrp > product.price
@@ -48,7 +48,7 @@ function ShopCard({ product }: { product: Product }) {
 
   return (
     <div className="bg-white rounded-2xl border border-[#F0EBE3] overflow-hidden group hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 flex flex-col">
-      <Link href={`/products/${productId}`} className="block">
+      <Link href={`/shop/${productId}`} className="block">
         {/* Image */}
         <div className="relative h-52 bg-[#FAF7F2] overflow-hidden">
           <img
