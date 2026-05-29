@@ -6,7 +6,6 @@ export const SERVICE_CATEGORY_ENUM = [
   "numerology",
   "vastu",
   "horoscope",
-  "palmreading",
   "tarot",
 ] as const;
 
