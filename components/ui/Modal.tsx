@@ -14,7 +14,7 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 overflow-y-auto py-6">
-      <div className="bg-white rounded-xl shadow-lg w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto relative">
+      <div className="bg-white rounded-xl shadow-lg w-full max-w-2xl mx-4 relative">
         <div className="px-6 py-4 border-b flex justify-between items-center sticky top-0 bg-white z-10">
           <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
           <button
