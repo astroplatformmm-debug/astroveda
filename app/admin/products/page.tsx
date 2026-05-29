@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Modal from "@/components/ui/Modal";
 import Spinner from "@/components/ui/Spinner";
 import type { Product } from "@/lib/types";
+import { generateProductSlug } from "@/lib/productCategory";
 
 const CATEGORY_LABELS: Record<string, string> = {
   healing: "Healing Crystals",
@@ -37,6 +38,7 @@ export default function ProductsManagement() {
 
   const [formData, setFormData] = useState({
     title: "",
+    slug: "",
     description: "",
     price: 0,
     image: "",
@@ -56,7 +58,7 @@ export default function ProductsManagement() {
 
   const openAddModal = () => {
     setEditingId(null);
-    setFormData({ title: "", description: "", price: 0, image: "", zodiac: "", certification: "", category: "gemstones" });
+    setFormData({ title: "", slug: "", description: "", price: 0, image: "", zodiac: "", certification: "", category: "gemstones" });
     setExtraImages([]);
     setOptionsInput("");
     setRingMaterialEnabled(false);
@@ -75,6 +77,7 @@ export default function ProductsManagement() {
     setEditingId(product._id || product.id || null);
     setFormData({
       title: product.title,
+      slug: product.slug || "",
       description: product.description,
       price: product.price,
       image: product.image || "",
@@ -314,7 +317,7 @@ export default function ProductsManagement() {
       setSaveSuccess(true);
       await fetchProducts();
       setTimeout(() => {
-        setFormData({ title: "", description: "", price: 0, image: "", zodiac: "", certification: "", category: "gemstones" });
+        setFormData({ title: "", slug: "", description: "", price: 0, image: "", zodiac: "", certification: "", category: "gemstones" });
         setExtraImages([]);
         setOptionsInput("");
         setRingMaterialEnabled(false);
@@ -406,6 +409,7 @@ export default function ProductsManagement() {
               <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0]">
                 <tr>
                   <th className="px-6 py-4 font-bold text-[#64748B]">Product</th>
+                  <th className="px-6 py-4 font-bold text-[#64748B]">Slug / URL</th>
                   <th className="px-6 py-4 font-bold text-[#64748B]">Category</th>
                   <th className="px-6 py-4 font-bold text-[#64748B]">Zodiac</th>
                   <th className="px-6 py-4 font-bold text-[#64748B]">Certification</th>
@@ -437,6 +441,11 @@ export default function ProductsManagement() {
                             />
                             <div className="font-bold text-[#0F172A] truncate max-w-[200px]">{product.title}</div>
                           </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          {product.slug
+                            ? <span className="font-mono text-xs text-orange-600 bg-orange-50 px-2 py-0.5 rounded">/shop/{product.slug}</span>
+                            : <span className="text-xs text-gray-400">no slug</span>}
                         </td>
                         <td className="px-6 py-4 text-[#64748B] font-mono text-xs">{categoryLabel(product.category)}</td>
                         <td className="px-6 py-4 text-[#64748B]">{product.zodiac || "-"}</td>
@@ -541,9 +550,27 @@ export default function ProductsManagement() {
               type="text"
               required
               value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              onChange={(e) => {
+                const title = e.target.value;
+                setFormData({ ...formData, title, slug: generateProductSlug(title) });
+              }}
               className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none"
             />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-[#0F172A] mb-1">
+              Slug <span className="text-xs font-normal text-gray-400">(auto-generated, editable)</span>
+            </label>
+            <input
+              type="text"
+              value={formData.slug}
+              onChange={(e) => setFormData({ ...formData, slug: e.target.value.toLowerCase().trim().replace(/[^a-z0-9-]/g, "-") })}
+              placeholder="e.g. blue-sapphire-ring"
+              className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg focus:ring-[#F97316] focus:border-[#F97316] outline-none font-mono text-sm"
+            />
+            {formData.slug && (
+              <p className="text-xs text-gray-400 mt-1">URL: /shop/<span className="text-orange-500 font-semibold">{formData.slug}</span></p>
+            )}
           </div>
           <div>
             <label className="block text-sm font-bold text-[#0F172A] mb-1">Category</label>
