@@ -10,7 +10,7 @@ type ProductCardData = Product & { id?: string };
 export default function GemstoneCard({ product }: { product: ProductCardData }) {
   const { addToCart } = useCart();
   const [added, setAdded] = useState(false);
-  const productId = product._id || product.id || "";
+  const productId = product.slug || product._id || product.id || "";
 
   const mrp = product.mrp ?? null;
   const discountPct =
@@ -33,7 +33,7 @@ export default function GemstoneCard({ product }: { product: ProductCardData }) 
 
   return (
     <div className="relative bg-white rounded-xl shadow-md overflow-hidden hover:scale-105 transition-all duration-200 border border-[#E2E8F0] flex flex-col h-full group">
-      <Link href={`/products/${productId}`} className="absolute inset-0 z-0 rounded-xl" aria-label={`View ${product.title}`} />
+      <Link href={`/shop/${productId}`} className="absolute inset-0 z-0 rounded-xl" aria-label={`View ${product.title}`} />
       <div className="relative z-10 flex flex-col h-full pointer-events-none">
         <div className="relative w-full h-56 bg-gray-100 overflow-hidden">
           {product.zodiac && (
