@@ -35,7 +35,7 @@ const OrderSchema = new mongoose.Schema({
     unique: true,
     sparse: true,
   },
-    bookingSlot: {
+  bookingSlot: {
     date: { type: String, default: null },
     time: { type: String, default: null },
     slotType: { type: String, enum: ["online", "offline"], default: "online" },
