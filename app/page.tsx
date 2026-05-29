@@ -388,7 +388,7 @@ export default function Home() {
                     <p className="text-sm text-[#64748B] mb-4 flex-grow line-clamp-2">{gem.description}</p>
                     <div className="flex items-center justify-between mt-auto">
                       <span className="text-[#F97316] font-bold text-lg">₹{gem.price}</span>
-                      <Link href={`/products/${gem._id || gem.id}`} className="px-4 py-2 bg-[#F97316] hover:bg-[#EA6C0A] text-white text-sm font-bold rounded transition-colors shadow-md">
+                      <Link href={`/shop/${gem.slug || gem._id || gem.id}`} className="px-4 py-2 bg-[#F97316] hover:bg-[#EA6C0A] text-white text-sm font-bold rounded transition-colors shadow-md">
                         {t("View Details", "विवरण देखें")}
                       </Link>
                     </div>
