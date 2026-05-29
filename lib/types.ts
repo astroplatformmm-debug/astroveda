@@ -62,6 +62,7 @@ export type RingMaterial = {
 export type Product = {
   _id?: string;
   id?: string;
+  slug?: string;
 
   title: string;
   description: string;
