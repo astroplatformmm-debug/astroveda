@@ -11,7 +11,6 @@ const CATEGORY_ICONS: Record<string, string> = {
   astrology: "🔮",
   numerology: "🔢",
   vastu: "🏠",
-  palmreading: "✋",
   tarot: "🃏",
 };
 
