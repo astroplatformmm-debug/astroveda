@@ -38,6 +38,7 @@ const OrderSchema = new mongoose.Schema({
     bookingSlot: {
     date: { type: String, default: null },
     time: { type: String, default: null },
+    slotType: { type: String, enum: ["online", "offline"], default: "online" },
   },
   createdAt: { type: Date, default: Date.now },
 });
