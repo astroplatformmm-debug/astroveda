@@ -33,6 +33,7 @@ function CheckoutContent() {
     : 0;
   const bookingDate = searchParams.get("date") ?? "";
   const bookingTime = searchParams.get("time") ?? "";
+  const bookingSlotType = (searchParams.get("slotType") ?? "online") as "online" | "offline";
 
   const [item, setItem] = useState<CheckoutItem | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("online");
@@ -213,7 +214,7 @@ function CheckoutContent() {
           state: formData.state,
           pincode: formData.pincode,
         },
-        bookingSlot: serviceId && bookingDate && bookingTime ? { date: bookingDate, time: bookingTime } : undefined,
+        bookingSlot: serviceId && bookingDate && bookingTime ? { date: bookingDate, time: bookingTime, slotType: bookingSlotType } : undefined,
       }),
     });
 
@@ -524,6 +525,13 @@ function CheckoutContent() {
                         })}
                       </p>
                       <p className="text-sm font-bold text-[#D97706]">{bookingTime}</p>
+                      <span className={`inline-block mt-1 text-xs font-semibold px-2 py-0.5 rounded-full border ${
+                        bookingSlotType === "online"
+                          ? "bg-blue-50 text-blue-700 border-blue-200"
+                          : "bg-orange-50 text-orange-700 border-orange-200"
+                      }`}>
+                        {bookingSlotType === "online" ? "🌐 Online" : "📍 In-Person"}
+                      </span>
                     </div>
                   )}
                 </div>
