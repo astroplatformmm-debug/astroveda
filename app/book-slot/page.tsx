@@ -10,6 +10,7 @@ type SlotInfo = {
   _id: string;
   date: string;
   time: string;
+  slotType: "online" | "offline";
   isBooked: boolean;
   isEnabled: boolean;
 };
@@ -56,9 +57,15 @@ function BookSlotContent() {
   const availableDates = buildAvailableDates();
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
+  const [selectedSlotType, setSelectedSlotType] = useState<"online" | "offline">("online");
   const [slots, setSlots] = useState<SlotInfo[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [error, setError] = useState("");
+
+  // Reset time when date or slot type changes
+  useEffect(() => {
+    setSelectedTime("");
+  }, [selectedSlotType]);
 
   useEffect(() => {
     if (!selectedDate) return;
@@ -81,11 +88,14 @@ function BookSlotContent() {
       serviceId,
       date: selectedDate,
       time: selectedTime,
+      slotType: selectedSlotType,
     });
     router.push(`/checkout?${params.toString()}`);
   };
 
-  const timeSlotsForDate = slots.filter((s) => s.isEnabled && !s.isBooked);
+  const onlineSlots = slots.filter((s) => s.slotType === "online" && s.isEnabled && !s.isBooked);
+  const offlineSlots = slots.filter((s) => s.slotType === "offline" && s.isEnabled && !s.isBooked);
+  const currentSlots = selectedSlotType === "online" ? onlineSlots : offlineSlots;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -117,6 +127,40 @@ function BookSlotContent() {
           <span className="text-purple-700 font-bold underline">{t("2. Date & Time", "2. तारीख और समय")}</span>
           <span className="text-gray-300">→</span>
           <span>{t("3. Checkout", "3. चेकआउट")}</span>
+        </div>
+
+        {/* ── Consultation Type Selector ── */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
+          <h2 className="text-lg font-bold text-gray-800 mb-1">{t("Consultation Type", "परामर्श प्रकार")}</h2>
+          <p className="text-xs text-gray-400 mb-4">{t("Choose how you'd like to connect with our astrologer.", "चुनें कि आप हमारे ज्योतिषी से कैसे जुड़ना चाहते हैं।")}</p>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => { setSelectedSlotType("online"); setSelectedTime(""); setError(""); }}
+              className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all font-semibold text-sm ${
+                selectedSlotType === "online"
+                  ? "border-blue-500 bg-blue-50 text-blue-700 shadow-sm"
+                  : "border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:bg-blue-50/40"
+              }`}
+            >
+              <span className="text-3xl">🌐</span>
+              <span>{t("Online", "ऑनलाइन")}</span>
+              <span className="text-xs font-normal text-gray-400">{t("Video / Phone call", "वीडियो / फ़ोन कॉल")}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => { setSelectedSlotType("offline"); setSelectedTime(""); setError(""); }}
+              className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all font-semibold text-sm ${
+                selectedSlotType === "offline"
+                  ? "border-orange-500 bg-orange-50 text-orange-700 shadow-sm"
+                  : "border-gray-200 bg-white text-gray-600 hover:border-orange-300 hover:bg-orange-50/40"
+              }`}
+            >
+              <span className="text-3xl">📍</span>
+              <span>{t("In-Person", "व्यक्तिगत")}</span>
+              <span className="text-xs font-normal text-gray-400">{t("Visit our office", "हमारे कार्यालय आएं")}</span>
+            </button>
+          </div>
         </div>
 
         {/* Date Selection */}
@@ -152,25 +196,39 @@ function BookSlotContent() {
         {/* Time Slots */}
         {selectedDate && (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
-            <h2 className="text-lg font-bold text-gray-800 mb-1">
-              {t("Available Times for", "उपलब्ध समय:")}{" "}
-              <span className="text-purple-700">{fmtFull(selectedDate)}</span>
-            </h2>
+            <div className="flex items-center gap-2 mb-1">
+              <h2 className="text-lg font-bold text-gray-800">
+                {t("Available Times for", "उपलब्ध समय:")}{" "}
+                <span className="text-purple-700">{fmtFull(selectedDate)}</span>
+              </h2>
+              <span className={`text-xs px-2 py-0.5 rounded-full font-semibold border ${
+                selectedSlotType === "online"
+                  ? "bg-blue-50 text-blue-600 border-blue-200"
+                  : "bg-orange-50 text-orange-600 border-orange-200"
+              }`}>
+                {selectedSlotType === "online" ? "🌐 Online" : "📍 In-Person"}
+              </span>
+            </div>
             <p className="text-xs text-gray-400 mb-4">{t("All times are in Indian Standard Time (IST).", "सभी समय भारतीय मानक समय (IST) में हैं।")}</p>
 
             {loadingSlots ? (
               <div className="flex justify-center py-8">
                 <Spinner className="w-8 h-8 text-purple-600" />
               </div>
-            ) : timeSlotsForDate.length === 0 ? (
+            ) : currentSlots.length === 0 ? (
               <div className="text-center py-8">
                 <div className="text-4xl mb-3">📅</div>
                 <p className="text-gray-500 font-medium">{t("No slots available for this date.", "इस तारीख के लिए कोई स्लॉट उपलब्ध नहीं है।")}</p>
-                <p className="text-xs text-gray-400 mt-1">{t("Please select a different date.", "कृपया कोई अन्य तारीख चुनें।")}</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  {selectedSlotType === "online"
+                    ? t("No online slots available. Try in-person or another date.", "कोई ऑनलाइन स्लॉट नहीं। व्यक्तिगत या कोई और तारीख चुनें।")
+                    : t("No in-person slots available. Try online or another date.", "कोई व्यक्तिगत स्लॉट नहीं। ऑनलाइन या कोई और तारीख चुनें।")
+                  }
+                </p>
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                {timeSlotsForDate.map((slot) => (
+                {currentSlots.map((slot) => (
                   <button
                     key={slot._id}
                     type="button"
@@ -197,6 +255,11 @@ function BookSlotContent() {
               <p className="text-sm font-bold text-purple-800">{t("Slot Selected", "स्लॉट चुना गया")}</p>
               <p className="text-sm text-purple-700">
                 {fmtFull(selectedDate)} at <span className="font-bold">{selectedTime}</span>
+                <span className={`ml-2 text-xs px-1.5 py-0.5 rounded font-semibold ${
+                  selectedSlotType === "online" ? "bg-blue-100 text-blue-700" : "bg-orange-100 text-orange-700"
+                }`}>
+                  {selectedSlotType === "online" ? "🌐 Online" : "📍 In-Person"}
+                </span>
               </p>
             </div>
           </div>
