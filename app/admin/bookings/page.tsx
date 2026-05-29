@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
@@ -8,6 +7,7 @@ type SlotInfo = {
   _id: string;
   date: string;
   time: string;
+  slotType: "online" | "offline";
   isBooked: boolean;
   isEnabled: boolean;
   bookedByOrderId?: string;
@@ -19,7 +19,7 @@ type BookingOrder = {
   items: Array<{ title?: string; itemType: string; price?: number }>;
   totalAmount: number;
   status: string;
-  bookingSlot?: { date: string; time: string };
+  bookingSlot?: { date: string; time: string; slotType?: string };
   createdAt: string;
 };
 
@@ -81,10 +81,12 @@ export default function AdminBookingsPage() {
   const [slotError, setSlotError] = useState("");
   const [slotSuccess, setSlotSuccess] = useState("");
   const [filterDate, setFilterDate] = useState("all");
+  const [filterSlotType, setFilterSlotType] = useState<"all" | "online" | "offline">("all");
 
   // Add form
   const [newDate, setNewDate] = useState(todayStr());
   const [newTime, setNewTime] = useState("09:00");
+  const [newSlotType, setNewSlotType] = useState<"online" | "offline">("online");
   const [addingSlot, setAddingSlot] = useState(false);
   const [addingFullDay, setAddingFullDay] = useState(false);
 
@@ -122,19 +124,23 @@ export default function AdminBookingsPage() {
     if (tab === "slots") loadSlots();
   }, [tab]);
 
-  // Group slots by date
+  // Group slots by date, filtered by slotType
+  const filteredSlots = useMemo(() => {
+    if (filterSlotType === "all") return slots;
+    return slots.filter((s) => s.slotType === filterSlotType);
+  }, [slots, filterSlotType]);
+
   const groupedSlots = useMemo(() => {
     const groups: Record<string, SlotInfo[]> = {};
-    slots.forEach((s) => {
+    filteredSlots.forEach((s) => {
       if (!groups[s.date]) groups[s.date] = [];
       groups[s.date].push(s);
     });
-    // Sort each group by time
     Object.keys(groups).forEach((d) => {
       groups[d].sort((a, b) => to24hr(a.time).localeCompare(to24hr(b.time)));
     });
     return groups;
-  }, [slots]);
+  }, [filteredSlots]);
 
   const allDates = Object.keys(groupedSlots).sort();
   const filteredDates = filterDate === "all" ? allDates : allDates.filter((d) => d === filterDate);
@@ -151,14 +157,14 @@ export default function AdminBookingsPage() {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ date: newDate, time: timeFormatted }),
+        body: JSON.stringify({ date: newDate, time: timeFormatted, slotType: newSlotType }),
       });
       if (!res.ok) {
         const d = await res.json();
         setSlotError(d.error || "Failed to add slot");
         return;
       }
-      setSlotSuccess(`Slot added: ${fmtDateFull(newDate)} at ${timeFormatted}`);
+      setSlotSuccess(`${newSlotType === "online" ? "🌐 Online" : "📍 Offline"} slot added: ${fmtDateFull(newDate)} at ${timeFormatted}`);
       loadSlots();
     } catch {
       setSlotError("Network error");
@@ -181,12 +187,12 @@ export default function AdminBookingsPage() {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ date: newDate, time: timeFormatted }),
+          body: JSON.stringify({ date: newDate, time: timeFormatted, slotType: newSlotType }),
         });
         if (res.ok) added++;
       } catch { /* skip */ }
     }
-    setSlotSuccess(`Added ${added} slots for ${fmtDateFull(newDate)}`);
+    setSlotSuccess(`Added ${added} ${newSlotType} slots for ${fmtDateFull(newDate)}`);
     setAddingFullDay(false);
     loadSlots();
   };
@@ -222,6 +228,10 @@ export default function AdminBookingsPage() {
       }
     } catch { /* ignore */ }
   };
+
+  // Count stats
+  const onlineCount = slots.filter((s) => s.slotType === "online").length;
+  const offlineCount = slots.filter((s) => s.slotType === "offline").length;
 
   return (
     <div className="space-y-6">
@@ -260,7 +270,7 @@ export default function AdminBookingsPage() {
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 border-b border-gray-100">
                   <tr>
-                    {["Customer", "Phone", "Service", "Booking Date", "Time", "Amount", "Status"].map((h) => (
+                    {["Customer", "Phone", "Service", "Booking Date", "Time", "Type", "Amount", "Status"].map((h) => (
                       <th key={h} className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">{h}</th>
                     ))}
                   </tr>
@@ -281,6 +291,17 @@ export default function AdminBookingsPage() {
                           ? <span className="bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded text-xs font-bold">{b.bookingSlot.time}</span>
                           : <span className="text-gray-400 text-xs">—</span>}
                       </td>
+                      <td className="px-4 py-3">
+                        {b.bookingSlot?.slotType ? (
+                          <span className={`px-2 py-0.5 rounded text-xs font-bold border ${
+                            b.bookingSlot.slotType === "online"
+                              ? "bg-blue-50 text-blue-700 border-blue-200"
+                              : "bg-orange-50 text-orange-700 border-orange-200"
+                          }`}>
+                            {b.bookingSlot.slotType === "online" ? "🌐 Online" : "📍 Offline"}
+                          </span>
+                        ) : <span className="text-gray-400 text-xs">—</span>}
+                      </td>
                       <td className="px-4 py-3 font-bold text-gray-900">₹{b.totalAmount}</td>
                       <td className="px-4 py-3">
                         <span className={`px-2 py-1 rounded-lg text-xs font-bold border ${statusColor[b.status] || "bg-gray-50 text-gray-600 border-gray-200"}`}>
@@ -300,6 +321,31 @@ export default function AdminBookingsPage() {
       {tab === "slots" && (
         <div className="space-y-6">
 
+          {/* ── Stats Row ── */}
+          <div className="grid grid-cols-3 gap-4">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-lg">📅</div>
+              <div>
+                <div className="text-2xl font-bold text-gray-900">{slots.length}</div>
+                <div className="text-xs text-gray-500 font-medium">Total Slots</div>
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl border border-blue-100 shadow-sm p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-lg">🌐</div>
+              <div>
+                <div className="text-2xl font-bold text-blue-700">{onlineCount}</div>
+                <div className="text-xs text-blue-500 font-medium">Online Slots</div>
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl border border-orange-100 shadow-sm p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-lg">📍</div>
+              <div>
+                <div className="text-2xl font-bold text-orange-700">{offlineCount}</div>
+                <div className="text-xs text-orange-500 font-medium">Offline Slots</div>
+              </div>
+            </div>
+          </div>
+
           {/* ── Add Slots Card ── */}
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
             <h2 className="text-lg font-bold text-gray-900 mb-1">Time Slot Management</h2>
@@ -309,6 +355,36 @@ export default function AdminBookingsPage() {
             {slotSuccess && <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl text-sm mb-3">✅ {slotSuccess}</div>}
 
             <div className="font-semibold text-gray-700 text-sm mb-3">Add New Slots</div>
+
+            {/* Slot Type Toggle */}
+            <div className="mb-4">
+              <label className="block text-xs font-semibold text-gray-500 mb-2">Slot Type</label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setNewSlotType("online")}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 text-sm font-semibold transition-all ${
+                    newSlotType === "online"
+                      ? "border-blue-500 bg-blue-50 text-blue-700"
+                      : "border-gray-200 bg-white text-gray-600 hover:border-blue-300"
+                  }`}
+                >
+                  🌐 Online
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setNewSlotType("offline")}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 text-sm font-semibold transition-all ${
+                    newSlotType === "offline"
+                      ? "border-orange-500 bg-orange-50 text-orange-700"
+                      : "border-gray-200 bg-white text-gray-600 hover:border-orange-300"
+                  }`}
+                >
+                  📍 Offline
+                </button>
+              </div>
+            </div>
+
             <div className="flex flex-col sm:flex-row gap-3 items-end">
               {/* Date picker */}
               <div className="flex-1">
@@ -351,6 +427,27 @@ export default function AdminBookingsPage() {
             </div>
           </div>
 
+          {/* ── Slot Type Filter ── */}
+          <div className="flex gap-2">
+            {(["all", "online", "offline"] as const).map((type) => (
+              <button
+                key={type}
+                onClick={() => setFilterSlotType(type)}
+                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold border transition-all ${
+                  filterSlotType === type
+                    ? type === "online"
+                      ? "bg-blue-500 text-white border-blue-500"
+                      : type === "offline"
+                      ? "bg-orange-500 text-white border-orange-500"
+                      : "bg-amber-500 text-white border-amber-500"
+                    : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+                }`}
+              >
+                {type === "all" ? "All Types" : type === "online" ? "🌐 Online" : "📍 Offline"}
+              </button>
+            ))}
+          </div>
+
           {/* ── Date filter pills ── */}
           {allDates.length > 0 && (
             <div className="flex flex-wrap gap-2">
@@ -385,12 +482,14 @@ export default function AdminBookingsPage() {
             <div className="flex justify-center py-12"><Spinner className="w-8 h-8 text-purple-600" /></div>
           ) : allDates.length === 0 ? (
             <div className="bg-white rounded-2xl border border-gray-200 text-center py-12 text-gray-400 text-sm">
-              No slots created yet. Add some above.
+              No slots found. Add some above.
             </div>
           ) : (
             <div className="space-y-4">
               {filteredDates.map((date) => {
                 const dateSlots = groupedSlots[date];
+                const onlineSlots = dateSlots.filter((s) => s.slotType === "online");
+                const offlineSlots = dateSlots.filter((s) => s.slotType === "offline");
                 return (
                   <div key={date} className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
                     {/* Date header */}
@@ -402,51 +501,41 @@ export default function AdminBookingsPage() {
                       </span>
                       <span className="font-bold text-gray-900">{date}</span>
                       <span className="text-gray-400 text-sm">{dateSlots.length} slot{dateSlots.length !== 1 ? "s" : ""}</span>
+                      {onlineSlots.length > 0 && (
+                        <span className="text-xs bg-blue-50 text-blue-600 border border-blue-200 px-2 py-0.5 rounded-full font-semibold">{onlineSlots.length} online</span>
+                      )}
+                      {offlineSlots.length > 0 && (
+                        <span className="text-xs bg-orange-50 text-orange-600 border border-orange-200 px-2 py-0.5 rounded-full font-semibold">{offlineSlots.length} offline</span>
+                      )}
                     </div>
 
-                    {/* Slot chips */}
-                    <div className="flex flex-wrap gap-3">
-                      {dateSlots.map((s) => (
-                        <div
-                          key={s._id}
-                          className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-medium transition-all ${
-                            s.isBooked
-                              ? "bg-red-50 border-red-200 text-red-700"
-                              : s.isEnabled
-                              ? "bg-green-50 border-green-200 text-green-800"
-                              : "bg-gray-100 border-gray-200 text-gray-500"
-                          }`}
-                        >
-                          {/* Clock icon */}
-                          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                          <span>{s.time}</span>
-
-                          {s.isBooked ? (
-                            <span className="text-xs text-red-400 font-semibold">Booked</span>
-                          ) : (
-                            <>
-                              <button
-                                onClick={() => handleToggleSlot(s._id, s.isEnabled)}
-                                className="text-xs underline hover:no-underline transition-all ml-1"
-                              >
-                                {s.isEnabled ? "Disable" : "Enable"}
-                              </button>
-                              <button
-                                onClick={() => handleDeleteSlot(s._id)}
-                                className="hover:text-red-600 transition-colors ml-0.5"
-                                title="Delete slot"
-                              >
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                              </button>
-                            </>
-                          )}
+                    {/* Online slots section */}
+                    {onlineSlots.length > 0 && (filterSlotType === "all" || filterSlotType === "online") && (
+                      <div className="mb-3">
+                        <div className="text-xs font-bold text-blue-600 mb-2 flex items-center gap-1">
+                          🌐 Online Slots
                         </div>
-                      ))}
-                    </div>
+                        <div className="flex flex-wrap gap-3">
+                          {onlineSlots.map((s) => (
+                            <SlotChip key={s._id} slot={s} onToggle={handleToggleSlot} onDelete={handleDeleteSlot} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Offline slots section */}
+                    {offlineSlots.length > 0 && (filterSlotType === "all" || filterSlotType === "offline") && (
+                      <div>
+                        <div className="text-xs font-bold text-orange-600 mb-2 flex items-center gap-1">
+                          📍 Offline Slots
+                        </div>
+                        <div className="flex flex-wrap gap-3">
+                          {offlineSlots.map((s) => (
+                            <SlotChip key={s._id} slot={s} onToggle={handleToggleSlot} onDelete={handleDeleteSlot} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -458,4 +547,52 @@ export default function AdminBookingsPage() {
   );
 }
 
+// ── Slot Chip Component ──
+function SlotChip({
+  slot,
+  onToggle,
+  onDelete,
+}: {
+  slot: SlotInfo;
+  onToggle: (id: string, current: boolean) => void;
+  onDelete: (id: string) => void;
+}) {
+  return (
+    <div
+      className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-medium transition-all ${
+        slot.isBooked
+          ? "bg-red-50 border-red-200 text-red-700"
+          : slot.isEnabled
+          ? "bg-green-50 border-green-200 text-green-800"
+          : "bg-gray-100 border-gray-200 text-gray-500"
+      }`}
+    >
+      <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span>{slot.time}</span>
 
+      {slot.isBooked ? (
+        <span className="text-xs text-red-400 font-semibold">Booked</span>
+      ) : (
+        <>
+          <button
+            onClick={() => onToggle(slot._id, slot.isEnabled)}
+            className="text-xs underline hover:no-underline transition-all ml-1"
+          >
+            {slot.isEnabled ? "Disable" : "Enable"}
+          </button>
+          <button
+            onClick={() => onDelete(slot._id)}
+            className="hover:text-red-600 transition-colors ml-0.5"
+            title="Delete slot"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
