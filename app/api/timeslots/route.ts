@@ -4,8 +4,6 @@ import TimeSlot from "@/models/TimeSlot";
 import { withAdminAuth } from "@/lib/auth";
 import type { NextRequest } from "next/server";
 
-// GET /api/timeslots?date=YYYY-MM-DD&slotType=online|offline  → public: returns enabled+unbooked slots
-// GET /api/timeslots?admin=true                               → admin: returns all slots (optional date/slotType filter)
 export async function GET(req: NextRequest) {
   try {
     await connectDB();
@@ -26,7 +24,6 @@ export async function GET(req: NextRequest) {
     const slots = await TimeSlot.find(query).sort({ date: 1, time: 1 });
     return NextResponse.json(slots);
   } catch (error: unknown) {
-    console.error("[GET /api/timeslots]", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Internal server error" },
       { status: 500 }
@@ -34,7 +31,6 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// POST /api/timeslots  → admin only: create a new slot
 export const POST = withAdminAuth(async (req: NextRequest) => {
   try {
     await connectDB();
@@ -47,7 +43,6 @@ export const POST = withAdminAuth(async (req: NextRequest) => {
 
     const type = slotType === "offline" ? "offline" : "online";
 
-    // Check for duplicate (date + time + slotType combo)
     const existing = await TimeSlot.findOne({ date, time, slotType: type });
     if (existing) {
       return NextResponse.json({ error: `Slot already exists for this date, time and type (${type})` }, { status: 409 });
@@ -56,7 +51,6 @@ export const POST = withAdminAuth(async (req: NextRequest) => {
     const slot = await TimeSlot.create({ date, time, slotType: type, isBooked: false, isEnabled: true });
     return NextResponse.json(slot, { status: 201 });
   } catch (error: unknown) {
-    console.error("[POST /api/timeslots]", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Internal server error" },
       { status: 500 }
