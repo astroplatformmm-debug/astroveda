@@ -126,13 +126,13 @@ function CheckoutContent() {
     let valid = true;
     const newErrors = { name: "", email: "", phone: "", addressLine: "", city: "", state: "", pincode: "" };
 
+    // Required fields
     if (!formData.name.trim()) { newErrors.name = "Name is required."; valid = false; }
-    if (!/^\S+@\S+\.\S+$/.test(formData.email)) { newErrors.email = "Please enter a valid email address."; valid = false; }
     if (!/^\d{10}$/.test(formData.phone)) { newErrors.phone = "Phone number must be exactly 10 digits."; valid = false; }
-    if (!formData.addressLine.trim()) { newErrors.addressLine = "Address Line is required."; valid = false; }
-    if (!formData.city.trim()) { newErrors.city = "City is required."; valid = false; }
-    if (!formData.state.trim()) { newErrors.state = "State is required."; valid = false; }
-    if (!/^\d{6}$/.test(formData.pincode)) { newErrors.pincode = "Pincode must be exactly 6 digits."; valid = false; }
+
+    // Optional but validate format if filled
+    if (formData.email.trim() && !/^\S+@\S+\.\S+$/.test(formData.email)) { newErrors.email = "Please enter a valid email address."; valid = false; }
+    if (formData.pincode.trim() && !/^\d{6}$/.test(formData.pincode)) { newErrors.pincode = "Pincode must be exactly 6 digits."; valid = false; }
 
     setErrors(newErrors);
     return valid;
@@ -356,7 +356,7 @@ function CheckoutContent() {
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Name */}
               <div>
-                <label className="block text-sm font-bold text-[#0F172A] mb-1">{t("Full Name", "पूरा नाम")}</label>
+                <label className="block text-sm font-bold text-[#0F172A] mb-1">{t("Full Name", "पूरा नाम")} <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   className={`w-full px-4 py-2.5 rounded-lg border ${errors.name ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
@@ -370,7 +370,7 @@ function CheckoutContent() {
 
               {/* Email */}
               <div>
-                <label className="block text-sm font-bold text-[#0F172A] mb-1">{t("Email Address", "ईमेल पता")}</label>
+                <label className="block text-sm font-bold text-[#0F172A] mb-1">{t("Email Address", "ईमेल पता")} <span className="text-[#94A3B8] font-normal text-xs">(Optional)</span></label>
                 <input
                   type="email"
                   className={`w-full px-4 py-2.5 rounded-lg border ${errors.email ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
@@ -384,7 +384,7 @@ function CheckoutContent() {
 
               {/* Phone */}
               <div>
-                <label className="block text-sm font-bold text-[#0F172A] mb-1">{t("Phone Number", "फ़ोन नंबर")}</label>
+                <label className="block text-sm font-bold text-[#0F172A] mb-1">{t("Phone Number", "फ़ोन नंबर")} <span className="text-red-500">*</span></label>
                 <input
                   type="tel"
                   className={`w-full px-4 py-2.5 rounded-lg border ${errors.phone ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
@@ -401,7 +401,7 @@ function CheckoutContent() {
                 <h3 className="text-lg font-bold text-[#0F172A] mb-4 font-playfair">{t("Shipping Address", "डिलीवरी पता")}</h3>
                 <div className="space-y-5">
                   <div>
-                    <label className="block text-sm font-bold text-[#0F172A] mb-1">{t("Address Line", "पता पंक्ति")}</label>
+                    <label className="block text-sm font-bold text-[#0F172A] mb-1">{t("Address Line", "पता पंक्ति")} <span className="text-[#94A3B8] font-normal text-xs">(Optional)</span></label>
                     <input
                       type="text"
                       className={`w-full px-4 py-2.5 rounded-lg border ${errors.addressLine ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
@@ -415,7 +415,7 @@ function CheckoutContent() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-bold text-[#0F172A] mb-1">{t("City", "शहर")}</label>
+                      <label className="block text-sm font-bold text-[#0F172A] mb-1">{t("City", "शहर")} <span className="text-[#94A3B8] font-normal text-xs">(Optional)</span></label>
                       <input
                         type="text"
                         className={`w-full px-4 py-2.5 rounded-lg border ${errors.city ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
@@ -427,7 +427,7 @@ function CheckoutContent() {
                       {errors.city && <p className="mt-1 text-sm text-red-500">{errors.city}</p>}
                     </div>
                     <div>
-                      <label className="block text-sm font-bold text-[#0F172A] mb-1">{t("State", "राज्य")}</label>
+                      <label className="block text-sm font-bold text-[#0F172A] mb-1">{t("State", "राज्य")} <span className="text-[#94A3B8] font-normal text-xs">(Optional)</span></label>
                       <input
                         type="text"
                         className={`w-full px-4 py-2.5 rounded-lg border ${errors.state ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
@@ -441,7 +441,7 @@ function CheckoutContent() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-bold text-[#0F172A] mb-1">{t("Pincode", "पिन कोड")}</label>
+                    <label className="block text-sm font-bold text-[#0F172A] mb-1">{t("Pincode", "पिन कोड")} <span className="text-[#94A3B8] font-normal text-xs">(Optional)</span></label>
                     <input
                       type="text"
                       className={`w-full px-4 py-2.5 rounded-lg border ${errors.pincode ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
