@@ -4,7 +4,7 @@ import TimeSlot from "@/models/TimeSlot";
 import { withAdminAuth, RouteContext } from "@/lib/auth";
 import type { NextRequest } from "next/server";
 
-// PATCH /api/timeslots/[id]  → admin: toggle isEnabled
+// PATCH /api/timeslots/[id]  → admin: toggle isEnabled OR unbook a slot
 export const PATCH = withAdminAuth(async (req: NextRequest, context: RouteContext) => {
   try {
     await connectDB();
@@ -19,6 +19,17 @@ export const PATCH = withAdminAuth(async (req: NextRequest, context: RouteContex
     if (typeof body.isEnabled === "boolean") {
       slot.isEnabled = body.isEnabled;
     }
+
+    // Unbook: release the slot and cancel the associated order
+    if (body.unbook === true) {
+      if (slot.bookedByOrderId) {
+        const Order = (await import("@/models/Order")).default;
+        await Order.findByIdAndUpdate(slot.bookedByOrderId, { status: "cancelled" });
+      }
+      slot.isBooked = false;
+      slot.bookedByOrderId = undefined;
+    }
+
     await slot.save();
     return NextResponse.json(slot);
   } catch (error: unknown) {
