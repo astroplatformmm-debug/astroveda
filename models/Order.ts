@@ -3,7 +3,7 @@ import mongoose, { Schema, model, models } from "mongoose";
 const OrderSchema = new mongoose.Schema({
   userInfo: {
     name: { type: String, required: true },
-    email: { type: String, required: true },
+    email: { type: String, required: false, default: "" },
     phone: { type: String, required: true },
   },
   items: [
