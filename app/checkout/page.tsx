@@ -37,8 +37,8 @@ function CheckoutContent() {
 
   const [item, setItem] = useState<CheckoutItem | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("online");
-  const [formData, setFormData] = useState({ name: "", email: "", phone: "", addressLine: "", city: "", state: "", pincode: "" });
-  const [errors, setErrors] = useState({ name: "", email: "", phone: "", addressLine: "", city: "", state: "", pincode: "" });
+  const [formData, setFormData] = useState({ name: "", email: "", phone: "" });
+  const [errors, setErrors] = useState({ name: "", email: "", phone: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
   const [loadingItem, setLoadingItem] = useState(true);
@@ -124,15 +124,11 @@ function CheckoutContent() {
 
   const validate = () => {
     let valid = true;
-    const newErrors = { name: "", email: "", phone: "", addressLine: "", city: "", state: "", pincode: "" };
+    const newErrors = { name: "", email: "", phone: "" };
 
-    // Required fields
     if (!formData.name.trim()) { newErrors.name = "Name is required."; valid = false; }
     if (!/^\d{10}$/.test(formData.phone)) { newErrors.phone = "Phone number must be exactly 10 digits."; valid = false; }
-
-    // Optional but validate format if filled
     if (formData.email.trim() && !/^\S+@\S+\.\S+$/.test(formData.email)) { newErrors.email = "Please enter a valid email address."; valid = false; }
-    if (formData.pincode.trim() && !/^\d{6}$/.test(formData.pincode)) { newErrors.pincode = "Pincode must be exactly 6 digits."; valid = false; }
 
     setErrors(newErrors);
     return valid;
@@ -209,10 +205,6 @@ function CheckoutContent() {
         address: {
           fullName: formData.name,
           phone: formData.phone,
-          addressLine: formData.addressLine,
-          city: formData.city,
-          state: formData.state,
-          pincode: formData.pincode,
         },
         bookingSlot: serviceId && bookingDate && bookingTime ? { date: bookingDate, time: bookingTime, slotType: bookingSlotType } : undefined,
       }),
@@ -400,65 +392,6 @@ function CheckoutContent() {
                   disabled={isSubmitting}
                 />
                 {errors.phone && <p className="mt-1 text-sm text-red-500">{errors.phone}</p>}
-              </div>
-
-              {/* Shipping Address */}
-              <div className="pt-2 border-t border-[#E2E8F0] mt-2">
-                <h3 className="text-lg font-bold text-[#0F172A] mb-4 font-playfair">{t("Shipping Address", "डिलीवरी पता")}</h3>
-                <div className="space-y-5">
-                  <div>
-                    <label className="block text-sm font-bold text-[#0F172A] mb-1">{t("Address Line", "पता पंक्ति")} <span className="text-[#94A3B8] font-normal text-xs">(Optional)</span></label>
-                    <input
-                      type="text"
-                      className={`w-full px-4 py-2.5 rounded-lg border ${errors.addressLine ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
-                      placeholder={t("House/Flat No., Street, Area", "मकान/फ्लैट नं., गली, क्षेत्र")}
-                      value={formData.addressLine}
-                      onChange={(e) => updateField("addressLine", e.target.value)}
-                      disabled={isSubmitting}
-                    />
-                    {errors.addressLine && <p className="mt-1 text-sm text-red-500">{errors.addressLine}</p>}
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-bold text-[#0F172A] mb-1">{t("City", "शहर")} <span className="text-[#94A3B8] font-normal text-xs">(Optional)</span></label>
-                      <input
-                        type="text"
-                        className={`w-full px-4 py-2.5 rounded-lg border ${errors.city ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
-                        placeholder="City"
-                        value={formData.city}
-                        onChange={(e) => updateField("city", e.target.value)}
-                        disabled={isSubmitting}
-                      />
-                      {errors.city && <p className="mt-1 text-sm text-red-500">{errors.city}</p>}
-                    </div>
-                    <div>
-                      <label className="block text-sm font-bold text-[#0F172A] mb-1">{t("State", "राज्य")} <span className="text-[#94A3B8] font-normal text-xs">(Optional)</span></label>
-                      <input
-                        type="text"
-                        className={`w-full px-4 py-2.5 rounded-lg border ${errors.state ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
-                        placeholder="State"
-                        value={formData.state}
-                        onChange={(e) => updateField("state", e.target.value)}
-                        disabled={isSubmitting}
-                      />
-                      {errors.state && <p className="mt-1 text-sm text-red-500">{errors.state}</p>}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-bold text-[#0F172A] mb-1">{t("Pincode", "पिन कोड")} <span className="text-[#94A3B8] font-normal text-xs">(Optional)</span></label>
-                    <input
-                      type="text"
-                      className={`w-full px-4 py-2.5 rounded-lg border ${errors.pincode ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
-                      placeholder={t("6-digit Pincode", "6 अंकों का पिन कोड")}
-                      value={formData.pincode}
-                      onChange={(e) => updateField("pincode", e.target.value)}
-                      disabled={isSubmitting}
-                    />
-                    {errors.pincode && <p className="mt-1 text-sm text-red-500">{errors.pincode}</p>}
-                  </div>
-                </div>
               </div>
 
               {/* ── Payment Method ── */}
