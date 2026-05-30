@@ -229,7 +229,38 @@ export default function AdminBookingsPage() {
     } catch { /* ignore */ }
   };
 
-  // Count stats
+  // ── Unbook slot (releases slot + cancels order) ──
+  const handleUnbookSlot = async (slotId: string) => {
+    if (!confirm("Cancel this booking? The slot will be released and the order marked as cancelled.")) return;
+    try {
+      const res = await fetch(`/api/timeslots/${slotId}`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ unbook: true }),
+      });
+      if (res.ok) {
+        setSlots((prev) => prev.map((s) => s._id === slotId ? { ...s, isBooked: false, bookedByOrderId: undefined } : s));
+        setSlotSuccess("Booking cancelled and slot released successfully.");
+        // Refresh bookings list too
+        fetch("/api/orders", { credentials: "include" })
+          .then((r) => r.json())
+          .then((data) => {
+            const all: BookingOrder[] = Array.isArray(data) ? data : [];
+            setBookings(all.sort((a, b) => {
+              if (a.bookingSlot && !b.bookingSlot) return -1;
+              if (!a.bookingSlot && b.bookingSlot) return 1;
+              return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+            }));
+          });
+      } else {
+        const d = await res.json();
+        setSlotError(d.error || "Failed to cancel booking");
+      }
+    } catch {
+      setSlotError("Network error");
+    }
+  };
   const onlineCount = slots.filter((s) => s.slotType === "online").length;
   const offlineCount = slots.filter((s) => s.slotType === "offline").length;
 
@@ -517,7 +548,7 @@ export default function AdminBookingsPage() {
                         </div>
                         <div className="flex flex-wrap gap-3">
                           {onlineSlots.map((s) => (
-                            <SlotChip key={s._id} slot={s} onToggle={handleToggleSlot} onDelete={handleDeleteSlot} />
+                            <SlotChip key={s._id} slot={s} onToggle={handleToggleSlot} onDelete={handleDeleteSlot} onUnbook={handleUnbookSlot} />
                           ))}
                         </div>
                       </div>
@@ -531,7 +562,7 @@ export default function AdminBookingsPage() {
                         </div>
                         <div className="flex flex-wrap gap-3">
                           {offlineSlots.map((s) => (
-                            <SlotChip key={s._id} slot={s} onToggle={handleToggleSlot} onDelete={handleDeleteSlot} />
+                            <SlotChip key={s._id} slot={s} onToggle={handleToggleSlot} onDelete={handleDeleteSlot} onUnbook={handleUnbookSlot} />
                           ))}
                         </div>
                       </div>
@@ -552,10 +583,12 @@ function SlotChip({
   slot,
   onToggle,
   onDelete,
+  onUnbook,
 }: {
   slot: SlotInfo;
   onToggle: (id: string, current: boolean) => void;
   onDelete: (id: string) => void;
+  onUnbook: (id: string) => void;
 }) {
   return (
     <div
@@ -573,7 +606,16 @@ function SlotChip({
       <span>{slot.time}</span>
 
       {slot.isBooked ? (
-        <span className="text-xs text-red-400 font-semibold">Booked</span>
+        <>
+          <span className="text-xs text-red-400 font-semibold">Booked</span>
+          <button
+            onClick={() => onUnbook(slot._id)}
+            className="ml-1 text-xs bg-red-100 hover:bg-red-200 text-red-700 font-semibold px-2 py-0.5 rounded-lg border border-red-200 transition-all"
+            title="Cancel booking and release slot"
+          >
+            ✕ Cancel
+          </button>
+        </>
       ) : (
         <>
           <button
