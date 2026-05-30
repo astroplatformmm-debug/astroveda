@@ -227,9 +227,9 @@ function CheckoutContent() {
 
   // ── Online payment handler ────────────────────────────────────────────────
   const handleOnlinePayment = async () => {
+    setCheckoutError("");
     if (!validate()) return;
     setIsSubmitting(true);
-    setCheckoutError("");
     try {
       const orderId = await createOrder("online");
       orderIdRef.current = orderId;
@@ -312,7 +312,7 @@ function CheckoutContent() {
               console.error("Status check error:", err);
             }
             setIsSubmitting(false);
-            setCheckoutError("Payment was not completed. Please try again.");
+            // User closed the modal — don't show an error, just re-enable the button
           },
         },
         prefill: { name: formData.name, email: formData.email, contact: formData.phone },
@@ -341,6 +341,11 @@ function CheckoutContent() {
     handleOnlinePayment();
   };
 
+  const updateField = (field: keyof typeof formData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (checkoutError) setCheckoutError("");
+  };
+
   return (
     <div className="bg-[#FAF7F2] min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 md:py-20 min-w-0">
@@ -362,7 +367,7 @@ function CheckoutContent() {
                   className={`w-full px-4 py-2.5 rounded-lg border ${errors.name ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
                   placeholder={t("Enter your full name", "अपना पूरा नाम दर्ज करें")}
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) => updateField("name", e.target.value)}
                   disabled={isSubmitting}
                 />
                 {errors.name && <p className="mt-1 text-sm text-red-500">{errors.name}</p>}
@@ -376,7 +381,7 @@ function CheckoutContent() {
                   className={`w-full px-4 py-2.5 rounded-lg border ${errors.email ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
                   placeholder={t("you@example.com", "your@email.com")}
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) => updateField("email", e.target.value)}
                   disabled={isSubmitting}
                 />
                 {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email}</p>}
@@ -390,7 +395,7 @@ function CheckoutContent() {
                   className={`w-full px-4 py-2.5 rounded-lg border ${errors.phone ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
                   placeholder={t("10-digit mobile number", "10 अंकों का मोबाइल नंबर")}
                   value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  onChange={(e) => updateField("phone", e.target.value)}
                   disabled={isSubmitting}
                 />
                 {errors.phone && <p className="mt-1 text-sm text-red-500">{errors.phone}</p>}
@@ -407,7 +412,7 @@ function CheckoutContent() {
                       className={`w-full px-4 py-2.5 rounded-lg border ${errors.addressLine ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
                       placeholder={t("House/Flat No., Street, Area", "मकान/फ्लैट नं., गली, क्षेत्र")}
                       value={formData.addressLine}
-                      onChange={(e) => setFormData({ ...formData, addressLine: e.target.value })}
+                      onChange={(e) => updateField("addressLine", e.target.value)}
                       disabled={isSubmitting}
                     />
                     {errors.addressLine && <p className="mt-1 text-sm text-red-500">{errors.addressLine}</p>}
@@ -421,7 +426,7 @@ function CheckoutContent() {
                         className={`w-full px-4 py-2.5 rounded-lg border ${errors.city ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
                         placeholder="City"
                         value={formData.city}
-                        onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                        onChange={(e) => updateField("city", e.target.value)}
                         disabled={isSubmitting}
                       />
                       {errors.city && <p className="mt-1 text-sm text-red-500">{errors.city}</p>}
@@ -433,7 +438,7 @@ function CheckoutContent() {
                         className={`w-full px-4 py-2.5 rounded-lg border ${errors.state ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
                         placeholder="State"
                         value={formData.state}
-                        onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                        onChange={(e) => updateField("state", e.target.value)}
                         disabled={isSubmitting}
                       />
                       {errors.state && <p className="mt-1 text-sm text-red-500">{errors.state}</p>}
@@ -447,7 +452,7 @@ function CheckoutContent() {
                       className={`w-full px-4 py-2.5 rounded-lg border ${errors.pincode ? "border-red-500 focus:ring-red-500" : "border-[#E2E8F0] focus:ring-[#F97316] focus:border-[#F97316]"} focus:outline-none focus:ring-2`}
                       placeholder={t("6-digit Pincode", "6 अंकों का पिन कोड")}
                       value={formData.pincode}
-                      onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
+                      onChange={(e) => updateField("pincode", e.target.value)}
                       disabled={isSubmitting}
                     />
                     {errors.pincode && <p className="mt-1 text-sm text-red-500">{errors.pincode}</p>}
