@@ -330,8 +330,9 @@ function CheckoutContent() {
       razorpay.open();
       pollInterval = startPolling(orderId);
     } catch (err: unknown) {
-      console.error("Online payment failed:", err instanceof Error ? err.message : err);
-      setCheckoutError("Payment failed. Please try again.");
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error("Online payment failed:", msg);
+      setCheckoutError("Error: " + msg);
       setIsSubmitting(false);
     }
   };
