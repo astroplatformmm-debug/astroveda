@@ -509,15 +509,28 @@ export default function ServiceDetail() {
               )}
             </div>
 
-            {/* Description */}
-            {service.description && (
+            {/* Key Points checklist — shown right below the price */}
+            {service.keyPoints && service.keyPoints.length > 0 && (
               <div className="mt-5">
-                <p className="text-sm text-[#475569] leading-relaxed">{service.description}</p>
+                <p className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest mb-3">What you get</p>
+                <div className="flex flex-col gap-2">
+                  {service.keyPoints.map((kp, i) => (
+                    <div key={i} className="flex items-start gap-2.5">
+                      <svg className="w-4 h-4 text-[#F97316] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <div>
+                        <p className="text-sm text-[#0F172A] font-medium">{kp.label}</p>
+                        {kp.desc && <p className="text-xs text-[#64748B] mt-0.5">{kp.desc}</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
-            {/* Benefits */}
-            {service.benefits && service.benefits.length > 0 && (
+            {/* Benefits (legacy fallback if no keyPoints) */}
+            {(!service.keyPoints || service.keyPoints.length === 0) && service.benefits && service.benefits.length > 0 && (
               <div className="mt-5">
                 <p className="text-xs font-bold text-[#94A3B8] uppercase tracking-widest mb-3">What you get</p>
                 <div className="flex flex-col gap-3">
@@ -537,9 +550,10 @@ export default function ServiceDetail() {
             )}
 
             {/* Mini trust cards */}
-            <div className="mt-5 grid grid-cols-3 gap-2">
+            <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2">
               {[
                 { icon: "🔒", label: "Private", value: "100% Confidential" },
+                { icon: "💎", label: "Gemstones", value: "Personalised Pick" },
                 { icon: "⚡", label: "Response", value: "Within 24 hrs" },
                 { icon: "🏆", label: "Certified", value: "ISO 9001:2015" },
               ].map((c) => (
@@ -587,10 +601,11 @@ export default function ServiceDetail() {
             </div>
 
             {/* Trust badges row */}
-            <div className="mt-8 pt-6 border-t border-[#E2E8F0] grid grid-cols-3 gap-4">
+            <div className="mt-8 pt-6 border-t border-[#E2E8F0] grid grid-cols-2 gap-4">
               {[
                 { bg: "bg-[#FFF7ED]", color: "text-[#F97316]", title: "Secure & Private", sub: "100% confidential", path: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" },
                 { bg: "bg-blue-50", color: "text-blue-600", title: "Expert Guidance", sub: "25+ yrs experience", path: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" },
+                { bg: "bg-purple-50", color: "text-purple-600", title: "Gemstone Guidance", sub: "Vedic recommendations", path: "M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" },
                 { bg: "bg-amber-50", color: "text-amber-600", title: "ISO Certified", sub: "9001:2015 standard", path: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" },
               ].map((b) => (
                 <div key={b.title} className="flex items-center gap-3">
