@@ -634,25 +634,7 @@ export default function ServiceDetail() {
           </div>
         </div>
 
-        {/* Key Points / What's Included */}
-        {service.keyPoints && service.keyPoints.length > 0 && (
-          <div className="mt-8 bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-6 sm:p-8">
-            <h2 className="font-playfair text-2xl font-bold text-[#0F172A] mb-6">What&apos;s Included</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {service.keyPoints.map((kp, i) => (
-                <div key={i} className="flex items-start gap-3 p-4 bg-[#FFF7ED] rounded-xl border border-[#FED7AA]">
-                  <div className="w-8 h-8 bg-[#F97316] rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0 mt-0.5">
-                    {i + 1}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-[#0F172A]">{kp.label}</p>
-                    {kp.desc && <p className="text-sm text-[#64748B] mt-0.5">{kp.desc}</p>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+
 
         {/* FAQ */}
         {service.faq && service.faq.length > 0 && (
