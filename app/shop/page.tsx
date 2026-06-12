@@ -117,12 +117,11 @@ function ShopCard({ product }: { product: Product }) {
 // ─── Trust bar ───────────────────────────────────────────────────────────────
 function TrustBar() {
   return (
-    <div className="border-t border-[#F0EBE3] mt-10 pt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="border-t border-[#F0EBE3] mt-10 pt-8 grid grid-cols-3 gap-4">
       {[
         { icon: "⚡", title: "Energised & Blessed", sub: "Personally energised and mantra charged" },
         { icon: "💎", title: "100% Authentic", sub: "Lab tested, certified and authentic products" },
         { icon: "📦", title: "Secure Packaging", sub: "Safe, insured & discreet worldwide shipping" },
-        { icon: "🔄", title: "Easy Returns", sub: "Hassle-free 7-day returns" },
       ].map((i) => (
         <div key={i.title} className="flex items-start gap-3">
           <div className="w-10 h-10 rounded-full bg-[#FFF3E8] flex items-center justify-center text-lg flex-shrink-0">{i.icon}</div>
