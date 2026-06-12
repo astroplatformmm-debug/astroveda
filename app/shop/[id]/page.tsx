@@ -412,12 +412,11 @@ export default function GemstoneDetail() {
             )}
 
             {/* Mini info cards */}
-            <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="mt-5 grid grid-cols-3 gap-2">
               {[
                 { icon: "💎", label: "Quality", value: "AAA++ Certified" },
                 { icon: "⚡", label: "Energized", value: "Pre-charged" },
                 { icon: "🚚", label: "Shipping", value: "Free & Fast" },
-                { icon: "🔄", label: "Returns", value: "7-day easy" },
               ].map((c) => (
                 <div key={c.label} className="bg-white border border-[#E2E8F0] rounded-xl p-3 flex flex-col gap-1">
                   <span className="text-xs text-[#94A3B8]">{c.icon} {c.label}</span>
@@ -476,11 +475,10 @@ export default function GemstoneDetail() {
             </div>
 
             {/* Trust badges */}
-            <div className="mt-8 pt-6 border-t border-[#E2E8F0] grid grid-cols-2 gap-4">
+            <div className="mt-8 pt-6 border-t border-[#E2E8F0] grid grid-cols-3 gap-4">
               {[
                 { bg: "bg-[#FFF7ED]", color: "text-[#F97316]", title: "Secure Payment", sub: "256-bit SSL encryption", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /> },
                 { bg: "bg-blue-50", color: "text-blue-600", title: "Fast Shipping", sub: "Insured, ships in 24h", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /> },
-                { bg: "bg-green-50", color: "text-green-600", title: "Easy Returns", sub: "48-hour return window", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /> },
                 { bg: "bg-amber-50", color: "text-amber-600", title: "Lab Certified", sub: "AAA++ authentic gems", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /> },
               ].map((b) => (
                 <div key={b.title} className="flex items-center gap-3">
@@ -503,7 +501,7 @@ export default function GemstoneDetail() {
             </div>
             <div>
               <h3 className="font-bold text-lg text-[#0F172A]">Mukesh Ravindra Gupta</h3>
-              <p className="text-[#F97316] text-sm font-semibold mb-3">Vedic Astrologer &middot; 15+ Years Experience &middot; ISO 9001:2015 Certified</p>
+              <p className="text-[#F97316] text-sm font-semibold mb-3">Vedic Astrologer &middot; 25+ Years of Experience &middot; ISO 9001:2015 Certified</p>
               <p className="text-[#64748B] text-sm leading-relaxed">Each bracelet is personally selected and energized by Mukesh Ravindra Gupta using Vedic mantras aligned to current planetary positions. With over 5,000 clients guided across India, Mukesh ji brings deep expertise in Jyotish, gemstone therapy, and Kundli analysis. Every product is dispatched only after the complete energization ritual, ensuring the bracelet carries genuine positive vibrations for the wearer.</p>
             </div>
           </div>
