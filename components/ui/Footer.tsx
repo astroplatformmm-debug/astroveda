@@ -106,7 +106,7 @@ export default function Footer() {
           </ul>
 
           <div className="mt-8">
-            <h5 className="text-[#0F172A] font-semibold mb-3 text-sm">Our Location</h5>
+            <h5 className="text-[#0F172A] font-semibold mb-3 text-sm">Astrology Services Available Online Worldwide & Offline in Vadodara, Gujarat</h5>
 
             <a
               href="https://www.google.com/maps/place/Omkkaar,+ff+22,+Emperor+Building,+Fatehgunj,+Vadodara"
