@@ -144,19 +144,19 @@ export default function Home() {
               ✦ {t("EXPERT VEDIC ASTROLOGY", "विशेषज्ञ वैदिक ज्योतिष")}
             </span>
             <h1 className="font-playfair text-5xl md:text-6xl lg:text-7xl font-black leading-tight break-words">
-              <span className="text-[#0F172A]">{t("TALK TO", "बात करें")}</span>{" "}
-              <span className="text-[#F97316]">{t("EXPERT ASTROLOGER NOW!", "विशेषज्ञ ज्योतिषी से अभी!")}</span>
+              <span className="text-[#0F172A]">{t("Best Astrology Services", "सर्वश्रेष्ठ ज्योतिष सेवाएं")}</span>{" "}
+              <span className="text-[#F97316]">{t("Online & Offline in Vadodara, Gujarat", "वडोदरा, गुजरात में ऑनलाइन और ऑफलाइन")}</span>
             </h1>
             <p className="text-xl md:text-2xl font-semibold text-[#0F172A] mt-4">
               {t(
-                "Get Your Personalized Kundali Report + Expert Consultation from Certified Vedic Astrologer",
-                "प्रमाणित वैदिक ज्योतिषी से व्यक्तिगत कुंडली रिपोर्ट + विशेषज्ञ परामर्श प्राप्त करें"
+                "Accurate Astrology Solutions for Life, Career, Business & Relationships",
+                "जीवन, करियर, व्यवसाय और रिश्तों के लिए सटीक ज्योतिषीय समाधान"
               )}
             </p>
             <p className="text-[#64748B] text-base md:text-lg leading-relaxed max-w-lg">
               {t(
-                "Discover your cosmic destiny, career path, love life, and financial future through ancient Vedic wisdom. Receive a detailed PDF report + 30-minute consultation within 24 hours.",
-                "प्राचीन वैदिक ज्ञान से अपनी ब्रह्मांडीय नियति, करियर, प्रेम और आर्थिक भविष्य जानें। 24 घंटे में विस्तृत PDF रिपोर्ट + 30 मिनट परामर्श पाएं।"
+                "Omkkaar Astroworld – Leading Astrologer in Vadodara, Gujarat Offering Online & Offline Astrology Consultation with 25+ Years of Experience",
+                "ओमक्कार एस्ट्रोवर्ल्ड – वडोदरा, गुजरात के प्रमुख ज्योतिषी, 25+ वर्षों के अनुभव के साथ ऑनलाइन और ऑफलाइन ज्योतिष परामर्श प्रदान करते हैं।"
               )}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
@@ -175,7 +175,7 @@ export default function Home() {
 
           <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl border border-[#E2E8F0] relative max-w-md mx-auto w-full">
             <span className="absolute -top-4 -right-2 sm:-right-4 bg-white border border-[#E2E8F0] text-[#0F172A] font-bold text-xs sm:text-sm px-3 py-1.5 sm:px-4 sm:py-2 rounded-full shadow-lg z-10">
-              🏅 {t("25+ Years of Experience", "25+ वर्षों का अनुभव")}
+              🏅 {t("25+ Years of Trusted Astrology Experience in Vadodara, Gujarat", "वडोदरा, गुजरात में 25+ वर्षों का विश्वसनीय ज्योतिष अनुभव")}
             </span>
             <div className="w-full min-h-48 sm:min-h-64 max-h-80 sm:max-h-none sm:h-64 bg-gray-100 rounded-xl mb-6 overflow-hidden">
               <img src="/astrologer.png" alt="Expert Astrologer" className="w-full h-full min-h-48 sm:min-h-64 object-cover object-[50%_15%] sm:scale-110 max-w-full" />
@@ -254,7 +254,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto min-w-0">
           <div className="text-center mb-16">
             <h2 className="font-playfair text-2xl sm:text-3xl lg:text-4xl font-bold text-[#0F172A] px-2">
-              {t("Trusted by 5,000+ Clients Worldwide", "5,000+ ग्राहकों का विश्वास")}
+              {t("Trusted by Thousands of Clients for Accurate Astrology Guidance", "सटीक ज्योतिष मार्गदर्शन के लिए हजारों ग्राहकों का विश्वास")}
             </h2>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-6 sm:gap-6 mb-20 text-center">
