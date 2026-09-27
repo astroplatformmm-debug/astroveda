@@ -8,11 +8,11 @@ import { LanguageProvider } from "@/context/LanguageContext";
 
 export const metadata: Metadata = {
   title: {
-    default: "Best Vedic Astrologer in Vadodara | Gemstones & Vastu – Omkkaar",
+    default: "Best Astrology Services Online & Offline in Vadodara, Gujarat – Omkkaar",
     template: "%s | Omkkaar Astroworld",
   },
   description:
-    "Consult certified Vedic astrologer Mukesh Gupta in Vadodara. 25+ yrs experience. Kundli reports, Vastu consultation, genuine gemstones & Rudraksha. 12,000+ happy clients. Book now!",
+    "Accurate astrology solutions for life, career, business & relationships. Online & offline astrology consultation in Vadodara, Gujarat with 25+ years of experience.",
   keywords: [
     "astrologer in Vadodara",
     "Vedic astrologer Vadodara",
@@ -37,9 +37,9 @@ export const metadata: Metadata = {
     locale: "en_IN",
     url: "https://www.omkkaar.com",
     siteName: "Omkkaar Astroworld",
-    title: "Best Vedic Astrologer in Vadodara | Gemstones & Vastu – Omkkaar",
+    title: "Best Astrology Services Online & Offline in Vadodara, Gujarat – Omkkaar",
     description:
-      "Consult certified Vedic astrologer Mukesh Gupta. Kundali reports, Vastu, genuine gemstones & Rudraksha. 12,000+ happy clients.",
+      "Accurate astrology solutions for life, career, business & relationships. Online & offline astrology consultation in Vadodara, Gujarat with 25+ years of experience.",
     images: [
       {
         url: "/astrologer.png",
@@ -53,9 +53,9 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: "@AstroworldOmkar",
     creator: "@AstroworldOmkar",
-    title: "Best Vedic Astrologer in Vadodara | Omkkaar Astroworld",
+    title: "Best Astrology Services Online & Offline in Vadodara, Gujarat | Omkkaar Astroworld",
     description:
-      "Expert Vedic astrology, Kundali, Vastu & genuine gemstones from Vadodara. 25+ years experience.",
+      "Online & offline astrology services in Vadodara, Gujarat. Accurate astrology guidance for life, career, business & relationships with 25+ years of experience.",
     images: ["/astrologer.png"],
   },
   verification: {
