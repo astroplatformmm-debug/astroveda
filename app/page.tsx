@@ -197,7 +197,7 @@ export default function Home() {
             </ul>
             <Link href="/contact">
               <button className="block w-full py-3.5 bg-[#F97316] text-white font-bold rounded-lg hover:bg-[#EA6C0A] transition-all duration-200 text-center shadow-md">
-                {t("Consult Now", "अभी परामर्श करें")}
+                {t("Book Your Astrology Consultation Online or Visit Our Office in Vadodara", "अपना ज्योतिष परामर्श ऑनलाइन बुक करें या वडोदरा कार्यालय आएं")}
               </button>
             </Link>
           </div>
