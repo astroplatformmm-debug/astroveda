@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     template: "%s | Omkkaar Astroworld",
   },
   description:
-    "Omkkaar Astroworld offers accurate astrology services online and offline in Vadodara, Gujarat, including astrology consultation, Vastu, numerology, Lal Kitab remedies and tarot guidance.",
+    "Accurate astrology solutions for life, career, business and relationships. Online and offline astrology consultation in Vadodara, Gujarat.",
   keywords: [
     "best astrologer in Vadodara",
     "astrology services in Vadodara",
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: "@AstroworldOmkar",
     creator: "@AstroworldOmkar",
-    title: "Best Astrology Services Online & Offline in Vadodara | Omkkaar Astroworld",
+    title: "Best Vedic Astrologer in Vadodara | Omkkaar Astroworld",
     description:
       "Accurate astrology services, Vastu, numerology, Lal Kitab remedies and tarot guidance online and offline in Vadodara, Gujarat.",
     images: ["/astrologer.png"],
@@ -83,7 +83,7 @@ const jsonLd = {
       "@id": "https://www.omkkaar.com/#business",
       name: "Omkkaar Astroworld",
       description:
-        "ISO 9001-2015 certified Vedic astrology, Vastu consulting, and genuine gemstone shop in Vadodara, Gujarat. Expert guidance from Mukesh Ravindra Gupta with 25+ years of experience.",
+        "Omkkaar Astroworld – Leading Astrologer in Vadodara, Gujarat Offering Online & Offline Astrology Consultation with 25+ Years of Experience",
       url: "https://www.omkkaar.com",
       telephone: "+917069110573",
       email: "askme@omkkaar.com",
