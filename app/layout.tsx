@@ -8,22 +8,22 @@ import { LanguageProvider } from "@/context/LanguageContext";
 
 export const metadata: Metadata = {
   title: {
-    default: "Best Vedic Astrologer in Vadodara | Gemstones & Vastu – Omkkaar",
+    default: "Best Astrology Services Online & Offline in Vadodara, Gujarat | Omkkaar Astroworld",
     template: "%s | Omkkaar Astroworld",
   },
   description:
-    "Consult certified Vedic astrologer Mukesh Gupta in Vadodara. 25+ yrs experience. Kundli reports, Vastu consultation, genuine gemstones & Rudraksha. 12,000+ happy clients. Book now!",
+    "Omkkaar Astroworld offers accurate astrology services online and offline in Vadodara, Gujarat, including astrology consultation, Vastu, numerology, Lal Kitab remedies and tarot guidance.",
   keywords: [
-    "astrologer in Vadodara",
-    "Vedic astrologer Vadodara",
-    "Kundali reading online",
-    "Vastu consultant Vadodara",
-    "buy gemstones online India",
-    "original Rudraksha online",
-    "Lal Kitab remedies",
-    "numerology consultant",
-    "omkkaar astroworld",
-    "Mukesh Gupta astrologer",
+    "best astrologer in Vadodara",
+    "astrology services in Vadodara",
+    "online astrology consultation",
+    "offline astrology consultation Vadodara",
+    "astrologer in Vadodara Gujarat",
+    "Vastu consultant in Vadodara",
+    "numerologist in Vadodara",
+    "Lal Kitab remedies in Gujarat",
+    "tarot card reading online",
+    "Omkkaar Astroworld",
   ],
   authors: [{ name: "Mukesh Ravindra Gupta", url: "https://www.omkkaar.com/about" }],
   creator: "Omkkaar Astroworld",
@@ -37,9 +37,9 @@ export const metadata: Metadata = {
     locale: "en_IN",
     url: "https://www.omkkaar.com",
     siteName: "Omkkaar Astroworld",
-    title: "Best Vedic Astrologer in Vadodara | Gemstones & Vastu – Omkkaar",
+    title: "Best Astrology Services Online & Offline in Vadodara, Gujarat | Omkkaar Astroworld",
     description:
-      "Consult certified Vedic astrologer Mukesh Gupta. Kundali reports, Vastu, genuine gemstones & Rudraksha. 12,000+ happy clients.",
+      "Accurate astrology solutions for life, career, business and relationships. Online and offline astrology consultation in Vadodara, Gujarat.",
     images: [
       {
         url: "/astrologer.png",
@@ -53,9 +53,9 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: "@AstroworldOmkar",
     creator: "@AstroworldOmkar",
-    title: "Best Vedic Astrologer in Vadodara | Omkkaar Astroworld",
+    title: "Best Astrology Services Online & Offline in Vadodara | Omkkaar Astroworld",
     description:
-      "Expert Vedic astrology, Kundali, Vastu & genuine gemstones from Vadodara. 25+ years experience.",
+      "Accurate astrology services, Vastu, numerology, Lal Kitab remedies and tarot guidance online and offline in Vadodara, Gujarat.",
     images: ["/astrologer.png"],
   },
   verification: {
