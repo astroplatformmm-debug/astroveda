@@ -11,11 +11,11 @@ export type ServiceCategorySlug = (typeof SERVICE_CATEGORY_ENUM)[number];
 const ALLOWED = new Set<string>(SERVICE_CATEGORY_ENUM);
 
 export const SERVICE_CATEGORY_LABELS: Record<ServiceCategorySlug, string> = {
-  astrology: "Astrology",
+  astrology: "Online & Offline Astrology Consultation in Vadodara",
   puja: "Puja",
-  numerology: "Numerology",
-  vastu: "Vastu",
-  tarot: "Tarot Reading",
+  numerology: "Numerology Consultation for Name Correction, Lucky Number & More",
+  vastu: "Vastu Shastra Consultation Online & Offline in Vadodara",
+  tarot: "Tarot Card Reading Online & Offline for Guidance & Clarity",
 };
 
 export const SERVICE_CATEGORY_ICONS: Record<ServiceCategorySlug, string> = {
